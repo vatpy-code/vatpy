@@ -1,4 +1,4 @@
-config.py
+configv.py
 .DS_Store
 __pycache__
 vatpy/__pycache__

@@ -22,14 +22,19 @@ from .get_gas_property import temperature
 from .interpolation import interpolate_to_2d, interpolate_to_2d_kdtree
 from .get_black_hole_data import get_black_hole_data
 
+import configv
+homedir = configv.homedir
+mplstyle = configv.mplstyle
+
 # -------------- TerminalPlot
 class TerminalPlot:
     '''
     TerminalPlot:
     '''
     def __init__(self, file, savepath=os.getcwd(), saveformat='png',
-                 style=None, vmin=None, vmax=None, xlim=None, ylim=None,
-                 unitlength='kpc', interactive=True, width=None):
+                 style=mplstyle, vmin=None, vmax=None, 
+                 xlim=None, ylim=None, unitlength='kpc', 
+                 interactive=True, width=None):
         # Variables:
         self.file = file
         self.style = style
@@ -54,7 +59,7 @@ class TerminalPlot:
         self.Myr = 1e6 * 365.25 * 24 * 60 * 60  # [s]
 
         # Mpl style:
-        plt.style.use(self.style)
+        plt.style.use(f'{homedir}/vatpy/mpl/{self.style}.mplstyle')
 
         # Unit length:
         if self.unitlength == 'kpc':
@@ -83,9 +88,9 @@ class TerminalPlot:
         print(f'  | BoxSize : {np.round(boxsize, 2)} kpc')
         print('  |')
         print('  | Number of particles')
-        print(f'  | PartType0 (gas)   :   {numpart[0]}')
-        print(f'  | PartType1 (halo)  :  {numpart[1]}')
-        print(f'  | PartType2 (disk)  :  {numpart[2]}')
+        print(f'  | PartType0 (gas)   : {numpart[0]}')
+        print(f'  | PartType1 (halo)  : {numpart[1]}')
+        print(f'  | PartType2 (disk)  : {numpart[2]}')
         print(f'  | PartType3 (bulge) : {numpart[3]}')
         print(f'  | PartType4 (stars) : {numpart[4]}')
         print(f'  | PartType5 (bndry) : {numpart[5]}')
@@ -129,18 +134,18 @@ class TerminalPlot:
             pos -= bh
 
         # Coordinate ranges:
-        if not (box):
-            if not (xrange):
+        if not box:
+            if not xrange:
                 if blackholefocus:
                     xrange = (-boxsize/2, boxsize/2)
                 else:
                     xrange = (0, boxsize)
-            if not (yrange):
+            if not yrange:
                 if blackholefocus:
                     yrange = (-boxsize/2, boxsize/2)
                 else:
                     yrange = (0, boxsize)
-            if not (zrange):
+            if not zrange:
                 if blackholefocus:
                     zrange = (-boxsize/2, boxsize/2)
                 else:
@@ -260,18 +265,18 @@ class TerminalPlot:
             pos -= bh
 
         # Coordinate ranges:
-        if not (box):
-            if not (xrange):
+        if not box:
+            if not xrange:
                 if blackholefocus:
                     xrange = (-boxsize/2, boxsize/2)
                 else:
                     xrange = (0, boxsize)
-            if not (yrange):
+            if not yrange:
                 if blackholefocus:
                     yrange = (-boxsize/2, boxsize/2)
                 else:
                     yrange = (0, boxsize)
-            if not (zrange):
+            if not zrange:
                 if blackholefocus:
                     zrange = (-boxsize/2, boxsize/2)
                 else:
@@ -426,8 +431,8 @@ class TerminalPlot:
 
         # Stellar material:
         pos_disk = h['PartType2']['Coordinates'] * iu['ulength'] / self.kpc
-        mass_disk = np.full(len(pos_disk), h['Header'].attrs['MassTable'][2]
-                            * iu['umass'] / self.Msol)
+        mass_disk = h['PartType2']['Masses'] * iu['umass'] / self.Msol
+        
         pos = pos_disk
         mass = mass_disk
 
@@ -437,18 +442,18 @@ class TerminalPlot:
             pos -= bh
 
         # Coordinate ranges:
-        if not (box):
-            if not (xrange):
+        if not box:
+            if not xrange:
                 if blackholefocus:
                     xrange = (-boxsize/2, boxsize/2)
                 else:
                     xrange = (0, boxsize)
-            if not (yrange):
+            if not yrange:
                 if blackholefocus:
                     yrange = (-boxsize/2, boxsize/2)
                 else:
                     yrange = (0, boxsize)
-            if not (zrange):
+            if not zrange:
                 if blackholefocus:
                     zrange = (-boxsize/2, boxsize/2)
                 else:
@@ -459,9 +464,12 @@ class TerminalPlot:
             zrange = (box[0], box[1])
         xbins, dx = np.linspace(xrange[0], xrange[1], bins, retstep=True)
         ybins, dy = np.linspace(yrange[0], yrange[1], bins, retstep=True)
+        
+        # Remove data outside the zrange:
         if zrange:
-            pos = pos[(pos[:, 2] > np.min(zrange))
-                      * (pos[:, 2] < np.max(zrange))]
+            mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
+            pos = pos[mask]
+            mass = mass[mask]
 
         # Rotation:
         if rotate != 0:
@@ -536,18 +544,18 @@ class TerminalPlot:
             pos -= bh
 
         # Coordinate ranges:
-        if not (box):
-            if not (xrange):
+        if not box:
+            if not xrange:
                 if blackholefocus:
                     xrange = (-boxsize/2, boxsize/2)
                 else:
                     xrange = (0, boxsize)
-            if not (yrange):
+            if not yrange:
                 if blackholefocus:
                     yrange = (-boxsize/2, boxsize/2)
                 else:
                     yrange = (0, boxsize)
-            if not (zrange):
+            if not zrange:
                 if blackholefocus:
                     zrange = (-boxsize/2, boxsize/2)
                 else:
@@ -558,9 +566,12 @@ class TerminalPlot:
             zrange = (box[0], box[1])
         xbins, dx = np.linspace(xrange[0], xrange[1], bins, retstep=True)
         ybins, dy = np.linspace(yrange[0], yrange[1], bins, retstep=True)
+        
+        # Remove data outside the zrange:
         if zrange:
-            pos = pos[(pos[:, 2] > np.min(zrange))
-                      * (pos[:, 2] < np.max(zrange))]
+            mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
+            pos = pos[mask]
+            mass = mass[mask]
 
         # Rotation:
         if rotate != 0:
@@ -636,18 +647,18 @@ class TerminalPlot:
             pos_star -= bh
 
         # Coordinate ranges:
-        if not (box):
-            if not (xrange):
+        if not box:
+            if not xrange:
                 if blackholefocus:
                     xrange = (-boxsize/2, boxsize/2)
                 else:
                     xrange = (0, boxsize)
-            if not (yrange):
+            if not yrange:
                 if blackholefocus:
                     yrange = (-boxsize/2, boxsize/2)
                 else:
                     yrange = (0, boxsize)
-            if not (zrange):
+            if not zrange:
                 if blackholefocus:
                     zrange = (-boxsize/2, boxsize/2)
                 else:
@@ -762,18 +773,18 @@ class TerminalPlot:
             pos_star -= bh
 
         # Coordinate ranges:
-        if not (box):
-            if not (xrange):
+        if not box:
+            if not xrange:
                 if blackholefocus:
                     xrange = (-boxsize/2, boxsize/2)
                 else:
                     xrange = (0, boxsize)
-            if not (yrange):
+            if not yrange:
                 if blackholefocus:
                     yrange = (-boxsize/2, boxsize/2)
                 else:
                     yrange = (0, boxsize)
-            if not (zrange):
+            if not zrange:
                 if blackholefocus:
                     zrange = (-boxsize/2, boxsize/2)
                 else:

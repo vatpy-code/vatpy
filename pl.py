@@ -6,10 +6,10 @@ import os
 from vatpy import TerminalPlot
 
 # -------------- Config
-import config
+import configv
 
-homedir = config.homedir
-mplstyle = config.mplstyle
+homedir = configv.homedir
+mplstyle = configv.mplstyle
 
 # -------------- Arguments
 # Initialize argparse:
@@ -131,8 +131,7 @@ parser.add_argument('-format', '--saveformat', action='store', default='png',
                     Format to save file as (default: png)
                     ''')
 parser.add_argument('-style', '--mplstyle', action='store',
-                    default=f'{homedir}/VATPY/mpl/{mplstyle}.mplstyle',
-                    type=str, help='''
+                    default=mplstyle, type=str, help='''
                     Matplotlib style sheet (see VATPY config file)
                     ''')
 parser.add_argument('-interactive', '--interactive', action='store',
