@@ -9,9 +9,10 @@ print('\n Welcome to VATPY Image Display (by Jonathan Petersson)')
 file = str(sys.argv[1])
 print(f'  * Displaying {file}')
 
-# Figure:
-img = np.asarray(Image.open(file))
-ratio = np.shape(img)[0] / np.shape(img)[1]
+# Display:
+img = Image.open(file)
+img_array = np.asarray(img)
+ratio = np.shape(img_array)[0] / np.shape(img_array)[1]
 plt.figure(figsize=(6/ratio, 6), layout='constrained')
 plt.imshow(img)
 plt.axis('off')
