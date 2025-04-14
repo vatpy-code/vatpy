@@ -22,9 +22,9 @@ from .get_gas_property import temperature
 from .interpolation import interpolate_to_2d, interpolate_to_2d_kdtree
 from .get_black_hole_data import get_black_hole_data
 
-import configv
-homedir = configv.homedir
-mplstyle = configv.mplstyle
+import config_vatpy
+homedir = config_vatpy.homedir
+mplstyle = config_vatpy.mplstyle
 
 # -------------- TerminalPlot
 class TerminalPlot:

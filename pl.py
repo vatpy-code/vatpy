@@ -6,10 +6,10 @@ import os
 from vatpy import TerminalPlot
 
 # -------------- Config
-import configv
+import config_vatpy
 
-homedir = configv.homedir
-mplstyle = configv.mplstyle
+homedir = config_vatpy.homedir
+mplstyle = config_vatpy.mplstyle
 
 # -------------- Arguments
 # Initialize argparse:

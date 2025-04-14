@@ -1,4 +1,6 @@
 # VATPY: Visualisation of Arepo in the Terminal using PYthon
+![vatpy logo](./logo/vatpy.png)
+
 <pre>
 usage: pl [options] snapshot
 

@@ -61,5 +61,3 @@ def temperature(h, iu):
     return temp
 
 # -------------- End of file
-
-
