@@ -86,4 +86,3 @@ def get_black_hole_data(output_dir, n, N, vcr=False):
     return BlackHoleData
 
 # -------------- End of file
-
