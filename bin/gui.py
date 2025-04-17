@@ -12,8 +12,8 @@ from PIL import Image, ImageTk
 from vatpy import get_gas_density_image, get_gas_temperature_image
 
 # -------------- Configuration
-import config
-homedir = config.homedir
+import config_vatpy
+homedir = config_vatpy.homedir
 
 # -------------- Define functions
 def thread_func():
@@ -194,14 +194,14 @@ def apply_image():
 # -------------- Run a GUI via tkinter
 # Window:
 root = tk.Tk()
-root.title('VATPY GUI')
+root.title('Vatpy GUI')
 root.configure(background='white')
 root.minsize(800, 700)
 root.maxsize(800, 700)
 root.geometry('800x700+0+0')
 
 # Logo display:
-logo = Image.open(f'{homedir}/VATPY/logo/vatpy.png')
+logo = Image.open(f'{homedir}/vatpy/logo/vatpy.png')
 logo_resize = logo.resize((300, 200))
 logo_img = ImageTk.PhotoImage(logo_resize)
 tk.Label(root, image=logo_img, borderwidth=2, bg='black').grid(row=0, column=0, padx=10, pady=10, rowspan=3, columnspan=2)

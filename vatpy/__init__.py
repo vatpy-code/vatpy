@@ -1,4 +1,4 @@
-from .tplot import TerminalPlot
+from .terminal_plot import TerminalPlot
 
 from .read import read_hdf5
 from .read import read_dump
@@ -18,4 +18,3 @@ from .get_cli_image import get_gas_temperature_image_cli
 
 from .get_black_hole_data import get_black_hole_data
 from .get_image_data import get_image_data
-
