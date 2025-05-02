@@ -1,6 +1,5 @@
 config_vatpy.py
 .DS_Store
 __pycache__
-vatpy/__pycache__
-.ipynb_checkpoints/*
-vatpy/.ipynb_checkpoints/*
+.ipynb_checkpoints
+tutorials/plots/*
