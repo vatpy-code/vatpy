@@ -4,7 +4,7 @@ Vatpy (Visualisation of Arepo in the Terminal using PYthon) is a light-weight, h
 Many of its functions can be generally applied to simulations made by Arepo (as long as the output is in HDF5-format), however, more specific capabilities, 
 such as creating visual maps of the gas chemistry, is at the moment only adapted to simulations run using the ArepoNoctua numerical framework (see Petersson et al. 2025).
 
-![alt text](logo/screenshot.png)
+![alt text](logo/vatpy_vertical.png)
 
 ## Installation
 
