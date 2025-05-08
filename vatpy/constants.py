@@ -1,5 +1,7 @@
 '''
-Directory of useful constants.
+Description: Directory of useful physical constants.
+Authour(s): Jonathan Petersson
+Last updated: 2025-05-07
 '''
 
 const = {

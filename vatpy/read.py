@@ -12,10 +12,9 @@ import pycstruct
 # -------------- Function(s)
 def read_hdf5(file):
     '''
-    Description: Read a HDF5 file output from AREPO and return the data + 
+    Description: Read a HDF5 file output from Arepo and return the data + 
                  internal units (in cgs). 
     '''
-
     # Read hdf5-file:
     h = h5py.File(file, 'r')
 
@@ -44,7 +43,7 @@ def read_hdf5(file):
 def read_dump(file, feedback=False, spin=False, bh=False, hm=False, 
               rcirc=False):
     '''
-    Description: Read a sink particle (binary) file output from AREPO. Please
+    Description: Read a sink particle (binary) file output from Arepo. Please
                  note that there is high risk of mismatch between data fields
                  unless you know what the expected data structure is of your 
                  simulation output.
@@ -124,5 +123,3 @@ def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
     return time, NSinksAllTasks, sinks
 
 # -------------- End of file
-
-
