@@ -1,13 +1,14 @@
 '''
-Description:
-
-Last updated: 2023-09-27
+Description: File containing the TerminalPlot class.
+Authour(s): Jonathan Petersson
+Last updated: 2025-05-07
 '''
 
 
 # -------------- Required packages
 import os
 import numpy as np
+import cmasher as cmr
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -17,70 +18,134 @@ from labellines import labelLine, labelLines
 from imgcat import imgcat
 
 from .read import read_hdf5
-from .get_gas_property import number_density
-from .get_gas_property import temperature
+from .constants import const
+from .get_gas_property import number_density, temperature
 from .interpolation import interpolate_to_2d, interpolate_to_2d_kdtree
 from .get_black_hole_data import get_black_hole_data
 
-import config_vatpy
-homedir = config_vatpy.homedir
-mplstyle = config_vatpy.mplstyle
+import configv
+
 
 # -------------- TerminalPlot
 class TerminalPlot:
     '''
-    TerminalPlot:
+    TerminalPlot: Class to make simple, but informative, visual plots of Arepo
+                  snapshots, directly in the terminal (or notebook). Most 
+                  importantly, it contains funtions to generate column density
+                  maps of the gas surface density, as well column density maps 
+                  of various chemical species, such as HI, HII, and H2. The 
+                  class also contains functions to inspect the surface density 
+                  of dark matter and stellar components. For more details, see 
+                  each function's individual description.
     '''
-    def __init__(self, file, savepath=os.getcwd(), saveformat='png',
-                 style=mplstyle, vmin=None, vmax=None, 
-                 xlim=None, ylim=None, unitlength='kpc', 
-                 interactive=True, width=None):
+    def __init__(self, file, style=configv.mplstyle,
+                 savepath=f'{os.getcwd()}/vplots/', saveformat='png',
+                 vmin=None, vmax=None, xlim=None, ylim=None,
+                 unit_for_length=configv.unit_for_length, show=True):
+        print('\nWelcome to Vatpy TerminalPlot')
+        
         # Variables:
         self.file = file
-        self.style = style
-        self.savepath = savepath
-        self.saveformat = saveformat
-        self.vmin = vmin
-        self.vmax = vmax
-        self.xlim = xlim
-        self.ylim = ylim
-        self.unitlength = unitlength
-        self.interactive = interactive
-        self.width = width
-
-        # Constants:
-        self.G = 6.67259e-8  # [cm^3 g^-1 s^-2]
-        self.c = 2.998e10  # [cm s^-1]
-        self.mp = 1.6726e-24  # [g]
-        self.kb = 1.380658e-16  # [erg K^-1]
-        self.Msol = 1.9891e33  # [g]
-        self.pc = 3.08567758e18  # [cm]
-        self.kpc = 3.08567758e21  # [cm]
-        self.Myr = 1e6 * 365.25 * 24 * 60 * 60  # [s]
+        self.savepath, self.saveformat = savepath, saveformat
+        self.vmin, self.vmax = vmin, vmax
+        self.xlim, self.ylim = xlim, ylim
+        self.show = show
 
         # Mpl style:
-        plt.style.use(f'{homedir}/vatpy/mpl/{self.style}.mplstyle')
+        self.style = style
+        plt.style.use(f'{configv.homedir}/vatpy/mpl/{self.style}.mplstyle')
 
         # Unit length:
-        if self.unitlength == 'kpc':
-            self.ulength = self.kpc
-        elif self.unitlength == 'pc':
-            self.ulength = self.pc
+        self.unit_for_length = unit_for_length
+        if self.unit_for_length == 'kpc':
+            self.ulength = const['kpc']
+        elif self.unit_for_length == 'pc':
+            self.ulength = const['pc']
         else:
             self.ulength = 1
 
     ##########################################################################
     ##########################################################################
+    def get_ranges(self, boxsize, box, xrange, yrange, zrange, bhfocus):
+        '''
+        Description: Function to get x, y, and z ranges
+        '''
+        # Determine the coordinate ranges:
+        if not box:
+            if not xrange:
+                if bhfocus:
+                    xrange = (-boxsize/2, boxsize/2)
+                else:
+                    xrange = (0, boxsize)
+            if not yrange:
+                if bhfocus:
+                    yrange = (-boxsize/2, boxsize/2)
+                else:
+                    yrange = (0, boxsize)
+            if not zrange:
+                if bhfocus:
+                    zrange = (-boxsize/2, boxsize/2)
+                else:
+                    zrange = (0, boxsize)
+        else:
+            xrange = (box[0], box[1])
+            yrange = (box[0], box[1])
+            zrange = (box[0], box[1])
+        
+        return xrange, yrange, zrange
+
+    def do_rotation(self, boxsize, axis, rotate, pos, bhfocus):
+        '''
+        Description: Function to rotate the position of particles
+        '''
+        # If applicable, rotate the position of particles:
+        if rotate != 0:
+            rotation = Rotation.from_euler(axis, rotate, degrees=True)
+            if bhfocus:
+                pos = rotation.apply(pos)
+            else:
+                pos = rotation.apply(pos - boxsize/2)
+                pos += boxsize/2
+        
+        return pos
+
+    def save(self, fig, funcname):
+        '''
+        Description: Function to save figures
+        '''
+        # Figure name:
+        filestr = self.file.split('.')
+        figname = f'{funcname}_{filestr[0]}.{self.saveformat}'
+        
+        # Check if Vatpy plot directory already exists:
+        if os.path.isdir(self.savepath):
+            print('  * Path to save figure found')
+        else:
+            print('  * Path to save figure NOT found')
+            print('  * Creating a Vatpy plot directory')
+            os.mkdir(f'{os.getcwd()}/vplots/')
+
+        # Save figure:
+        fig.savefig(f'{self.savepath}/{figname}')
+        print('  * Figure saved successfully as')
+        print(f'    - name: {figname}')
+        print(f'    - path: {self.savepath}')
+        
+        return None
+    
+    ##########################################################################
+    ##########################################################################
     def info(self):
         '''
-        Description: Get some general information about the snapshot & present
-                     it in a informative way.
+        Description: Function to provide some general information about the
+                     given snapshot, such as the physical time, size of the
+                     simulation domain, number of particles, etc.
         '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
 
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
-        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.kpc
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         numpart = h['Header'].attrs['NumPart_ThisFile']
 
         print('  * Snapshot information')
@@ -102,72 +167,57 @@ class TerminalPlot:
             print(f'  | Coordinates [i.u.] : ({Pbh[0]}, {Pbh[1]}, {Pbh[2]})')
             Vbh = h['PartType5']['Velocities'][0]
             print(f'  | Velocities [i.u.]  : ({Vbh[0]}, {Vbh[1]}, {Vbh[2]})')
-            Mbh = h['PartType5']['Masses'][0] * iu['umass'] / self.Msol
+            Mbh = h['PartType5']['Masses'][0] * iu['umass'] / const['Msol']
             print(f'  | Mass [i.u.]        : {Mbh}')
             IDbh = h['PartType5']['ParticleIDs'][0]
             print(f'  | Particle ID        : {IDbh}')
-        
+
         print('  |')
 
-        return 0
+        return None
 
     ##########################################################################
     ##########################################################################
     def density(self, axis='z', rotate=0, quantity='mass', bins=100,
-                interpolation='kdtree', blackholefocus=False, xrange=None,
+                interpolation='kdtree', bhfocus=False, xrange=None, 
                 yrange=None, zrange=None, box=None, cut=None):
         '''
-        Description: Generate a gas column density map by first interpolating
-                     the selected gas quantity onto a grid and later summing
-                     it up along a given axis.
+        Description: Function to generate a column density map of the gas
+                     surface density, with the possibility to also show the
+                     column density of various chemical species, such as HI,
+                     HII, and H2. This is achieved by first interpolating the
+                     selected gas quantity onto a grid, and later doing a sum
+                     along the line-of-sight.
         '''
         # Read the data:
+        print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
         pos = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
         dens = h['PartType0']['Density'] * iu['udens']
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
 
-        if blackholefocus:
+        print('  * Generating a gas surface density map')
+        
+        # Centre the data on the black hole:
+        if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos -= bh
 
         # Coordinate ranges:
-        if not box:
-            if not xrange:
-                if blackholefocus:
-                    xrange = (-boxsize/2, boxsize/2)
-                else:
-                    xrange = (0, boxsize)
-            if not yrange:
-                if blackholefocus:
-                    yrange = (-boxsize/2, boxsize/2)
-                else:
-                    yrange = (0, boxsize)
-            if not zrange:
-                if blackholefocus:
-                    zrange = (-boxsize/2, boxsize/2)
-                else:
-                    zrange = (0, boxsize)
-        else:
-            xrange = (box[0], box[1])
-            yrange = (box[0], box[1])
-            zrange = (box[0], box[1])
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange, bhfocus=bhfocus)
 
         # Selection of gas quantity:
         if (quantity != 'mass'):
             num = number_density(h, iu)
             dens = num[quantity]
 
-        # Rotation:
-        if rotate != 0:
-            rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
-                pos = rotation.apply(pos)
-            else:
-                pos = rotation.apply(pos - boxsize/2)
-                pos += boxsize/2
+        # Rotation of particle positions:
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                               pos=pos, bhfocus=bhfocus)
 
         # Interpolation:
         if interpolation == 'kdtree':
@@ -188,16 +238,16 @@ class TerminalPlot:
 
         im = ax.imshow(np.log10(interpDens), vmin=self.vmin, vmax=self.vmax,
                        extent=(xrange[0], xrange[1], yrange[0], yrange[1]),
-                       origin='lower', cmap='inferno')
-        if blackholefocus:
+                       origin='lower', cmap=configv.cmap['gas'])
+        if bhfocus:
             ax.scatter(0, 0, s=40, c='k')
         ax.text(0.95, 0.05, f'{time:.2f} Myr', color='k',
                 ha='right', va='bottom', transform=ax.transAxes,
                 bbox={'facecolor': 'white', 'edgecolor': 'none',
                       'boxstyle': 'round', 'alpha': 0.5})
         ax.set_aspect('equal')
-        ax.set_xlabel(f'$x$ [{self.unitlength}]')
-        ax.set_ylabel(f'$y$ [{self.unitlength}]')
+        ax.set_xlabel(f'$x$ [{self.unit_for_length}]')
+        ax.set_ylabel(f'$y$ [{self.unit_for_length}]')
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
 
@@ -229,14 +279,14 @@ class TerminalPlot:
         cax = div.append_axes('right', size='5%', pad=0)
         fig.colorbar(im, cax=cax, label=cbar_label[quantity])
 
-        # Save figure:
-        figname = f'density_{self.file[-8:-5]}.{self.saveformat}'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        self.save(fig=fig, funcname='density')
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Display of figure ')
+            plt.close()
         else:
             print('  * Interactive display of the figure is now running')
             plt.show()
@@ -246,54 +296,33 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def temperature(self, axis='z', rotate=0, bins=100, interpolation='kdtree',
-                    blackholefocus=False, xrange=None, yrange=None,
-                    zrange=None, box=None, cut=None):
+                    bhfocus=False, xrange=None, yrange=None, zrange=None, 
+                    box=None, cut=None):
         '''
-        Description:
+        Description: TODO
         '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
         pos = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
         dens = h['PartType0']['Density'] * iu['udens']
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
         temp = temperature(h, iu)
 
-        if blackholefocus:
+        # Centre the data on the black hole:
+        if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos -= bh
 
         # Coordinate ranges:
-        if not box:
-            if not xrange:
-                if blackholefocus:
-                    xrange = (-boxsize/2, boxsize/2)
-                else:
-                    xrange = (0, boxsize)
-            if not yrange:
-                if blackholefocus:
-                    yrange = (-boxsize/2, boxsize/2)
-                else:
-                    yrange = (0, boxsize)
-            if not zrange:
-                if blackholefocus:
-                    zrange = (-boxsize/2, boxsize/2)
-                else:
-                    zrange = (0, boxsize)
-        else:
-            xrange = (box[0], box[1])
-            yrange = (box[0], box[1])
-            zrange = (box[0], box[1])
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange, bhfocus=bhfocus)
 
-        # Rotation:
-        if rotate != 0:
-            rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
-                pos = rotation.apply(pos)
-            else:
-                pos = rotation.apply(pos - boxsize/2)
-                pos += boxsize/2
+        # Rotation of particle positions:
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                               pos=pos, bhfocus=bhfocus)
 
         # Interpolation:
         if interpolation == 'kdtree':
@@ -348,7 +377,10 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def resolution(self, bins=100, levels=5, smooth=0):
-        # Reading data:
+        '''
+        Description: 
+        '''
+        # Read the data:
         h, iu = read_hdf5(file=self.file)
         mass = h['PartType0']['Masses'] * iu['umass']
         dens = h['PartType0']['Density'] * iu['udens']
@@ -356,9 +388,11 @@ class TerminalPlot:
     
         # 2D Histograms:
         H0, xedges0, yedges0 = np.histogram2d(np.log10(dens), 
-                                              np.log10(radius / self.pc), bins=bins)
+                                              np.log10(radius / const['pc']), 
+                                              bins=bins)
         H1, xedges1, yedges1 = np.histogram2d(np.log10(dens), 
-                                              np.log10(mass / self.Msol), bins=bins)
+                                              np.log10(mass / const['Msol']), 
+                                              bins=bins)
 
         # Gaussian filter:
         if smooth > 0:
@@ -402,8 +436,8 @@ class TerminalPlot:
         jeans10  = np.sqrt((15 * self.kb * 10) / (4 * np.pi * self.G * mu * self.mp * 10**(xlim)))
         jeans100 = np.sqrt((15 * self.kb * 100) / (4 * np.pi * self.G * mu * self.mp * 10**(xlim)))
 
-        ax[0].plot(xlim, np.log10(jeans10 / self.pc), c='k', ls='--', lw=1, alpha=0.8, label='$\Lambda_J$($T=10$ K)')
-        ax[0].plot(xlim, np.log10(jeans100 / self.pc), c='k', ls='--', lw=1, alpha=0.8, label='$\Lambda_J$($T=100$ K)')
+        ax[0].plot(xlim, np.log10(jeans10 / const['pc']), c='k', ls='--', lw=1, alpha=0.8, label='$\Lambda_J$($T=10$ K)')
+        ax[0].plot(xlim, np.log10(jeans100 / const['pc']), c='k', ls='--', lw=1, alpha=0.8, label='$\Lambda_J$($T=100$ K)')
         labelLines(ax[0].get_lines(), xvals=[-24, -24], ha='center', fontsize=14)
 
         # Save figure:
@@ -422,63 +456,45 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
-    def stellar(self, axis='z', rotate=0, bins=100, blackholefocus=False,
+    def stellar(self, axis='z', rotate=0, bins=100, bhfocus=False, 
                 xrange=None, yrange=None, zrange=None, box=None):
+        '''
+        Description: TODO
+        '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
-        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.kpc
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
+        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
 
-        # Stellar material:
-        pos_disk = h['PartType2']['Coordinates'] * iu['ulength'] / self.kpc
-        mass_disk = h['PartType2']['Masses'] * iu['umass'] / self.Msol
+        # Stellar component:
+        pos_disk = h['PartType2']['Coordinates'] * iu['ulength'] / const['kpc']
+        mass_disk = h['PartType2']['Masses'] * iu['umass'] / const['Msol']
         
         pos = pos_disk
         mass = mass_disk
 
+        # Centre the data on the black hole:
         if blackholefocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos -= bh
 
         # Coordinate ranges:
-        if not box:
-            if not xrange:
-                if blackholefocus:
-                    xrange = (-boxsize/2, boxsize/2)
-                else:
-                    xrange = (0, boxsize)
-            if not yrange:
-                if blackholefocus:
-                    yrange = (-boxsize/2, boxsize/2)
-                else:
-                    yrange = (0, boxsize)
-            if not zrange:
-                if blackholefocus:
-                    zrange = (-boxsize/2, boxsize/2)
-                else:
-                    zrange = (0, boxsize)
-        else:
-            xrange = (box[0], box[1])
-            yrange = (box[0], box[1])
-            zrange = (box[0], box[1])
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange, bhfocus=bhfocus)
+
+        # Bins in x and y:
         xbins, dx = np.linspace(xrange[0], xrange[1], bins, retstep=True)
         ybins, dy = np.linspace(yrange[0], yrange[1], bins, retstep=True)
-        
-        # Remove data outside the zrange:
-        if zrange:
-            mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
-            pos = pos[mask]
-            mass = mass[mask]
 
-        # Rotation:
-        if rotate != 0:
-            rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
-                pos = rotation.apply(pos)
-            else:
-                pos = rotation.apply(pos - boxsize/2)
-                pos += boxsize/2
+        # Remove particles outside the zrange:
+        mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
+        pos, mass = pos[mask], mass[mask]
+        
+        # Rotation of particle positions:
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate, 
+                               pos=pos, bhfocus=bhfocus)
 
         # Histogram 2D:
         H, xedges, yedges = np.histogram2d(pos[:, 0], pos[:, 1],
@@ -526,61 +542,46 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
-    def darkmatter(self, axis='z', rotate=0, bins=100, blackholefocus=False,
+    def darkmatter(self, axis='z', rotate=0, bins=100, bhfocus=False,
                    xrange=None, yrange=None, zrange=None, box=None):
+        '''
+        Description: TODO
+        '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
-        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.kpc
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
+        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
 
-        # Dark matter:
-        pos = h['PartType1']['Coordinates'] * iu['ulength'] / self.kpc
-        mass = np.full(len(pos), h['Header'].attrs['MassTable'][1]
-                       * iu['umass'] / self.Msol)
+        # DM component:
+        pos = h['PartType1']['Coordinates'] * iu['ulength'] / const['kpc']
+        if 'Masses' in h['PartType1']:
+            mass = h['PartType1']['Masses'] * iu['umass'] / const['Msol']
+        else:
+            mass = np.full(len(pos), h['Header'].attrs['MassTable'][1]
+                           * iu['umass'] / const['Msol'])
 
+        # Centre the data on the black hole:
         if blackholefocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos -= bh
 
         # Coordinate ranges:
-        if not box:
-            if not xrange:
-                if blackholefocus:
-                    xrange = (-boxsize/2, boxsize/2)
-                else:
-                    xrange = (0, boxsize)
-            if not yrange:
-                if blackholefocus:
-                    yrange = (-boxsize/2, boxsize/2)
-                else:
-                    yrange = (0, boxsize)
-            if not zrange:
-                if blackholefocus:
-                    zrange = (-boxsize/2, boxsize/2)
-                else:
-                    zrange = (0, boxsize)
-        else:
-            xrange = (box[0], box[1])
-            yrange = (box[0], box[1])
-            zrange = (box[0], box[1])
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange, bhfocus=bhfocus)
+
+        # Bins in x and y:
         xbins, dx = np.linspace(xrange[0], xrange[1], bins, retstep=True)
         ybins, dy = np.linspace(yrange[0], yrange[1], bins, retstep=True)
         
-        # Remove data outside the zrange:
-        if zrange:
-            mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
-            pos = pos[mask]
-            mass = mass[mask]
+        # Remove particles outside the zrange:
+        mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
+        pos, mass = pos[mask], mass[mask]
 
-        # Rotation:
-        if rotate != 0:
-            rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
-                pos = rotation.apply(pos)
-            else:
-                pos = rotation.apply(pos - boxsize/2)
-                pos += boxsize/2
+        # Rotation of particle positions:
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                               pos=pos, bhfocus=bhfocus)
 
         # Histogram 2D:
         H, xedges, yedges = np.histogram2d(pos[:, 0], pos[:, 1],
@@ -626,59 +627,39 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def star_formation(self, axis='z', rotate=0, bins=100, sfb=100,
-                       interpolation='kdtree', blackholefocus=False,
-                       xrange=None, yrange=None, zrange=None, box=None,
-                       cut=None):
+                       interpolation='kdtree', bhfocus=False, xrange=None, 
+                       yrange=None, zrange=None, box=None, cut=None):
+        '''
+        Description: TODO
+        '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
-        pos_gas = h['PartType0']['Coordinates'] * iu['ulength'] / self.kpc
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        pos_gas = h['PartType0']['Coordinates'] * iu['ulength'] / const['kpc']
         dens_gas = h['PartType0']['Density'] * iu['udens']
-        pos_star = h['PartType4']['Coordinates'] * iu['ulength'] / self.kpc
-        mass_star = h['PartType4']['Masses'] * iu['umass'] / self.Msol
-        time_star = (h['PartType4']['StellarFormationTime'] * iu['utime']
+        pos_stars = h['PartType4']['Coordinates'] * iu['ulength'] / const['kpc']
+        mass_stars = h['PartType4']['Masses'] * iu['umass'] / const['Msol']
+        time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
                      / self.Myr)
 
+        # Centre the data on the black hole:
         if blackholefocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos_gas -= bh
-            pos_star -= bh
+            pos_stars -= bh
 
         # Coordinate ranges:
-        if not box:
-            if not xrange:
-                if blackholefocus:
-                    xrange = (-boxsize/2, boxsize/2)
-                else:
-                    xrange = (0, boxsize)
-            if not yrange:
-                if blackholefocus:
-                    yrange = (-boxsize/2, boxsize/2)
-                else:
-                    yrange = (0, boxsize)
-            if not zrange:
-                if blackholefocus:
-                    zrange = (-boxsize/2, boxsize/2)
-                else:
-                    zrange = (0, boxsize)
-        else:
-            xrange = (box[0], box[1])
-            yrange = (box[0], box[1])
-            zrange = (box[0], box[1])
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange, bhfocus=bhfocus)
 
-        # Rotation:
-        if rotate != 0:
-            rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
-                pos_gas = rotation.apply(pos_gas)
-                pos_star = rotation.apply(pos_star)
-            else:
-                pos_gas = rotation.apply(pos_gas - boxsize/2)
-                pos_star = rotation.apply(pos_star - boxsize/2)
-                pos_gas += boxsize/2
-                pos_star += boxsize/2
+        # Rotation of particle positions:
+        pos_gas = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                                   pos=pos_gas, bhfocus=bhfocus)
+        pos_stars = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                                     pos=pos_stars, bhfocus=bhfocus)
 
         # Interpolation:
         if interpolation == 'kdtree':
@@ -694,13 +675,13 @@ class TerminalPlot:
                                            zrange=zrange, cut=cut)
 
         # Star formation surface density:
-        mask_sf = (time - time_star < 10)
+        mask_sf = (time - time_stars < 10)
         xbins, dx = np.linspace(np.min(xrange), np.max(xrange), sfb,
                                 retstep=True)
         ybins, dy = np.linspace(np.min(yrange), np.max(yrange), sfb,
                                 retstep=True)
-        H = np.histogram2d(pos_star[:, 0][mask_sf], pos_star[:, 1][mask_sf],
-                           bins=[xbins, ybins], weights=mass_star[mask_sf])[0]
+        H = np.histogram2d(pos_stars[:, 0][mask_sf], pos_stars[:, 1][mask_sf],
+                           bins=[xbins, ybins], weights=mass_stars[mask_sf])[0]
         with np.errstate(divide='ignore'):
             H = np.log10(H.T/(dx * dy) / (10 * 1e6))
 
@@ -754,18 +735,22 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def stellar_age(self, axis='z', rotate=0, bins=100, age=100,
-                    interpolation='kdtree', blackholefocus=False, xrange=None,
+                    interpolation='kdtree', bhfocus=False, xrange=None,
                     yrange=None, zrange=None, box=None, cut=None):
+        '''
+        Description: TODO
+        '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
-        time = h['Header'].attrs['Time'] * iu['utime'] / self.Myr
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         pos_gas = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
         dens_gas = h['PartType0']['Density'] * iu['udens']
-        pos_star = h['PartType4']['Coordinates'] * iu['ulength'] / self.ulength
-        time_star = (h['PartType4']['StellarFormationTime'] * iu['utime']
-                     / self.Myr)
+        pos_stars = h['PartType4']['Coordinates'] * iu['ulength'] / self.ulength
+        time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
+                     / const['Myr'])
 
+        # Centre the data on the black hole:
         if blackholefocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
@@ -773,38 +758,15 @@ class TerminalPlot:
             pos_star -= bh
 
         # Coordinate ranges:
-        if not box:
-            if not xrange:
-                if blackholefocus:
-                    xrange = (-boxsize/2, boxsize/2)
-                else:
-                    xrange = (0, boxsize)
-            if not yrange:
-                if blackholefocus:
-                    yrange = (-boxsize/2, boxsize/2)
-                else:
-                    yrange = (0, boxsize)
-            if not zrange:
-                if blackholefocus:
-                    zrange = (-boxsize/2, boxsize/2)
-                else:
-                    zrange = (0, boxsize)
-        else:
-            xrange = (box[0], box[1])
-            yrange = (box[0], box[1])
-            zrange = (box[0], box[1])
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange, bhfocus=bhfocus)
 
-        # Rotation:
-        if rotate != 0:
-            rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
-                pos_gas = rotation.apply(pos_gas)
-                pos_star = rotation.apply(pos_star)
-            else:
-                pos_gas = rotation.apply(pos_gas - boxsize/2)
-                pos_star = rotation.apply(pos_star - boxsize/2)
-                pos_gas += boxsize/2
-                pos_star += boxsize/2
+        # Rotation of particle positions:
+        pos_gas = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                                   pos=pos_gas, bhfocus=bhfocus)
+        pos_stars = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                                     pos=pos_stars, bhfocus=bhfocus)
 
         # Interpolation:
         if interpolation == 'kdtree':
@@ -820,10 +782,10 @@ class TerminalPlot:
                                            zrange=zrange, cut=cut)
 
         # Stars:
-        mask = ((pos_star[:, 0] > xrange[0]) * (pos_star[:, 0] < xrange[1])
-                * (pos_star[:, 1] > yrange[0]) * (pos_star[:, 1] < yrange[1])
-                * (pos_star[:, 2] > zrange[0]) * (pos_star[:, 2] < zrange[1])
-                * (np.abs(time - time_star) < age))
+        mask = ((pos_stars[:, 0] > xrange[0]) * (pos_stars[:, 0] < xrange[1])
+                * (pos_stars[:, 1] > yrange[0]) * (pos_stars[:, 1] < yrange[1])
+                * (pos_stars[:, 2] > zrange[0]) * (pos_stars[:, 2] < zrange[1])
+                * (np.abs(time - time_stars) < age))
 
         # Plot:
         fig, ax = plt.subplots(figsize=(8, 6.4))
@@ -849,7 +811,7 @@ class TerminalPlot:
                      + r' $[\mathrm{g} \ \mathrm{cm}^{-2}])$')
 
         time_diff = np.abs(time - time_star[mask])
-        im_sa = ax.scatter(pos_star[:, 0][mask], pos_star[:, 1][mask],
+        im_sa = ax.scatter(pos_stars[:, 0][mask], pos_stars[:, 1][mask],
                            c=time_diff, s=10, marker='.', cmap='viridis',
                            vmin=0, vmax=np.min([age, np.max(time_diff)]))
         cax = ax.inset_axes([0.02, 0.94, 0.7, 0.04])
@@ -881,6 +843,9 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def black_hole_evolution(self, vcr):
+        '''
+        Description: TODO
+        '''
         # Snapshot range:
         file_list = os.listdir()
         snap_list = [i for i in file_list if 'snap_' in i]
@@ -1002,8 +967,8 @@ class TerminalPlot:
             ax[1,4].grid()
 
             ax2 = ax[1,4].twinx()
-            rs = 2 * self.G * BHData['MassBH'][0] * self.Msol / self.c**2
-            Rcirc = np.array(BHData['CircRadius']) * self.pc / rs
+            rs = 2 * const['G'] * BHData['MassBH'][0] * const['Msol'] / np.power(const['c'], 2)
+            Rcirc = np.array(BHData['CircRadius']) * const['pc'] / rs
             ax2.plot(BHData['Time'], Rcirc, lw=lw, c=c)
             ax2.set_yscale('linear')
         else:
