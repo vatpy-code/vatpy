@@ -153,12 +153,18 @@ class TerminalPlot:
         print(f'  | BoxSize : {np.round(boxsize, 2)} kpc')
         print('  |')
         print('  | Number of particles')
-        print(f'  | PartType0 (gas)   : {numpart[0]}')
-        print(f'  | PartType1 (halo)  : {numpart[1]}')
-        print(f'  | PartType2 (disk)  : {numpart[2]}')
-        print(f'  | PartType3 (bulge) : {numpart[3]}')
-        print(f'  | PartType4 (stars) : {numpart[4]}')
-        print(f'  | PartType5 (bndry) : {numpart[5]}')
+        print(f'  | PartType0 (gas)      : {numpart[0]}')
+        print(f'  | PartType1 (halo)     : {numpart[1]}')
+        print(f'  | PartType2 (disk)     : {numpart[2]}')
+        print(f'  | PartType3 (bulge)    : {numpart[3]}')
+        print(f'  | PartType4 (stars)    : {numpart[4]}')
+        print(f'  | PartType5 (bndry)    : {numpart[5]}')
+        print(f'  | Total Particle Count : {np.sum(numpart)}')
+        print('  | ')
+
+        mt = h['Header'].attrs['MassTable']
+        print('  | Table of Particle Masses [i.u.]')
+        print(f'  | {mt[0]}, {mt[1]}, {mt[2]}, {mt[3]}, {mt[4]}, {mt[5]}')
 
         if numpart[5] == 1:
             print('  |')
