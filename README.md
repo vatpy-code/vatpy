@@ -17,15 +17,15 @@ In this section, we provide some general guidelines to install and set up Vatpy 
   ```shell
   export PYTHONPATH=$PYTHONPATH:$HOME/vatpy
   ```
-- Now, go the Vatpy directory and make a copy of configv-template.py, and rename it to configv.py (do NOT move the file to any other directory). The file: configv.py, is your personal configuration of Vapty, and can be modified as you wish. Important! Before using Vatpy, make sure to change the variable: homedir, to the path of your home directory (where Vatpy should be installed). 
-- Voilà, that's it, you should now be ready to use Vatpy in the terminal, Jupyter Notebooks, Python scripts, etc. To verify that Vatpy is installed properly, try:
+- Now, go the Vatpy directory and make a copy of configv-template.py, and rename it to configv.py (do NOT move it to any other directory). The file: configv.py, is your personal configuration of Vatpy, and can be modified as you wish. Important! Before using Vatpy, make sure to change the variable: homedir, to the path of your home directory (where Vatpy should be installed). 
+- Voilà, that's it, you should now be ready to use Vatpy in the terminal, Jupyter Notebooks, Python scripts, etc. To verify that Vatpy is installed, try:
   ```python
   import vatpy as vp
   ```
-- If you have issues installing Vatpy, do not hesitate to contact one of the main contributors (see the Contributions section below for contact details)
+- If you have issues installing Vatpy, do not hesitate to contact one of the main contributors (see the list of contributions below for contact details)
 
 ## Usage
-Here, we provide a short overview on how to use Vatpy directly in the terminal, as well as in Jupyer Notebooks.
+Here, we provide a short overview on how to use Vatpy directly in the terminal, as well as in Jupyter Notebooks.
 
 ### How to use Vatpy in the Terminal
 *TODO*
