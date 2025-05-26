@@ -11,18 +11,18 @@ In this section, we provide some general guidelines to install and set up Vatpy 
 ### Requirements
 > `python`, `numpy`, `matplotlib`, `mpl_toolkits`, `scipy`, `h5py`, `labellines`, `pycstruct`
 
-### Quick Guide:
+### Quick Installation Guide:
 - Download the repository to your home directory
-- Include the path of the Vatpy directory to your PYTHONPATH variable, e.g. you can add the following command to your .bashrc or .bash_profile file:
+- Include the path to your Vatpy directory to the PYTHONPATH variable. For example, you can add the following line to your .bashrc or .bash_profile file, to ensure that this is always done when launching a new session:
   ```shell
   export PYTHONPATH=$PYTHONPATH:$HOME/vatpy
   ```
-- Now, go the Vatpy directory and make a copy of configv-template.py, and rename it to configv.py (do NOT move it to any other directory). The file: configv.py, is your personal configuration of Vatpy, and can be modified as you wish. Important! Before using Vatpy, make sure to change the variable: homedir, to the path of your home directory (where Vatpy should be installed). 
-- Voilà, that's it, you should now be ready to use Vatpy in the terminal, Jupyter Notebooks, Python scripts, etc. To verify that Vatpy is installed, try:
+- Now, go to yout Vatpy directory and make a copy of `configv-template.py` to `configv.py` (do NOT move the copied file to any other directory). This file (`configv.py`), is now your personal Vatpy configuration, and can be altered as you wish. However, it is important that before you try using Vatpy for the first time, make sure to change the variable `homedir`, to the actual home directory path of your own machine (where Vatpy should ideally be installed). 
+- Voilà, that's it, you should now be ready to use Vatpy in the terminal, Jupyter Notebooks, and Python scripts. To verify that Vatpy is installed correctly, simply try:
   ```python
   import vatpy as vp
   ```
-- If you have issues installing Vatpy, do not hesitate to contact one of the main contributors (see the list of contributions below for contact details)
+- If you have any issues installing Vatpy, please do not hesitate to contact any of the main contributors to the code (see the list of contributions below for contact details), or simply open up an issue here on the github repository. 
 
 ## Usage
 Here, we provide a short overview on how to use Vatpy directly in the terminal, as well as in Jupyter Notebooks.
