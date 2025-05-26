@@ -30,3 +30,9 @@ from .get_image_data import get_image_data
 
 # Function to convert IC file generated from pNbody to Arepo format:
 from .pNbody_IC_conversion import convert_pNbody_IC_to_Arepo
+
+# Function to write sink particle dump file:
+from .write import write_dump
+
+# IC4A module:
+from .IC4A.uniform_box import UniformBox
