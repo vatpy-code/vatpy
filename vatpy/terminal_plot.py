@@ -14,8 +14,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.spatial.transform import Rotation
 from scipy.ndimage import gaussian_filter
-from labellines import labelLine, labelLines
-from imgcat import imgcat
+from labellines import labelLines
 
 from .read import read_hdf5
 from .constants import const
@@ -30,23 +29,26 @@ import configv
 class TerminalPlot:
     '''
     TerminalPlot: Class to make simple, but informative, visual plots of Arepo
-                  snapshots, directly in the terminal (or notebook). Most 
+                  snapshots, directly in the terminal (or notebook). Most
                   importantly, it contains funtions to generate column density
-                  maps of the gas surface density, as well column density maps 
-                  of various chemical species, such as HI, HII, and H2. The 
-                  class also contains functions to inspect the surface density 
-                  of dark matter and stellar components. For more details, see 
+                  maps of the gas surface density, as well column density maps
+                  of various chemical species, such as HI, HII, and H2. The
+                  class also contains functions to inspect the surface density
+                  of dark matter and stellar components. For more details, see
                   each function's individual description.
     '''
+
     def __init__(self, file, style=configv.mplstyle,
-                 savepath=f'{os.getcwd()}/vplots/', saveformat='png',
-                 vmin=None, vmax=None, xlim=None, ylim=None,
-                 unit_for_length=configv.unit_for_length, show=True):
-        print('\nWelcome to Vatpy TerminalPlot')
-        
+                 savepath=f'{os.getcwd()}/vplots/', savename=None,
+                 saveformat='png', vmin=None, vmax=None, xlim=None, ylim=None,
+                 ulengthselect=configv.unit_for_length, show=True):
+        print(f'  * Setting up environment to analyse {file}')
+
         # Variables:
         self.file = file
-        self.savepath, self.saveformat = savepath, saveformat
+        self.savepath = savepath
+        self.savename = savename
+        self.saveformat = saveformat
         self.vmin, self.vmax = vmin, vmax
         self.xlim, self.ylim = xlim, ylim
         self.show = show
@@ -56,10 +58,10 @@ class TerminalPlot:
         plt.style.use(f'{configv.homedir}/vatpy/mpl/{self.style}.mplstyle')
 
         # Unit length:
-        self.unit_for_length = unit_for_length
-        if self.unit_for_length == 'kpc':
+        self.ulengthselect = ulengthselect
+        if self.ulengthselect == 'kpc':
             self.ulength = const['kpc']
-        elif self.unit_for_length == 'pc':
+        elif self.ulengthselect == 'pc':
             self.ulength = const['pc']
         else:
             self.ulength = 1
@@ -68,8 +70,9 @@ class TerminalPlot:
     ##########################################################################
     def get_ranges(self, boxsize, box, xrange, yrange, zrange, bhfocus):
         '''
-        Description: Function to get x, y, and z ranges
+        Description: Function to get x, y, and z ranges.
         '''
+
         # Determine the coordinate ranges:
         if not box:
             if not xrange:
@@ -91,13 +94,14 @@ class TerminalPlot:
             xrange = (box[0], box[1])
             yrange = (box[0], box[1])
             zrange = (box[0], box[1])
-        
+
         return xrange, yrange, zrange
 
     def do_rotation(self, boxsize, axis, rotate, pos, bhfocus):
         '''
-        Description: Function to rotate the position of particles
+        Description: Function to rotate the position of particles.
         '''
+
         # If applicable, rotate the position of particles:
         if rotate != 0:
             rotation = Rotation.from_euler(axis, rotate, degrees=True)
@@ -106,23 +110,26 @@ class TerminalPlot:
             else:
                 pos = rotation.apply(pos - boxsize/2)
                 pos += boxsize/2
-        
+
         return pos
 
     def save(self, fig, funcname):
         '''
-        Description: Function to save figures
+        Description: Function to save figures.
         '''
+
         # Figure name:
         filestr = self.file.split('.')
         figname = f'{funcname}_{filestr[0]}.{self.saveformat}'
-        
+        if self.savename:
+            figname = self.savename + '_' + filestr[0][-3:]
+
         # Check if Vatpy plot directory already exists:
         if os.path.isdir(self.savepath):
-            print('  * Path to save figure found')
+            print('  * Path where to save figure found')
         else:
-            print('  * Path to save figure NOT found')
-            print('  * Creating a Vatpy plot directory')
+            print('  * Path where to save figure NOT found')
+            print('  * Creating a \'vplot\' directory')
             os.mkdir(f'{os.getcwd()}/vplots/')
 
         # Save figure:
@@ -130,9 +137,9 @@ class TerminalPlot:
         print('  * Figure saved successfully as')
         print(f'    - name: {figname}')
         print(f'    - path: {self.savepath}')
-        
+
         return None
-    
+
     ##########################################################################
     ##########################################################################
     def info(self):
@@ -141,6 +148,7 @@ class TerminalPlot:
                      given snapshot, such as the physical time, size of the
                      simulation domain, number of particles, etc.
         '''
+
         # Read the data:
         h, iu = read_hdf5(file=self.file)
 
@@ -185,7 +193,7 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def density(self, axis='z', rotate=0, quantity='mass', bins=100,
-                interpolation='kdtree', bhfocus=False, xrange=None, 
+                interpolation='kdtree', bhfocus=False, xrange=None,
                 yrange=None, zrange=None, box=None, cut=None):
         '''
         Description: Function to generate a column density map of the gas
@@ -195,6 +203,7 @@ class TerminalPlot:
                      selected gas quantity onto a grid, and later doing a sum
                      along the line-of-sight.
         '''
+
         # Read the data:
         print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
@@ -204,7 +213,7 @@ class TerminalPlot:
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
 
         print('  * Generating a gas surface density map')
-        
+
         # Centre the data on the black hole:
         if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
@@ -214,7 +223,8 @@ class TerminalPlot:
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
                                                  xrange=xrange, yrange=yrange,
-                                                 zrange=zrange, bhfocus=bhfocus)
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
 
         # Selection of gas quantity:
         if (quantity != 'mass'):
@@ -252,8 +262,8 @@ class TerminalPlot:
                 bbox={'facecolor': 'white', 'edgecolor': 'none',
                       'boxstyle': 'round', 'alpha': 0.5})
         ax.set_aspect('equal')
-        ax.set_xlabel(f'$x$ [{self.unit_for_length}]')
-        ax.set_ylabel(f'$y$ [{self.unit_for_length}]')
+        ax.set_xlabel(f'$x$ [{self.ulengthselect}]')
+        ax.set_ylabel(f'$y$ [{self.ulengthselect}]')
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
 
@@ -287,14 +297,15 @@ class TerminalPlot:
 
         # Save:
         print('  * Figure generated successfully')
-        self.save(fig=fig, funcname='density')
+        funcname = 'dens'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
         if self.show is not True:
-            print('  * Display of figure ')
+            print('  * Interactive display of figure is NOT allowed')
             plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
 
         return None
@@ -302,18 +313,22 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def temperature(self, axis='z', rotate=0, bins=100, interpolation='kdtree',
-                    bhfocus=False, xrange=None, yrange=None, zrange=None, 
+                    bhfocus=False, xrange=None, yrange=None, zrange=None,
                     box=None, cut=None):
         '''
         Description: TODO
         '''
+
         # Read the data:
+        print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
         pos = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
         dens = h['PartType0']['Density'] * iu['udens']
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
         temp = temperature(h, iu)
+
+        print('  * Generating a gas temperature (density-weighted) map')
 
         # Centre the data on the black hole:
         if bhfocus:
@@ -324,7 +339,8 @@ class TerminalPlot:
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
                                                  xrange=xrange, yrange=yrange,
-                                                 zrange=zrange, bhfocus=bhfocus)
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
 
         # Rotation of particle positions:
         pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
@@ -357,8 +373,8 @@ class TerminalPlot:
                 bbox={'facecolor': 'white', 'edgecolor': 'none',
                       'boxstyle': 'round', 'alpha': 0.5})
         ax.set_aspect('equal')
-        ax.set_xlabel('$x$ [kpc]')
-        ax.set_ylabel('$y$ [kpc]')
+        ax.set_xlabel(f'$x$ [{self.ulengthselect}]')
+        ax.set_ylabel(f'$y$ [{self.ulengthselect}]')
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
 
@@ -366,71 +382,75 @@ class TerminalPlot:
         cax = div.append_axes('right', size='5%', pad=0)
         fig.colorbar(im, cax=cax, label=r'$\log_{10}(T \ [\mathrm{K}])$')
 
-        # Save figure:
-        figname = f'temp_{self.file[-8:-5]}.{self.saveformat}'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'temp'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
 
         return None
-    
+
     ##########################################################################
     ##########################################################################
     def resolution(self, bins=100, levels=5, smooth=0):
         '''
-        Description: 
+        Description: TODO
         '''
+
         # Read the data:
         h, iu = read_hdf5(file=self.file)
         mass = h['PartType0']['Masses'] * iu['umass']
         dens = h['PartType0']['Density'] * iu['udens']
         radius = ((3*mass) / (4*np.pi*dens))**(1/3)
-    
+
         # 2D Histograms:
-        H0, xedges0, yedges0 = np.histogram2d(np.log10(dens), 
-                                              np.log10(radius / const['pc']), 
+        H0, xedges0, yedges0 = np.histogram2d(np.log10(dens),
+                                              np.log10(radius / const['pc']),
                                               bins=bins)
-        H1, xedges1, yedges1 = np.histogram2d(np.log10(dens), 
-                                              np.log10(mass / const['Msol']), 
+        H1, xedges1, yedges1 = np.histogram2d(np.log10(dens),
+                                              np.log10(mass / const['Msol']),
                                               bins=bins)
 
         # Gaussian filter:
         if smooth > 0:
             H0 = gaussian_filter(H0, sigma=smooth)
             H1 = gaussian_filter(H1, sigma=smooth)
-    
+
         # Log scale:
-        with np.errstate(divide = 'ignore'):
+        with np.errstate(divide='ignore'):
             H0 = np.log10(H0.T)
             H1 = np.log10(H1.T)
 
         # Figure:
         fig, ax = plt.subplots(2, 1, figsize=(7, 7), sharex=True)
-        fig.subplots_adjust(left=0.15, right=0.85, bottom=0.15, top=0.95, 
+        fig.subplots_adjust(left=0.15, right=0.85, bottom=0.15, top=0.95,
                             wspace=0, hspace=0)
 
         # Density vs Radius:
-        cf = ax[0].contourf(H0, levels=levels, extent=(xedges0[0], xedges0[-1], 
-                            yedges0[0], yedges0[-1]), origin='lower', 
-                            cmap='viridis')
-        ax[0].set_ylabel('$\log_{10}(r_\mathrm{cell} \ [\mathrm{pc}])$')
+        cf = ax[0].contourf(H0, levels=levels, extent=(xedges0[0], xedges0[-1],
+                            yedges0[0], yedges0[-1]), origin='lower',
+                            cmap=configv.cmap['default'])
+        ax[0].set_ylabel(r'$\log_{10}(r_\mathrm{cell} \ [\mathrm{pc}])$')
         ax[0].grid()
         ax[0].set_xlim(self.xlim)
 
         cax = ax[0].inset_axes([1, -1, 0.05, 2])
-        cb = fig.colorbar(cf, cax=cax, label='$\log_{10}(N_\mathrm{cells})$')
+        fig.colorbar(cf, cax=cax, label=r'$\log_{10}(N_\mathrm{cells})$')
 
         # Density vs Mass:
-        ax[1].contourf(H1, levels=levels, extent=(xedges1[0], xedges1[-1], 
-                       yedges1[0], yedges1[-1]), origin='lower', cmap='viridis')
-        ax[1].set_ylabel('$\log_{10}(M_\mathrm{cell} \ [\mathrm{M}_\odot])$')
-        ax[1].set_xlabel(r'$\log_{10}(\rho_\mathrm{cell} \ [\mathrm{g} \ \mathrm{cm}^{-3}]$')
+        ax[1].contourf(H1, levels=levels, extent=(xedges1[0], xedges1[-1],
+                       yedges1[0], yedges1[-1]), origin='lower',
+                       cmap=configv.cmap['default'])
+        ax[1].set_ylabel(r'$\log_{10}(M_\mathrm{cell} \ [\mathrm{M}_\odot])$')
+        ax[1].set_xlabel(r'$\log_{10}(\rho_\mathrm{cell}$' +
+                         r' $[\mathrm{g} \ \mathrm{cm}^{-3}])$')
         ax[1].grid()
 
         # Jeans length:
@@ -439,35 +459,43 @@ class TerminalPlot:
         xlim = np.array(xlim)
 
         mu = (1 + 4 * 0.1)
-        jeans10  = np.sqrt((15 * self.kb * 10) / (4 * np.pi * self.G * mu * self.mp * 10**(xlim)))
-        jeans100 = np.sqrt((15 * self.kb * 100) / (4 * np.pi * self.G * mu * self.mp * 10**(xlim)))
+        jeans10 = np.sqrt((15 * self.kb * 10) / (4 * np.pi * self.G * mu *
+                                                 self.mp * 10**(xlim)))
+        jeans100 = np.sqrt((15 * self.kb * 100) / (4 * np.pi * self.G * mu *
+                                                   self.mp * 10**(xlim)))
 
-        ax[0].plot(xlim, np.log10(jeans10 / const['pc']), c='k', ls='--', lw=1, alpha=0.8, label='$\Lambda_J$($T=10$ K)')
-        ax[0].plot(xlim, np.log10(jeans100 / const['pc']), c='k', ls='--', lw=1, alpha=0.8, label='$\Lambda_J$($T=100$ K)')
-        labelLines(ax[0].get_lines(), xvals=[-24, -24], ha='center', fontsize=14)
+        ax[0].plot(xlim, np.log10(jeans10 / const['pc']), c='k', ls='--',
+                   lw=1, alpha=0.8, label=r'$\Lambda_J$($T=10$ K)')
+        ax[0].plot(xlim, np.log10(jeans100 / const['pc']), c='k', ls='--',
+                   lw=1, alpha=0.8, label=r'$\Lambda_J$($T=100$ K)')
+        labelLines(ax[0].get_lines(), xvals=[-24, -24], ha='center',
+                   fontsize=14)
 
-        # Save figure:
-        figname = f'res_{self.file[-8:-5]}.{self.saveformat}'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'resol'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
 
         return None
 
     ##########################################################################
     ##########################################################################
-    def stellar(self, axis='z', rotate=0, bins=100, bhfocus=False, 
+    def stellar(self, axis='z', rotate=0, bins=100, bhfocus=False,
                 xrange=None, yrange=None, zrange=None, box=None):
         '''
         Description: TODO
         '''
+
         # Read the data:
+        print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
@@ -475,12 +503,14 @@ class TerminalPlot:
         # Stellar component:
         pos_disk = h['PartType2']['Coordinates'] * iu['ulength'] / const['kpc']
         mass_disk = h['PartType2']['Masses'] * iu['umass'] / const['Msol']
-        
+
         pos = pos_disk
         mass = mass_disk
 
+        print('  * Generating a stellar surface density map')
+
         # Centre the data on the black hole:
-        if blackholefocus:
+        if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos -= bh
@@ -488,7 +518,8 @@ class TerminalPlot:
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
                                                  xrange=xrange, yrange=yrange,
-                                                 zrange=zrange, bhfocus=bhfocus)
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
 
         # Bins in x and y:
         xbins, dx = np.linspace(xrange[0], xrange[1], bins, retstep=True)
@@ -497,9 +528,9 @@ class TerminalPlot:
         # Remove particles outside the zrange:
         mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
         pos, mass = pos[mask], mass[mask]
-        
+
         # Rotation of particle positions:
-        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate, 
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
                                pos=pos, bhfocus=bhfocus)
 
         # Histogram 2D:
@@ -532,16 +563,17 @@ class TerminalPlot:
         fig.colorbar(im, cax=cax, label=r'$\log_{10}$($\Sigma_\star$'
                      + r' [M$_\odot$ kpc$^{-2}$])')
 
-        # Save figure:
-        figname = f'stellar_{self.file[-8:-5]}.png'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'stellar'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
 
         return None
@@ -553,7 +585,9 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
+
         # Read the data:
+        print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
@@ -566,8 +600,10 @@ class TerminalPlot:
             mass = np.full(len(pos), h['Header'].attrs['MassTable'][1]
                            * iu['umass'] / const['Msol'])
 
+        print('  * Generating a dark matter surface density map')
+
         # Centre the data on the black hole:
-        if blackholefocus:
+        if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos -= bh
@@ -575,12 +611,13 @@ class TerminalPlot:
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
                                                  xrange=xrange, yrange=yrange,
-                                                 zrange=zrange, bhfocus=bhfocus)
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
 
         # Bins in x and y:
         xbins, dx = np.linspace(xrange[0], xrange[1], bins, retstep=True)
         ybins, dy = np.linspace(yrange[0], yrange[1], bins, retstep=True)
-        
+
         # Remove particles outside the zrange:
         mask = (pos[:, 2] > np.min(zrange)) * (pos[:, 2] < np.max(zrange))
         pos, mass = pos[mask], mass[mask]
@@ -616,16 +653,17 @@ class TerminalPlot:
         fig.colorbar(im, cax=cax, label=r'$\log_{10}$($\Sigma_\star$'
                      + r' [M$_\odot$ kpc$^{-2}$])')
 
-        # Save figure:
-        figname = f'dm_{self.file[-8:-5]}.png'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'dm'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
 
         return None
@@ -633,24 +671,29 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def star_formation(self, axis='z', rotate=0, bins=100, sfb=100,
-                       interpolation='kdtree', bhfocus=False, xrange=None, 
+                       interpolation='kdtree', bhfocus=False, xrange=None,
                        yrange=None, zrange=None, box=None, cut=None):
         '''
         Description: TODO
         '''
+
         # Read the data:
+        print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         pos_gas = h['PartType0']['Coordinates'] * iu['ulength'] / const['kpc']
         dens_gas = h['PartType0']['Density'] * iu['udens']
-        pos_stars = h['PartType4']['Coordinates'] * iu['ulength'] / const['kpc']
+        pos_stars = (h['PartType4']['Coordinates'] * iu['ulength']
+                     / const['kpc'])
         mass_stars = h['PartType4']['Masses'] * iu['umass'] / const['Msol']
         time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
-                     / self.Myr)
+                      / self.Myr)
+
+        print('  * Generating a star formation rate surface density map')
 
         # Centre the data on the black hole:
-        if blackholefocus:
+        if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos_gas -= bh
@@ -659,7 +702,8 @@ class TerminalPlot:
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
                                                  xrange=xrange, yrange=yrange,
-                                                 zrange=zrange, bhfocus=bhfocus)
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
 
         # Rotation of particle positions:
         pos_gas = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
@@ -724,16 +768,17 @@ class TerminalPlot:
                      + f'{self.unitlength}' + '$^{-2}$' + '])', size=12)
         cb.ax.tick_params(labelsize=12)
 
-        # Save figure:
-        figname = f'starformation_{self.file[-8:-5]}.{self.saveformat}'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'sf'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
 
         return None
@@ -746,27 +791,34 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
+
         # Read the data:
+        print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         pos_gas = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
         dens_gas = h['PartType0']['Density'] * iu['udens']
-        pos_stars = h['PartType4']['Coordinates'] * iu['ulength'] / self.ulength
+        pos_stars = (h['PartType4']['Coordinates'] * iu['ulength']
+                     / self.ulength)
         time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
-                     / const['Myr'])
+                      / const['Myr'])
+
+        print('  * Generating a map highlighting the stellar age of newly' +
+              ' formed star particles')
 
         # Centre the data on the black hole:
-        if blackholefocus:
+        if bhfocus:
             bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
                   / self.ulength)
             pos_gas -= bh
-            pos_star -= bh
+            pos_stars -= bh
 
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
                                                  xrange=xrange, yrange=yrange,
-                                                 zrange=zrange, bhfocus=bhfocus)
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
 
         # Rotation of particle positions:
         pos_gas = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
@@ -816,7 +868,7 @@ class TerminalPlot:
         fig.colorbar(im_gas, cax=cax, label=r'$\log_{10}(\Sigma_\mathrm{Gas}$'
                      + r' $[\mathrm{g} \ \mathrm{cm}^{-2}])$')
 
-        time_diff = np.abs(time - time_star[mask])
+        time_diff = np.abs(time - time_stars[mask])
         im_sa = ax.scatter(pos_stars[:, 0][mask], pos_stars[:, 1][mask],
                            c=time_diff, s=10, marker='.', cmap='viridis',
                            vmin=0, vmax=np.min([age, np.max(time_diff)]))
@@ -826,23 +878,18 @@ class TerminalPlot:
         cb.set_label(label='Stellar age [Myr]', size=12)
         cb.ax.tick_params(labelsize=12)
 
-        # Save figure:
-        figname = f'stellarage_{self.file[-8:-5]}.{self.saveformat}'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'sa'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
-
-        return None
-
-    ##########################################################################
-    ##########################################################################
-    def movie():
 
         return None
 
@@ -852,145 +899,204 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
+
         # Snapshot range:
         file_list = os.listdir()
         snap_list = [i for i in file_list if 'snap_' in i]
-        snap_list = [i for i in snap_list if not 'sink_' in i]
+        snap_list = [i for i in snap_list if 'sink_' not in i]
         snum_list = [int(i[5:-5]) for i in snap_list]
         n = np.min(snum_list)
         N = int(self.file[len(self.file)-8:-5])
 
         # Obtain the black hole data:
-        BHData = get_black_hole_data(output_dir=os.getcwd(), n=n, N=N, 
+        BHData = get_black_hole_data(output_dir=os.getcwd(), n=n, N=N,
                                      vcr=vcr)
-        
+
         # Collection of plots:
         ls = '-'
         lw = 2
         c = 'tab:blue'
         fs = 14
 
-        fig, ax = plt.subplots(2, 5, figsize=(14, 5.5), sharex=True, 
+        fig, ax = plt.subplots(2, 5, figsize=(14, 5.5), sharex=True,
                                layout='constrained')
 
         # Sink mass:
-        ax[0,0].plot(BHData['Time'], np.log10(BHData['MassSink']), 
-                     ls=ls, lw=lw, c=c)
-        ax[0,0].set_title('$\log_{10}(M_\mathrm{Sink} \ [\mathrm{M}_\odot])$', 
-                          fontsize=fs)
-        ax[0,0].set_xlim(0, np.max(BHData['Time']))
-        ax[0,0].grid()
+        ax[0, 0].plot(BHData['Time'], np.log10(BHData['MassSink']),
+                      ls=ls, lw=lw, c=c)
+        ax[0, 0].set_title(r'$\log_{10}(M_\mathrm{Sink}$' +
+                           r' $[\mathrm{M}_\odot])$', fontsize=fs)
+        ax[0, 0].set_xlim(0, np.max(BHData['Time']))
+        ax[0, 0].grid()
 
         # BH growth:
-        ax[0,1].plot(BHData['Time'], np.log10(BHData['MassBH']), 
-                     ls=ls, lw=lw, c=c)
-        ax[0,1].set_title('$\log_{10}(M_\mathrm{BH} \ [\mathrm{M}_\odot])$', 
-                          fontsize=fs)
-        ax[0,1].grid()
+        ax[0, 1].plot(BHData['Time'], np.log10(BHData['MassBH']),
+                      ls=ls, lw=lw, c=c)
+        ax[0, 1].set_title(r'$\log_{10}(M_\mathrm{BH} \ [\mathrm{M}_\odot])$',
+                           fontsize=fs)
+        ax[0, 1].grid()
 
         # Gas reservoir:
         GasReserv = np.array(BHData['MassReserv'])
         GasReserv[GasReserv <= 0] = 1e-99
-        ax[0,2].plot(BHData['Time'], np.log10(GasReserv), ls=ls, lw=lw, c=c)
-        ax[0,2].set_title('$\log_{10}(M_\mathrm{Reserv} \ [\mathrm{M}_\odot])$', 
-                          fontsize=fs)
-        ax[0,2].set_ylim(-9, 5)
-        ax[0,2].grid()
+        ax[0, 2].plot(BHData['Time'], np.log10(GasReserv), ls=ls, lw=lw, c=c)
+        ax[0, 2].set_title(r'$\log_{10}(M_\mathrm{Reserv}$' +
+                           r' $[\mathrm{M}_\odot])$', fontsize=fs)
+        ax[0, 2].set_ylim(-9, 5)
+        ax[0, 2].grid()
 
         # Gas accretion disk:
         AccDisk = np.array(BHData['MassDisk'])
         AccDisk[AccDisk <= 0] = 1e-99
-        ax[0,3].plot(BHData['Time'], np.log10(AccDisk), ls=ls, lw=lw, c=c)
-        ax[0,3].set_title('$\log_{10}(M_\mathrm{Disk} \ [\mathrm{M}_\odot])$', 
-                          fontsize=fs)
-        ax[0,3].set_ylim(-9, 5)
-        ax[0,3].grid()
+        ax[0, 3].plot(BHData['Time'], np.log10(AccDisk), ls=ls, lw=lw, c=c)
+        ax[0, 3].set_title(r'$\log_{10}(M_\mathrm{Disk}$' +
+                           r' $[\mathrm{M}_\odot])$', fontsize=fs)
+        ax[0, 3].set_ylim(-9, 5)
+        ax[0, 3].grid()
 
         # Relative error:
-        mass_diff = ((np.array(BHData['MassSink']) 
-                      - np.array(BHData['MassReserv']) 
-                      - np.array(BHData['MassDisk']) 
-                      - np.array(BHData['MassBH'])) 
+        mass_diff = ((np.array(BHData['MassSink'])
+                      - np.array(BHData['MassReserv'])
+                      - np.array(BHData['MassDisk'])
+                      - np.array(BHData['MassBH']))
                      / np.array(BHData['MassSink']))
-        ax[0,4].plot(BHData['Time'], mass_diff, lw=lw, c=c)
-        ax[0,4].set_title('Relative Error', fontsize=fs)
-        ax[0,4].set_yscale('linear')
-        ax[0,4].grid()
-        
+        ax[0, 4].plot(BHData['Time'], mass_diff, lw=lw, c=c)
+        ax[0, 4].set_title('Relative Error', fontsize=fs)
+        ax[0, 4].set_yscale('linear')
+        ax[0, 4].grid()
+
         # Sink accretion rate:
         FracEddSink = np.array(BHData['MdotSink'])/np.array(BHData['MdotEdd'])
         FracEddSink[FracEddSink <= 0] = 1e-99
-        ax[1,0].stairs(np.log10(FracEddSink), BHData['Time'], baseline=-99, 
-                       lw=lw, color=c, alpha=0.8, fill=True, rasterized=True)
-        ax[1,0].axhline(0, c='k', ls=':', lw=1, zorder=9)
-        ax[1,0].axhline(np.log10(0.02), c='k', ls='--', lw=1, zorder=9)
-        ax[1,0].set_xlabel('Time [Myr]')
-        ax[1,0].set_title('$\log_{10}(\dot{M}_\mathrm{Sink}/\dot{M}_\mathrm{Edd})$', 
-                          fontsize=fs)
-        ax[1,0].set_ylim(-9, 1)
-        ax[1,0].grid()
+        ax[1, 0].stairs(np.log10(FracEddSink), BHData['Time'], baseline=-99,
+                        lw=lw, color=c, alpha=0.8, fill=True, rasterized=True)
+        ax[1, 0].axhline(0, c='k', ls=':', lw=1, zorder=9)
+        ax[1, 0].axhline(np.log10(0.02), c='k', ls='--', lw=1, zorder=9)
+        ax[1, 0].set_xlabel('Time [Myr]')
+        ax[1, 0].set_title(r'$\log_{10}(\dot{M}_\mathrm{Sink}/$' +
+                           r'$\dot{M}_\mathrm{Edd})$', fontsize=fs)
+        ax[1, 0].set_ylim(-9, 1)
+        ax[1, 0].grid()
 
         MdotSink = np.array(BHData['MdotSink'])
         MdotSink[MdotSink <= 0] = 1e-99
-        ax[1,1].stairs(np.log10(MdotSink), BHData['Time'], baseline=-99, 
-                       lw=lw, color=c, alpha=0.8, fill=True, rasterized=True)
-        ax[1,1].set_xlabel('Time [Myr]')
-        ax[1,1].set_title('$\log_{10}(\dot{M}_\mathrm{Sink} \ [\mathrm{M}_\odot \ \mathrm{yr}^{-1}])$', 
-                          fontsize=fs)
-        ax[1,1].set_ylim(-9, -3)
-        ax[1,1].grid()
+        ax[1, 1].stairs(np.log10(MdotSink), BHData['Time'], baseline=-99,
+                        lw=lw, color=c, alpha=0.8, fill=True, rasterized=True)
+        ax[1, 1].set_xlabel('Time [Myr]')
+        ax[1, 1].set_title(r'$\log_{10}(\dot{M}_\mathrm{Sink}$' +
+                           r'$ [\mathrm{M}_\odot \ \mathrm{yr}^{-1}])$',
+                           fontsize=fs)
+        ax[1, 1].set_ylim(-9, -3)
+        ax[1, 1].grid()
 
         # BH Accretion rate:
         FracEddBH = np.array(BHData['MdotBH']) / np.array(BHData['MdotEdd'])
         FracEddBH[FracEddBH <= 0] = 1e-99
-        ax[1,2].plot(BHData['TimeMid'], np.log10(FracEddBH), lw=lw, c=c, 
-                     zorder=10)
-        ax[1,2].axhline(0, c='k', ls=':', lw=1, zorder=9)
-        ax[1,2].axhline(np.log10(0.02), c='k', ls='--', lw=1, zorder=9)
-        ax[1,2].set_xlabel('Time [Myr]')
-        ax[1,2].set_title('$\log_{10}(\dot{M}_\mathrm{BH}/\dot{M}_\mathrm{Edd})$', 
-                          fontsize=fs)
-        ax[1,2].set_ylim(-9, 1)
-        ax[1,2].grid()
+        ax[1, 2].plot(BHData['TimeMid'], np.log10(FracEddBH), lw=lw, c=c,
+                      zorder=10)
+        ax[1, 2].axhline(0, c='k', ls=':', lw=1, zorder=9)
+        ax[1, 2].axhline(np.log10(0.02), c='k', ls='--', lw=1, zorder=9)
+        ax[1, 2].set_xlabel('Time [Myr]')
+        ax[1, 2].set_title(r'$\log_{10}(\dot{M}_\mathrm{BH}/$' +
+                           r'$\dot{M}_\mathrm{Edd})$', fontsize=fs)
+        ax[1, 2].set_ylim(-9, 1)
+        ax[1, 2].grid()
 
         MdotBH = np.array(BHData['MdotBH'])
         MdotBH[MdotBH <= 0] = 1e-99
-        ax[1,3].plot(BHData['TimeMid'], np.log10(MdotBH), lw=2, c=c,
-                     zorder=10)
-        ax[1,3].set_xlabel('Time [Myr]')
-        ax[1,3].set_title('$\log_{10}(\dot{M}_\mathrm{BH}$ [M$_\odot$ yr$^{-1}$])', 
-                          fontsize=fs)
-        ax[1,3].set_ylim(-9, -3)
-        ax[1,3].grid()
+        ax[1, 3].plot(BHData['TimeMid'], np.log10(MdotBH), lw=2, c=c,
+                      zorder=10)
+        ax[1, 3].set_xlabel('Time [Myr]')
+        ax[1, 3].set_title(r'$\log_{10}(\dot{M}_\mathrm{BH}$' +
+                           r' [M$_\odot$ yr$^{-1}$])', fontsize=fs)
+        ax[1, 3].set_ylim(-9, -3)
+        ax[1, 3].grid()
 
         # Circularisation radius:
         if len(BHData['CircRadius']) > 0:
-            ax[1,4].plot(BHData['Time'], BHData['CircRadius'], lw=lw, c=c)
-            ax[1,4].set_xlabel('Time [Myr]')
-            ax[1,4].set_title('$R_\mathrm{circ}$ [left: pc, right: $r_\mathrm{s}$]', 
-                              fontsize=fs)
-            ax[1,4].set_yscale('linear')
-            ax[1,4].grid()
+            ax[1, 4].plot(BHData['Time'], BHData['CircRadius'], lw=lw, c=c)
+            ax[1, 4].set_xlabel('Time [Myr]')
+            ax[1, 4].set_title(r'$R_\mathrm{circ}$ [left: pc, right: ' +
+                               r'$r_\mathrm{s}$]', fontsize=fs)
+            ax[1, 4].set_yscale('linear')
+            ax[1, 4].grid()
 
-            ax2 = ax[1,4].twinx()
-            rs = 2 * const['G'] * BHData['MassBH'][0] * const['Msol'] / np.power(const['c'], 2)
+            ax2 = ax[1, 4].twinx()
+            rs = (2 * const['G'] * BHData['MassBH'][0] * const['Msol'] /
+                  np.power(const['c'], 2))
             Rcirc = np.array(BHData['CircRadius']) * const['pc'] / rs
             ax2.plot(BHData['Time'], Rcirc, lw=lw, c=c)
             ax2.set_yscale('linear')
         else:
-            ax[1,4].set_visible(False)
+            ax[1, 4].set_visible(False)
 
-        # Save figure:
-        figname = f'bhevol_{self.file[-8:-5]}.{self.saveformat}'
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure generated and saved')
+        # Save:
+        print('  * Figure generated successfully')
+        funcname = 'bhevol'
+        self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.interactive is not True:
-            imgcat(fig, width=self.width)
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
         else:
-            print('  * Interactive display of the figure is now running')
+            print('  * Interactive display of figure is now running')
             plt.show()
+
+        return None
+
+    ##########################################################################
+    ##########################################################################
+    def ffmpeg(self, framedir, skip):
+        '''
+        Description: TODO
+        '''
+
+        if os.path.isdir(f'./vframes/{framedir}'):
+            fnr = 0
+            if skip:
+                fnr += 1
+            frame = '000'[:3-len(str(fnr))] + str(fnr)
+            print(f'  * Searching for {framedir} frames')
+            while os.path.isfile(f'./vframes/{framedir}/' +
+                                 f'{framedir}_{frame}.png'):
+                fnr += 1
+                frame = '000'[:3-len(str(fnr))] + str(fnr)
+            print(f'  * Found {fnr} frames!')
+
+        start = 0
+        if skip:
+            start += 1
+        file_split = self.file.split('.')
+        vframes = int(file_split[0][-3:])
+        if not skip:
+            vframes += 1
+        if vframes >= fnr:
+            print('  * Trying to generate a movie up to a given snapshot' +
+                  ' without the neccessary frames needed to do so,' +
+                  ' therefore, exiting the ffmpeg function')
+            return None
+        fps = 15
+        res_width = 1920
+        res_height = 1080
+
+        f = os.system(f'ffmpeg -r {fps} -f image2 -y' +
+                      f' -s {res_width}x{res_height}' +
+                      f' -start_number {start}' +
+                      f' -i {os.getcwd()}/vframes/{framedir}/' +
+                      f'{framedir}_%03d.png' +
+                      f' -vframes {vframes}' +
+                      ' -vcodec libx264' +
+                      ' -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"' +
+                      ' -crf 25' +
+                      ' -pix_fmt yuv420p' +
+                      f' {os.getcwd()}/{framedir}.mp4' +
+                      ' > ffmpeg.out 2> ffmpeg.err')
+        if f == 0:
+            print('  * Film successfully generated!')
+        else:
+            print('  * Error: Something went wrong, please check the ffmpeg' +
+                  ' output/error file')
 
         return None
 
