@@ -1,7 +1,7 @@
 '''
 Description:
-
-Last updated: 2014-11-12
+Authour(s): Jonathan Petersson
+Last updated: 2024-11-12
 '''
 
 # -------------- Required packages

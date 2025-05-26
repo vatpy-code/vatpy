@@ -1,12 +1,14 @@
 '''
 Description:
-
-Last updated: 2014-11-12
+Authour(s): Jonathan Petersson
+Last updated: 2024-11-12
 '''
+
 
 # -------------- Required packages
 import numpy as np
 from .read import read_hdf5, read_dump
+
 
 # -------------- Declare function(s)
 def get_black_hole_data(output_dir, n, N, vcr=False):
