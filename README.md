@@ -11,7 +11,7 @@ In this section, we provide some general guidelines to install and set up Vatpy 
 ### Requirements
 > `python`, `numpy`, `matplotlib`, `mpl_toolkits`, `scipy`, `h5py`, `labellines`, `pycstruct`
 
-### Quick Installation Guide:
+### Quick guide on how to install Vatpy
 - Download the repository to your home directory
 - Include the path to your Vatpy directory to the PYTHONPATH variable. For example, you can add the following line to your .bashrc or .bash_profile file, to ensure that this is always done when launching a new session:
   ```shell
