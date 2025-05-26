@@ -6,10 +6,11 @@ homedir = '/home/user/'
 mplstyle = 'default'
 
 # Colormaps
-cmap_dir = {
+cmap = {
+    'default': 'viridis',
     'darkmatter': 'magma',
     'stellar': 'bone',
-    'gas': 'viridis'
+    'gas': 'inferno'
 }
 
 # Unit selection
