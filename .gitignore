@@ -1,5 +1,15 @@
+# General:
 configv.py
+vplots
 .DS_Store
 __pycache__
 .ipynb_checkpoints
-tutorials/plots/*
+
+# Tutorials:
+tutorials/plots
+
+# Mesh relax:
+generate/ic_simple/meshrelax/uniform_box
+!generate/ic_simple/meshrelax/uniform_box/job.sh
+!generate/ic_simple/meshrelax/uniform_box/param.txt
+
