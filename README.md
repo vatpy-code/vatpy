@@ -25,7 +25,7 @@ In this section, we provide some general guidelines to install and set up Vatpy 
 - If you have any issues installing Vatpy, please do not hesitate to contact any of the main contributors listed below, or simply open up an issue on the GitHub repository (https://github.com/AstroJPetersson/vatpy), and we will get back to you as soon as possible. 
 
 ## Usage
-Here, we provide a short overview on how to use Vatpy directly in the terminal, as well as in Jupyter Notebooks.
+Here, we provide a short overview of how to use Vatpy directly in the terminal, as well as in Jupyter Notebooks.
 
 ### How to use Vatpy in the Terminal
 *TODO*
