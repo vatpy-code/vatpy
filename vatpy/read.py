@@ -49,7 +49,6 @@ def read_hdf5(file):
 
     return h, iu
 
-
 def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
               rcirc=False, rad=False, nfreq=1):
     '''
@@ -136,6 +135,5 @@ def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
     f.close()
 
     return time, NSinksAllTasks, sinks
-
 
 # -------------- End of file

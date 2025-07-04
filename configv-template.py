@@ -15,5 +15,8 @@ cmap = {
 
 # Unit selection
 unit_for_length = 'kpc'  # Either: 'kpc', 'pc' or 'iu' (internal units)
+unit_for_mass = 'Msol'
+unit_for_velocity = 'km/s'
+unit_for_time = 'Myr'
 
 # ------- End of config file

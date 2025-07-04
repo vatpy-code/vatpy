@@ -17,7 +17,7 @@ def number_density(h, iu):
     rho = h['PartType0']['Density'] * iu['udens']
 
     # Chemical abundances:
-    X = h['PartType0']['ChemicalAbundances']
+    X = h['PartType0']['ChemicalAbundances'][:]
     xH2, xHII, xCO = X[:,0], X[:,1], X[:,2]
 
     # Number densities from chemical abundances:

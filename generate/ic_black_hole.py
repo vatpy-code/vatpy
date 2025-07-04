@@ -49,6 +49,6 @@ print('  * Binary file content:')
 for i in dump[2].keys():
     print(f'      {i}: {dump[2][i]}')
 
-print('  * Done!')
+print('  * Done!\n')
 
 # -------------- End of file

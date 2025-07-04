@@ -25,7 +25,7 @@ Omega0         0.0
 OmegaLambda    0.0
 OmegaBaryon    0.0
 HubbleParam    1.0
-BoxSize        10
+BoxSize        5
 
 %--- [output control]
 OutputListOn                 0

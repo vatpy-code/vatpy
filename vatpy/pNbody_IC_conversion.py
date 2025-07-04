@@ -13,12 +13,12 @@ from scipy.interpolate import NearestNDInterpolator
 from .read import read_hdf5, read_dump
 
 # -------------- Declare function(s)
-def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e4), backgrounddensity_in_cgs=1e-30):
+def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5), backgrounddensity_in_cgs=1e-30):
     '''
     Description: 
     '''
     # Read the source file:
-    print('  * Copying the source file to assigned destination')
+    print('  * Copying source file to assigned destination')
     with h5py.File(source, 'r') as src:
         # Create the destination file:
         with h5py.File(dest, 'w') as dst:
@@ -27,7 +27,7 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e4)
                 src.copy(key, dst)
 
     # Open the destination file and make edits:
-    print('  * Opening the copied file to make edits')
+    print('  * Opening copied file to make edits')
     with h5py.File(dest, 'r+') as f:
         # Delete unnecessary groups:
         print('  * Deleting unnecessary data groups')
@@ -83,7 +83,7 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e4)
         h.attrs['UnitVelocity_in_cm_per_s'] = uvel
         
         # Loop over the particle types:
-        print('  * Looping over the particle types to remove unnecessary data')
+        print('  * Looping over particle types to remove unnecessary data')
         for i in range(0, 6):
             if f'PartType{i}' in f:
                 if 'InternalEnergy' in f[f'PartType{i}']:

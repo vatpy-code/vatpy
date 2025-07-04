@@ -1,22 +1,17 @@
-#!/home/astro/jpeterss/anaconda3/bin/python
+'''
+Description: TODO
+Authour(s): Jonathan Petersson
+Last updated: 2025-06-04
+'''
+
 
 # -------------- Packages:
+import os
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import argparse
-import h5py
-from imgcat import imgcat
 
-from src import CloudCollapse, GalaxyBarred, Streams
+from vatpy import CloudCollapse
 
-
-# -------------- Units:
-pc   = 3.08567758e18  #[cm]
-kpc  = 3.08567758e21  #[cm]
-Msol = 1.9891e33      #[g]
-kmps = 1e5            #[cm/s]
-Myr  = 1e6 * 365.25 * 24 * 60 * 60  #[s]
 
 # -------------- Arguments:
 # Initialize argparse:

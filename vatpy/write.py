@@ -68,7 +68,7 @@ def write_dump(filename, ic, feedback=False, spin=False, bh=False, hm=False,
         data['MassStillToConvert'] = np.zeros(50)
         data['AccretionTime'] = np.zeros(50)
     if spin is True:
-        data['AngularMomentum'] = [0, 0, 0]
+        data['AngularMomentum'] = ic['sink_angmom']
     if bh is True:
         data['BlackHole'] = 1
         if hm is True:

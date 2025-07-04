@@ -47,7 +47,7 @@ def write_ic_file(filename, savepath, boxsize, parttypes, masstable=None):
         else:
             h.attrs['MassTable'] = np.zeros(NumPartTypes)
 
-    print('  * IC generated!')
+    print('  * ICs generated!')
     print(f'  * File name: {filename}.hdf5')
     print(f'  * Save path: {savepath}')
 

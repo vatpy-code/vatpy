@@ -35,4 +35,5 @@ from .pNbody_IC_conversion import convert_pNbody_IC_to_Arepo
 from .write import write_dump
 
 # IC4A module:
+from .IC4A.collapsing_cloud import CollapsingCloud
 from .IC4A.uniform_box import UniformBox

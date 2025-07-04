@@ -120,9 +120,10 @@ class TerminalPlot:
 
         # Figure name:
         filestr = self.file.split('.')
-        figname = f'{funcname}_{filestr[0]}.{self.saveformat}'
+        figname = f'{funcname}_{filestr[0]}'
         if self.savename:
             figname = self.savename + '_' + filestr[0][-3:]
+        figname += f'.{self.saveformat}'
 
         # Check if Vatpy plot directory already exists:
         if os.path.isdir(self.savepath):
@@ -157,8 +158,8 @@ class TerminalPlot:
         numpart = h['Header'].attrs['NumPart_ThisFile']
 
         print('  * Snapshot information')
-        print(f'  | Time    : {np.round(time, 2)} Myr')
-        print(f'  | BoxSize : {np.round(boxsize, 2)} kpc')
+        print(f'  | Time    : {round(time, 2)} Myr')
+        print(f'  | BoxSize : {round(boxsize, 2)} kpc')
         print('  |')
         print('  | Number of particles')
         print(f'  | PartType0 (gas)      : {numpart[0]}')
@@ -688,7 +689,7 @@ class TerminalPlot:
                      / const['kpc'])
         mass_stars = h['PartType4']['Masses'] * iu['umass'] / const['Msol']
         time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
-                      / self.Myr)
+                      / const['Myr'])
 
         print('  * Generating a star formation rate surface density map')
 
@@ -765,7 +766,7 @@ class TerminalPlot:
                           location='bottom')
         cb.set_label(label=r'$\log_{10}(\Sigma_\mathrm{SFR}$'
                      + r' $[\mathrm{M}_\odot$ yr$^{-1}$'
-                     + f'{self.unitlength}' + '$^{-2}$' + '])', size=12)
+                     + f'{self.ulengthselect}' + '$^{-2}$' + '])', size=12)
         cb.ax.tick_params(labelsize=12)
 
         # Save:
@@ -1071,7 +1072,7 @@ class TerminalPlot:
         vframes = int(file_split[0][-3:])
         if not skip:
             vframes += 1
-        if vframes >= fnr:
+        if vframes > fnr:
             print('  * Trying to generate a movie up to a given snapshot' +
                   ' without the neccessary frames needed to do so,' +
                   ' therefore, exiting the ffmpeg function')

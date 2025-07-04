@@ -33,6 +33,7 @@ class UniformBox:
                 and without the possibility to add a star particle and/or a
                 black hole to the simulation domain.
     '''
+
     def __init__(self, ulength, umass, uvel, boxsize):
         # Simulation set-up:
         self.ulength = ulength
@@ -126,10 +127,14 @@ class UniformBox:
         ic_sink['ParticleIDs'] = np.array([ic_star['ParticleIDs'][-1] + 1])
 
         # Write IC to file:
+        parttypes = {'PartType0': ic_gas}
+        if mass_star > 0:
+            parttypes['PartType4'] = ic_star
+        if mass_sink > 0:
+            parttypes['PartType5'] = ic_sink
+
         write_ic_file(filename=filename, savepath=savepath,
-                      boxsize=self.boxsize / self.ulength,
-                      parttypes={'PartType0': ic_gas, 'PartType4': ic_star,
-                                 'PartType5': ic_sink})
+                      boxsize=self.boxsize / self.ulength, parttypes=parttypes)
 
         # Check IC-file:
         if check is True:
@@ -144,17 +149,19 @@ class UniformBox:
                          modify_args=modify_args, filename=filename,
                          savepath=savepath, wait=wait)
 
-        with h5py.File(f'{savepath}/{filename}.hdf5', 'r+') as f:
-            # Units:
-            umass = f['Parameters'].attrs['UnitMass_in_g']
+        # Final edit(s):
+        if mass_star > 0:
+            with h5py.File(f'{savepath}/{filename}.hdf5', 'r+') as f:
+                # Units:
+                umass = f['Parameters'].attrs['UnitMass_in_g']
 
-            # Modify the IC file:
-            stellar_masses = np.zeros(50)
-            stellar_masses[0] = mass_star / umass
+                # Modify the IC file:
+                stellar_masses = np.zeros(50)
+                stellar_masses[0] = mass_star / umass
 
-            f['PartType4']['StellarFormationTime'] = np.array([0.]),
-            f['PartType4']['StellarMasses'] = np.array([stellar_masses]),
-            f['PartType4']['NumberOfSupernovae'] = np.array([1])
+                f['PartType4']['StellarFormationTime'] = np.array([0.]),
+                f['PartType4']['StellarMasses'] = np.array([stellar_masses]),
+                f['PartType4']['NumberOfSupernovae'] = np.array([1])
 
         return None
 
