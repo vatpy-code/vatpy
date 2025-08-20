@@ -20,7 +20,7 @@ from .read import read_hdf5
 from .constants import const
 from .get_gas_property import number_density, temperature
 from .interpolation import interpolate_to_2d, interpolate_to_2d_kdtree
-from .get_black_hole_data import get_black_hole_data
+from .get_data import get_black_hole_data
 
 import configv
 
@@ -37,11 +37,11 @@ class TerminalPlot:
                   of dark matter and stellar components. For more details, see
                   each function's individual description.
     '''
-
     def __init__(self, file, style=configv.mplstyle,
                  savepath=f'{os.getcwd()}/vplots/', savename=None,
                  saveformat='png', vmin=None, vmax=None, xlim=None, ylim=None,
                  ulengthselect=configv.unit_for_length, show=True):
+
         print(f'  * Setting up environment to analyse {file}')
 
         # Variables:
@@ -57,7 +57,7 @@ class TerminalPlot:
         self.style = style
         plt.style.use(f'{configv.homedir}/vatpy/mpl/{self.style}.mplstyle')
 
-        # Unit length:
+        # Unit selection:
         self.ulengthselect = ulengthselect
         if self.ulengthselect == 'kpc':
             self.ulength = const['kpc']
@@ -72,7 +72,6 @@ class TerminalPlot:
         '''
         Description: Function to get x, y, and z ranges.
         '''
-
         # Determine the coordinate ranges:
         if not box:
             if not xrange:
@@ -101,7 +100,6 @@ class TerminalPlot:
         '''
         Description: Function to rotate the position of particles.
         '''
-
         # If applicable, rotate the position of particles:
         if rotate != 0:
             rotation = Rotation.from_euler(axis, rotate, degrees=True)
@@ -117,7 +115,6 @@ class TerminalPlot:
         '''
         Description: Function to save figures.
         '''
-
         # Figure name:
         filestr = self.file.split('.')
         figname = f'{funcname}_{filestr[0]}'
@@ -149,7 +146,6 @@ class TerminalPlot:
                      given snapshot, such as the physical time, size of the
                      simulation domain, number of particles, etc.
         '''
-
         # Read the data:
         h, iu = read_hdf5(file=self.file)
 
@@ -204,7 +200,6 @@ class TerminalPlot:
                      selected gas quantity onto a grid, and later doing a sum
                      along the line-of-sight.
         '''
-
         # Read the data:
         print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
@@ -319,7 +314,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Read the data:
         print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
@@ -404,7 +398,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Read the data:
         h, iu = read_hdf5(file=self.file)
         mass = h['PartType0']['Masses'] * iu['umass']
@@ -494,7 +487,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Read the data:
         print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
@@ -586,7 +578,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Read the data:
         print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
@@ -677,7 +668,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Read the data:
         print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
@@ -792,7 +782,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Read the data:
         print('  * Reading data of snapshot')
         h, iu = read_hdf5(file=self.file)
@@ -900,7 +889,6 @@ class TerminalPlot:
         '''
         Description: TODO
         '''
-
         # Snapshot range:
         file_list = os.listdir()
         snap_list = [i for i in file_list if 'snap_' in i]
