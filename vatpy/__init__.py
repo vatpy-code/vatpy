@@ -17,16 +17,16 @@ from .interpolation import interpolate_to_2d
 from .interpolation import interpolate_to_2d_kdtree
 
 # Image generation for the GUI and CLI versions:
-from .get_gui_image import get_gas_density_image
-from .get_gui_image import get_gas_temperature_image
-from .get_cli_image import get_gas_density_image_cli
-from .get_cli_image import get_gas_temperature_image_cli
+from .GUI.get_gui_image import get_gas_density_image
+from .GUI.get_gui_image import get_gas_temperature_image
+from .CLI.get_cli_image import get_gas_density_image_cli
+from .CLI.get_cli_image import get_gas_temperature_image_cli
 
 # Get black hole data:
-from .get_black_hole_data import get_black_hole_data
+from .get_data.get_black_hole_data import get_black_hole_data
 
 # Get a complete set of images for the gas:
-from .get_image_data import get_image_data
+from .get_data.get_image_data import get_image_data
 
 # Function to convert IC file generated from pNbody to Arepo format:
 from .pNbody_IC_conversion import convert_pNbody_IC_to_Arepo

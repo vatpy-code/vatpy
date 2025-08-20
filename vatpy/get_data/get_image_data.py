@@ -1,13 +1,17 @@
 '''
-Description: Functions to get multiple images at the same time. 
+Description: Functions to get multiple images at the same time.
 
 Last updated: 2023-09-27
 '''
 
 # -------------- Required packages
 import numpy as np
-from vatpy import read_hdf5, const, number_density
-from vatpy import interpolate_to_2d_kdtree, interpolate_to_2d
+
+from ..constants import const
+from ..read import read_hdf5
+from ..get_gas_property import number_density
+from ..interpolation import interpolate_to_2d_kdtree, interpolate_to_2d
+
 
 # -------------- Declare function(s)
 def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
@@ -21,7 +25,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     else:
         ulength = 1
 
-    # Read the HDF5-file:    
+    # Read the HDF5-file:
     h, iu = read_hdf5(file=file)
     time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
     boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / ulength
@@ -63,7 +67,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         else:
             pos = rotation.apply(pos - boxsize/2)
             pos += boxsize/2
-    
+
     # Selection of gas quantity:
     image_data = {}
     for i in range(0, len(quantity)):
@@ -87,7 +91,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         image_data[quantity[i]] = interpDens
 
     image_data['extent'] = [xrange[0], xrange[1], yrange[0], yrange[1]]
-    
+
     return image_data
-    
+
 # -------------- End of file

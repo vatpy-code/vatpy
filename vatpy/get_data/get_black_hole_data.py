@@ -7,7 +7,8 @@ Last updated: 2024-11-12
 
 # -------------- Required packages
 import numpy as np
-from .read import read_hdf5, read_dump
+
+from ..read import read_hdf5, read_dump
 
 
 # -------------- Declare function(s)
