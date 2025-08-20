@@ -13,7 +13,7 @@ def number_density(h, iu):
     # Constants:
     mp   = 1.6726e-24    #[g]
     
-    # Gas density:  
+    # Gas density:
     rho = h['PartType0']['Density'] * iu['udens']
 
     # Chemical abundances:
@@ -26,7 +26,7 @@ def number_density(h, iu):
     nH  = rho / (mu * mp)
 
     num = {
-        'HII' : xHII * nH, 
+        'HII' : xHII * nH,
         'H2'  : xH2 * nH,
         'HI'  : (1 - xHII - 2*xH2) * nH,
         'CO'  : xCO * nH,
