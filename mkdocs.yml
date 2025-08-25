@@ -1,0 +1,16 @@
+site_name: Vatpy Docs
+
+plugins:
+  - search
+  - mkdocstrings
+
+theme:
+  name: material
+  palette:
+    primary: custom
+
+nav:
+  - Source Code: source.md
+
+extra_css:
+  - stylesheets/extra.css
