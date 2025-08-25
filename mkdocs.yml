@@ -1,16 +1,30 @@
 site_name: Vatpy Docs
 
+repo_url: https://github.com/astrojpetersson/vatpy
+repo_name: Git Repository
+
 plugins:
   - search
   - mkdocstrings
 
 theme:
   name: material
+  logo: assets/vatpy_bucket_fill.svg
+  icon:
+    repo: fontawesome/brands/github-alt
   palette:
     primary: custom
-
+  features:
+    - navigation.sections
+    - toc.integrate
 nav:
-  - Source Code: source.md
+  - Welcome to Vatpy: index.md
+  - User Guide:
+    - Installation: install.md
+    - How to make plots: plot.md
+    - DocStrings: docstrings.md
+    - Develop: develop.md
+    - Contact: contact.md
 
 extra_css:
   - stylesheets/extra.css

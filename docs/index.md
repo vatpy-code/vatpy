@@ -1,1 +1,1 @@
-# Welcome to Vatpy Docs
+# Welcome to Vatpy
