@@ -1,7 +1,7 @@
-# How to Make Plots
+# How to make plots
 
-## Using the TerminalPlot Class
+## Using the TerminalPlot class
 
-### Directly from the command line
+### On the command line
 
 ### Inside a Jupyter Notebook

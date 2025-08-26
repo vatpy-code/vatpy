@@ -12,19 +12,24 @@ theme:
   logo: assets/vatpy_bucket_fill.svg
   icon:
     repo: fontawesome/brands/github-alt
+  favicon: assets/vatpy_bucket_fill.svg
   palette:
     primary: custom
   features:
     - navigation.sections
     - toc.integrate
+
 nav:
   - Welcome to Vatpy: index.md
   - User Guide:
     - Installation: install.md
     - How to make plots: plot.md
-    - DocStrings: docstrings.md
-    - Develop: develop.md
-    - Contact: contact.md
+    - Source code: docstrings.md
+    - Contact details: contact.md
+  - Extra:
+    - ArepoNoctua: noctua.md
+
+copyright: Copyright &copy; 2025 Jonathan Petersson
 
 extra_css:
   - stylesheets/extra.css
