@@ -30,7 +30,7 @@ def get_black_hole_data(output_dir, n, N, vcr=False):
         'MassDisk'   : [],
         'MassReserv' : [],
         'MassSink'   : [],
-        'TimeMid'    : [],
+        'TimeAcc'    : [],
         'MdotBH'     : [],
         'MdotEdd'    : [],
         'MdotSink'   : [],
@@ -72,7 +72,7 @@ def get_black_hole_data(output_dir, n, N, vcr=False):
           - np.array(BlackHoleData['Time'])[:-1])
     mt = ((np.array(BlackHoleData['Time'])[1:] 
            + np.array(BlackHoleData['Time'])[:-1]) / 2)
-    BlackHoleData['TimeMid'] = list(mt)
+    BlackHoleData['TimeAcc'] = list(mt)
     mdot_sink = ((np.array(BlackHoleData['MassSink'])[1:] 
                   - np.array(BlackHoleData['MassSink'])[:-1]) / (dt * 1e6))
     BlackHoleData['MdotSink'] = list(mdot_sink) 
