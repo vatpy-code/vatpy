@@ -1,7 +1,7 @@
 '''
 Description: Interpolation of data (e.g. gas physical properties).
-
 Last updated: 2023-09-27
+Authour(s): Jonathan Petersson
 '''
 
 # -------------- Required packages
@@ -86,4 +86,3 @@ def interpolate_to_2d_kdtree(pos, unit, values, bins, xrange, yrange, zrange,
     return H
 
 # -------------- End of file
-

@@ -1,1 +1,2 @@
-::: vatpy.terminal_plot
+# TerminalPlot
+::: vatpy.terminal_plot.TerminalPlot
