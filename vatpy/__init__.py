@@ -29,7 +29,7 @@ from .get_data.get_black_hole_data import get_black_hole_data
 from .get_data.get_image_data import get_image_data
 
 # Function to convert IC file generated from pNbody to Arepo format:
-from .pNbody_IC_conversion import convert_pNbody_IC_to_Arepo
+from .ic_conversion import convert_pNbody_IC_to_Arepo
 
 # Function to write sink particle dump file:
 from .write import write_dump
@@ -37,3 +37,6 @@ from .write import write_dump
 # IC4A module:
 from .IC4A.collapsing_cloud import CollapsingCloud
 from .IC4A.uniform_box import UniformBox
+
+# Sweep post-processing script of Arepo snapshots:
+from .postprocess import do_sweep_post_process
