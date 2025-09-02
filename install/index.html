@@ -306,6 +306,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -317,6 +330,43 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recommended-set-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recommended set-up
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -492,6 +542,37 @@
 
 
 <h1 id="installation">Installation</h1>
+<p>Here, we provide some general guidelines on how to install and set up Vatpy on your personal machine.</p>
+<h2 id="requirements">Requirements</h2>
+<p><em>Version requirements are not neccessarily strict. The provided versions are the ones at which Vatpy
+have been tested at, and does not mean that Vatpy might run on older python/package versions.</em></p>
+<pre><code>python&gt;=3.12.7
+numpy&gt;=1.26.4
+matplotlib&gt;=3.9.2
+scipy&gt;=1.13.1
+h5py&gt;=3.11.0
+labellines
+pycstruct
+</code></pre>
+<p><em>Only needed to deploy documentation.</em></p>
+<pre><code>mkdocs&gt;=1.6.1
+mkdocs-material
+</code></pre>
+<h2 id="recommended-set-up">Recommended set-up</h2>
+<p><em>The recommended set-up of Vatpy is still in an early development stage. In the future, we hope to provide a complete package that can be easily installed via pip. But for now, we recommended the following set-up on your selected machine:</em></p>
+<ul>
+<li>Download the repository to your home directory, e.g. via HTTPS</li>
+</ul>
+<pre><code>cd ~
+git clone https://github.com/AstroJPetersson/vatpy.git
+</code></pre>
+<p>This will create a directory called <strong>vatpy</strong> in your home directory.</p>
+<ul>
+<li>Now, enter the <strong>vatpy</strong> directory and copy <code>template-configv.py</code> to <code>configv.py</code>, i.e.</li>
+</ul>
+<pre><code>cd vatpy
+cp template-configv.py configv.py
+</code></pre>
 
 
 
