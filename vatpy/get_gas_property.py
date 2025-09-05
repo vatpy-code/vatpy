@@ -1,6 +1,6 @@
 '''
-Description: Functions to get various gas properties, e.g. number densities 
-             & temperature. 
+Description: Functions to get various gas properties, e.g. number densities
+             & temperature.
 
 Last updated: 2023-09-27
 '''
@@ -12,7 +12,7 @@ import numpy as np
 def number_density(h, iu):
     # Constants:
     mp   = 1.6726e-24    #[g]
-    
+
     # Gas density:
     rho = h['PartType0']['Density'] * iu['udens']
 
@@ -33,7 +33,7 @@ def number_density(h, iu):
         'He'  : xHe * nH,
         'e'   : xHII * nH
     }
-    
+
     # Total number density:
     num['n'] = np.sum(np.array(list(num.values())), axis=0)
 

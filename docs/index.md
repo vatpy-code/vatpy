@@ -9,4 +9,5 @@ Many of its functionalities can be generally applied to simulations made by Arep
 such as creating visual maps of the gas chemistry, is at the moment only adapted
 to simulations run using the ArepoNoctua numerical framework (Petersson et al. 2025).
 
-<img src="assets/epfl.png" alt="epfl" align="right" width="15%">
+<br><br>
+Last updated: 2025-09-04

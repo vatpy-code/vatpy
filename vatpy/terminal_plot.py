@@ -1,8 +1,6 @@
-'''
-Description: File containing the TerminalPlot class.
-Authour(s): Jonathan Petersson
-Last updated: 2025-08-27
-'''
+# Description: File containing the TerminalPlot class.
+# Authour(s): Jonathan Petersson
+# Last updated: 2025-08-27
 
 
 # -------------- Required packages
@@ -165,10 +163,9 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def info(self):
-        '''
-        Description: Function to provide some general information about the
-                     given snapshot, such as the physical time, size of the
-                     simulation domain, number of particles, etc.
+        '''Function to provide some general information about the given
+        snapshot, such as the physical time, size of the simulation domain,
+        number of particles, etc.
         '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
@@ -216,13 +213,17 @@ class TerminalPlot:
     def density(self, axis='z', rotate=0, quantity='mass', bins=100,
                 interpolation='kdtree', bhfocus=False, funcname='dens',
                 xrange=None, yrange=None, zrange=None, box=None, cut=None):
-        '''
-        Description: Function to generate a column density map of the gas
-                     surface density, with the possibility to also show the
-                     column density of various chemical species, such as HI,
-                     HII, and H2. This is achieved by first interpolating the
-                     selected gas quantity onto a grid, and later doing a sum
-                     along the line-of-sight.
+        '''Function to generate a column density map of the gas surface
+        density, with the possibility to also show the column density of
+        various chemical species, such as HI, HII, and H2. This is achieved by
+        first interpolating the selected gas quantity onto a grid, and later
+        doing a sum along the line-of-sight.
+
+        Args:
+            axis (str): Rotation axis
+            rotate (float): Amount of rotation
+            quantity (str): Gas quantity to visualise
+                            (options: mass/n/HI/HII/H2/CO/He/e)
         '''
         # Read the data:
         print(f'  * Reading data of {self.file}')

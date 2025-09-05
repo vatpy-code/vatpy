@@ -8,27 +8,35 @@ plugins:
   - mkdocstrings:
       default_handler: python
 
+markdown_extensions:
+  - attr_list
+
 theme:
   name: material
   logo: assets/vatpy_bucket_fill.svg
   icon:
     repo: fontawesome/brands/github-alt
   favicon: assets/vatpy_bucket_fill.svg
-  palette:
-    primary: custom
   features:
     - navigation.sections
     - toc.integrate
+  palette:
+    primary: custom
+  custom_dir: overrides
 
 nav:
   - Welcome to Vatpy: index.md
   - User Guide:
     - Installation: install.md
     - How to make plots: plot.md
-    - Source code: docstrings.md
-    - Contact details: contact.md
+    - Source code:
+      - terminal_plot.py: terminal_plot.md
+    - Contact: contact.md
   - Extra:
-    - ArepoNoctua: noctua.md
+    - ArepoNoctua:
+      - Framework description: noctua.md
+      - Config.sh options: config.md
+      - Parameter file options: param.md
 
 copyright: Copyright &copy; 2025 Jonathan Petersson
 
