@@ -1,4 +1,4 @@
-# ArepoNoctua
+# Parameter file options
 
 *TODO*
 
