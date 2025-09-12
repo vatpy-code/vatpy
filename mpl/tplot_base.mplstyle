@@ -1,10 +1,10 @@
 # FONTS
-font.family     : sans-serif
-font.sans-serif : DejaVu Sans
-font.size       : 18
+font.family:     sans-serif
+font.sans-serif: DejaVu Sans
+font.size:       18
 
 # LATEX
-mathtext.fontset : dejavusans
+mathtext.fontset: dejavusans
 
 # TICKS
 xtick.top:           True    # draw ticks on the top side
@@ -38,11 +38,11 @@ ytick.minor.right:   True    # draw y axis right minor ticks
 ytick.color:         white   # color of the ticks
 
 # AXES
-axes.facecolor:  white   # axes background color
-axes.edgecolor:  white   # axes edge color
-axes.labelcolor: white   # axes label color
-axes.linewidth:  1.0     # edge line width
-axes.grid:       False   # display grid or not
+axes.facecolor:  white  # axes background color
+axes.edgecolor:  white  # axes edge color
+axes.labelcolor: white  # axes label color
+axes.linewidth:  1.0    # edge line width
+axes.grid:       False  # display grid or not
 
 # FIGURE
 figure.facecolor: none
@@ -53,5 +53,3 @@ grid.linewidth: 0.35
 # LEGEND
 legend.fontsize: 14
 legend.frameon:  False
-
-

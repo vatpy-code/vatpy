@@ -1,17 +1,17 @@
 # FONTS
-font.family    : monospace
-font.monospace : Courier New
-font.size      : 18
+font.family:    monospace
+font.monospace: Courier New
+font.size:      18
 
 # LATEX
-mathtext.fontset : custom
-mathtext.bf:  monospace:bold
-mathtext.cal: cursive
-mathtext.it:  monospace:italic
-mathtext.rm:  monospace
-mathtext.sf:  monospace
-mathtext.tt:  monospace
-mathtext.default : it
+mathtext.fontset: custom
+mathtext.bf:      monospace:bold
+mathtext.cal:     cursive
+mathtext.it:      monospace:italic
+mathtext.rm:      monospace
+mathtext.sf:      monospace
+mathtext.tt:      monospace
+mathtext.default: it
 
 # TICKS
 xtick.top:           True    # draw ticks on the top side
@@ -43,8 +43,8 @@ ytick.minor.left:    True    # draw y axis left minor ticks
 ytick.minor.right:   True    # draw y axis right minor ticks
 
 # AXES
-axes.linewidth: 1.0     # edge line width
-axes.grid:      False   # display grid or not
+axes.linewidth: 1.0    # edge line width
+axes.grid:      False  # display grid or not
 
 # GRID
 grid.linewidth: 0.35
@@ -52,5 +52,3 @@ grid.linewidth: 0.35
 # LEGEND
 legend.fontsize: 14
 legend.frameon:  False
-
-
