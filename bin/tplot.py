@@ -202,7 +202,7 @@ if args.movie:
     frame = '000'[:3-len(str(f))] + str(f)
     if os.path.isdir(f'{os.getcwd()}/vframes/{args.movie}'):
         while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
-                             f'{args.movie}_{frame}.{args.saveformat}'):
+                             f'{args.movie}_{frame}.{args.format}'):
             f += 1
             frame = '000'[:3-len(str(f))] + str(f)
         print(f'  * Found {f - 1} already generated frames in' +
