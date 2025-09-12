@@ -1,8 +1,6 @@
-'''
-Description: TODO
-Last updated: 2025-08-28
-Authour(s): Jonathan Petersson
-'''
+# Description: TODO
+# Authour(s): Jonathan Petersson
+# Last updated: 2025-08-28
 
 
 # -------------- Required packages
@@ -61,6 +59,7 @@ def copy_hdf5_file(source_file, destination_file):
 
             # Time of snapshot:
             snap_time = src['Header'].attrs['Time']
+            # dest['Header'].attrs['Time'] = 0
 
     return snap_time
 
@@ -85,8 +84,8 @@ def do_sweep_post_process(source_dir, snap_range):
     print('INIT: Checking directory for requirred files needed to ' +
           'post-process snapshots')
     terminate = '(terminating this script)\n\nTerminating...\n\n'
-    #if not os.path.isfile(f'{cwd}/Arepo'):
-    #    return print(f'ERROR: Missing Arepo file {terminate}')
+    if not os.path.isfile('Arepo'):
+        return print(f'ERROR: Missing Arepo file {terminate}')
     if not os.path.isfile('job.sh'):
         return print(f'ERROR: Missing job.sh file {terminate}')
     if not os.path.isfile('param.txt'):
@@ -96,21 +95,22 @@ def do_sweep_post_process(source_dir, snap_range):
 
     # Check if post-process directory and snapshots already exist(s):
     print('INIT: Checking if post-processed snapshots already exist in ' +
-          'POSTPROCESSEDSNAPHOTS')
+          'POSTPROCESSEDSNAPSHOTS')
     snap_start = int(snap_range[0])
     snap_end = int(snap_range[1])
-    if os.path.isdir('POSTPROCESSEDSNAPHOTS'):
+    if os.path.isdir('POSTPROCESSEDSNAPSHOTS'):
         snap_str = '000'[:3-len(str(snap_start))] + str(snap_start)
-        while os.path.isfile(f'POSTPROCESSEDSNAPHOTS/snap_{snap_str}.hdf5'):
-            snap_start += 1
+        while os.path.isfile(f'POSTPROCESSEDSNAPSHOTS/snap_{snap_str}.hdf5'):
             if snap_start == snap_end:
                 print('ENDING: All snapshots are already post-processed!\n')
                 return 0
-            snap_str = '000'[:3-len(str(snap_start))] + str(snap_start)
+            else:
+                snap_start += 1
+                snap_str = '000'[:3-len(str(snap_start))] + str(snap_start)
         print(f'INIT: Found {snap_start - int(snap_range[0])} already ' +
               'post-processed snapshots')
     else:
-        os.system('mkdir POSTPROCESSEDSNAPHOTS')
+        os.system('mkdir POSTPROCESSEDSNAPSHOTS')
 
     # Find user name:
     username = getpass.getuser()
@@ -154,12 +154,7 @@ def do_sweep_post_process(source_dir, snap_range):
         print('PREP: Creating a temporary parameter file')
         with open('param_postprocess.txt', 'w') as param_postprocess:
             for line in param_lines:
-                if line.strip().startswith('TimeBegin'):
-                    param_postprocess.write(f'TimeBegin    {snap_time}\n')
-                elif line.strip().startswith('TimeMax'):
-                    new_time_max = snap_time + delta_time
-                    param_postprocess.write(f'TimeMax    {new_time_max}\n')
-                elif line.strip().startswith('MaxSizeTimestep'):
+                if line.strip().startswith('MaxSizeTimestep'):
                     new_timestep_max = delta_time / num_sweep_iterations
                     param_postprocess.write(
                         f'MaxSizeTimestep    {new_timestep_max}\n')
@@ -180,19 +175,36 @@ def do_sweep_post_process(source_dir, snap_range):
 
         time_end = time.time()
         duration = int(time_end - time_start)
-        print(f'COMPLETED: Snapshot {s} post-processed succesfully ' +
-              f'(took {duration} s)       ')
 
-        # Move the final output to another directory:
-        print('OUTPUT: Moving the final output to POSTPROCESSEDSNAPHOTS')
+        # Check if the final output file exists:
         final = num_sweep_iterations // num_iterations_per_snapshot
         f_str = '000'[:3-len(str(final))] + str(final)
-        s_str = '000'[:3-len(str(s))] + str(s)
-        os.system(f'mv OUTPUT/snap_{f_str}.hdf5 POSTPROCESSEDSNAPHOTS/' +
-                  f'snap_{s_str}.hdf5')
+        if not os.path.isfile(f'OUTPUT/snap_{f_str}.hdf5'):
+            print(f'WARNING: Snapshot {s} post-processed without generating ' +
+                  f'a final output (took {duration} s)')
+            print('ACTION: Please try to re-run the post-processing routine ' +
+                  'using a different number of tasks')
+            with open('SWEPPP-WARNINGS.txt', 'a') as warn:
+                warn.write(f'Snapshot {s} post-processed without generating ' +
+                           'a final output\n')
+        else:
+            print(f'COMPLETED: Snapshot {s} post-processed succesfully ' +
+                  f'(took {duration} s)       ')
+
+            # Move the final output to another directory:
+            print('OUTPUT: Moving the final output to POSTPROCESSEDSNAPSHOTS')
+            s_str = '000'[:3-len(str(s))] + str(s)
+            os.system(f'mv OUTPUT/snap_{f_str}.hdf5 POSTPROCESSEDSNAPSHOTS/' +
+                      f'snap_{s_str}.hdf5')
+
+            # Update the time of the post-processed snapshot:
+            file = f'POSTPROCESSEDSNAPSHOTS/snap_{s_str}.hdf5'
+            with h5py.File(file, 'r+') as f:
+                f['Header'].attrs['Time'] = snap_time
+
         print(f'DONE: Post-processing of snapshot {s} completed')
 
-    print('ENDING: all snaphots post-processed!\n')
+    print('ENDING: All snaphots post-processed!\n')
 
     return 0
 
