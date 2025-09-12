@@ -14,6 +14,7 @@ scipy>=1.13.1
 h5py>=3.11.0
 labellines
 pycstruct
+cmasher
 ```
 
 *Only needed to deploy documentation.*
