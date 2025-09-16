@@ -123,9 +123,15 @@ class TerminalPlot:
         '''
         Description: Function to save figures.
         '''
+        # Name selection:
+        if self.name:
+            savename = self.name
+        else:
+            savename = funcname
+
         # Figure name:
         filestr = self.file.split('.')
-        figname = f'{funcname}_{filestr[0]}'
+        figname = f'{savename}_{filestr[0]}'
         if self.name:
             figname = self.name + '_' + filestr[0][-3:]
         figname += f'.{self.format}'
