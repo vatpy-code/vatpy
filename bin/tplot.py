@@ -136,9 +136,16 @@ parser.add_argument('-age', '--maxstellarage', action='store', default=100,
                     type=float, help='''
                     Maximum stellar age of newly formed star particles
                     ''')
-parser.add_argument('-skip', '--skipfirstsnapshot', action='store_true',
-                    default=False,
-                    help='Skip the first snapshot when generating a movie')
+# parser.add_argument('-skip', '--skipfirstsnapshot', action='store_true',      # Use -start flag instead
+#                     default=False,
+#                     help='''
+#                     Skip the first snapshot when generating a movie
+#                     ''')
+parser.add_argument('-start', '--startingsnapshot', action='store',
+                    default=False, type=int,
+                    help='''
+                    Start at the given snapshot when generating a movie (defaults to first snapshot)
+                    ''')
 
 # -------------- Common arguments
 parser.add_argument('-vmin', '--vmin', action='store', default=None,
@@ -197,8 +204,8 @@ if args.movie:
 
     # Check if some frames already have been generated or not:
     f = 0
-    if args.skipfirstsnapshot:
-        f += 1
+    if args.startingsnapshot:
+        f = args.startingsnapshot
     frame = '000'[:3-len(str(f))] + str(f)
     if os.path.isdir(f'{os.getcwd()}/vframes/{args.movie}'):
         while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
@@ -279,7 +286,7 @@ for snap in snapshots_to_read:
         v.black_hole_evolution(vcr=args.variablecircradius)
 
     if args.ffmpeg:
-        v.ffmpeg(framedir=args.ffmpeg, skip=args.skipfirstsnapshot)
+        v.ffmpeg(framedir=args.ffmpeg, skip=args.startingsnapshot)
 
 print('  * Run completed!\n')
 

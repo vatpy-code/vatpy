@@ -1065,20 +1065,21 @@ class TerminalPlot:
         if os.path.isdir(f'./vframes/{framedir}'):
             fnr = 0
             if skip:
-                fnr += 1
+                fnr = skip
             frame = '000'[:3-len(str(fnr))] + str(fnr)
             print(f'  * Searching for {framedir} frames')
             while os.path.isfile(f'./vframes/{framedir}/' +
                                  f'{framedir}_{frame}.png'):
                 fnr += 1
                 frame = '000'[:3-len(str(fnr))] + str(fnr)
-            print(f'  * Found {fnr} frames!')
+            print(f'  * Found {fnr - skip} frames!')
 
         start = 0
-        if skip:
-            start += 1
         file_split = self.file.split('.')
         vframes = int(file_split[0][-3:])
+        if skip:
+            start = skip
+            vframes = vframes - skip + 1
         if not skip:
             vframes += 1
         if vframes > fnr:
