@@ -12,10 +12,12 @@ from scipy.interpolate import NearestNDInterpolator
 
 from .read import read_hdf5, read_dump
 
+
 # -------------- Declare function(s)
-def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5), backgrounddensity_in_cgs=1e-30):
+def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False,
+                               N=int(1e5), backgrounddensity_in_cgs=1e-30):
     '''
-    Description: 
+    Description:
     '''
     # Read the source file:
     print('  * Copying source file to assigned destination')
@@ -48,7 +50,7 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5)
         uvel = ulength / utime
         udens = umass / np.power(ulength, 3)
         del f['Units']
-        
+
         # Get important header info:
         print('  * Obtaining important header information')
         time = float(f['Header'].attrs['Time'])
@@ -74,14 +76,14 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5)
         for i in ['Redshift', 'Omega0', 'OmegaLambda', 'HubbleParam']:
             h.attrs[i] = 0.0
         for i in ['Sfr', 'Cooling', 'StellarAge', 'Metals', 'Feedback']:
-    	    h.attrs[f'Flag_{i}'] = 0
+            h.attrs[f'Flag_{i}'] = 0
         h.attrs['Flag_DoublePrecision'] = 1
 
         # Added the units to the header:
         h.attrs['UnitLength_in_cm'] = ulength
         h.attrs['UnitMass_in_g'] = umass
         h.attrs['UnitVelocity_in_cm_per_s'] = uvel
-        
+
         # Loop over the particle types:
         print('  * Looping over particle types to remove unnecessary data')
         for i in range(0, 6):
@@ -115,13 +117,13 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5)
         if addbackgroundgrid == True:
             print('  * Adding a background grid of gas cells')
             grid_pos = boxsize * np.random.rand(N, 3) - boxsize/2
-            interp = NearestNDInterpolator(f['PartType1']['Coordinates'][:], 
+            interp = NearestNDInterpolator(f['PartType1']['Coordinates'][:],
                                            f['PartType1']['Velocities'][:])
             grid_vel = interp(grid_pos)
             avg_vol = np.power(boxsize, 3) / N
             grid_mass = np.full(N, (backgrounddensity_in_cgs / udens) * avg_vol)
             grid_ids = np.arange(0, N, 1) + (np.sum(num_part_total) + 1)
-    
+
             pos = f['PartType0']['Coordinates'][:]
             pos_new = np.append(pos, grid_pos, axis=0)
             del f['PartType0']['Coordinates']
@@ -131,26 +133,25 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5)
             vel_new = np.append(vel, grid_vel, axis=0)
             del f['PartType0']['Velocities']
             f['PartType0'].create_dataset('Velocities', data=vel_new)
-    
+
             mass = f['PartType0']['Masses'][:]
             mass_new = np.append(mass, grid_mass, axis=0)
             del f['PartType0']['Masses']
             f['PartType0'].create_dataset('Masses', data=mass_new)
-    
+
             ids = f['PartType0']['ParticleIDs'][:]
             ids_new = np.append(ids, grid_ids, axis=0)
             del f['PartType0']['ParticleIDs']
             f['PartType0'].create_dataset('ParticleIDs', data=ids_new)
-    
+
             num_part_thisfile[0] += N
             num_part_total[0] += N
-            
+
             h.attrs['NumPart_ThisFile'] = num_part_thisfile
             h.attrs['NumPart_Total'] = num_part_total
-        
-    
+
     print('  * Done!')
-    
+
     return None
-    
+
 # -------------- End of file

@@ -1,11 +1,11 @@
-'''
-Description: TODO
-Authour(s): Jonathan Petersson
-Last updated: 2025-09-01
-'''
+# Description: TODO
+# Authour(s): Jonathan Petersson
+# Last updated: 2025-09-01
+
 
 # -------------- Required Packages
 import sys
+
 
 # -------------- Import Sweep post-processing function
 from vatpy import do_sweep_post_process
