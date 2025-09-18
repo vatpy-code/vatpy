@@ -48,3 +48,6 @@ from .IC4A.uniform_box import UniformBox
 
 # Sweep post-processing script of Arepo snapshots:
 from .postprocess import do_sweep_post_process
+
+# FilmMaker class:
+from .filmmaker.filmmaker import FilmMaker
