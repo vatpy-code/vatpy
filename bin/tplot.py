@@ -204,8 +204,6 @@ if args.movie:
 
     # Check if some frames already have been generated or not:
     f = 0
-    if args.startingsnapshot:
-        f = args.startingsnapshot
     frame = '000'[:3-len(str(f))] + str(f)
     if os.path.isdir(f'{os.getcwd()}/vframes/{args.movie}'):
         while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
