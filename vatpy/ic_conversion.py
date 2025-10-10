@@ -13,7 +13,7 @@ from scipy.interpolate import NearestNDInterpolator
 from .read import read_hdf5, read_dump
 
 # -------------- Declare function(s)
-def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5), backgrounddensity_in_cgs=1e-30):
+def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5), backgrounddensity_in_cgs=1e-30, addBH = False, mass=1e5):
     '''
     Description: 
     '''
@@ -146,9 +146,25 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5)
             num_part_total[0] += N
             
             h.attrs['NumPart_ThisFile'] = num_part_thisfile
+            h.attrs['NumPart_Total'] = num_part_total        
+
+        if addBH == True:
+            print('  * Adding a central black hole,')
+            pt5 = f.create_group('PartType5')
+
+            id_BH = np.sum(num_part_total) + 1
+
+            pt5.create_dataset('ParticleIDs', data=np.array([id_BH]))
+            pt5.create_dataset('Coordinates', data=np.array([[0.0], [0.0], [0.0]]).T)
+            pt5.create_dataset('Velocities', data=np.array([[0.0], [0.0], [0.0]]).T)
+            pt5.create_dataset('Masses', data=np.array([mass]))
+
+            num_part_thisfile[5] = 1
+            num_part_total[5] = 1
+
+            h.attrs['NumPart_ThisFile'] = num_part_thisfile
             h.attrs['NumPart_Total'] = num_part_total
-        
-    
+            
     print('  * Done!')
     
     return None
