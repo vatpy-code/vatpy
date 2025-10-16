@@ -64,6 +64,10 @@ parser.add_argument('-sa', '--stellarage', action='store_true',
                     star particles (plus an underlying gas column density map
                     or gas surface density map sliced at a given z-value)
                     ''')
+parser.add_argument('-sfr', '--starformationrate', action='store_true',
+                    help='''
+                    TODO
+                    ''')
 parser.add_argument('-bhevol', '--blackholeevolution', action='store_true',
                     help='''
                     Generate a collection of plots showing the time evolution
@@ -230,7 +234,7 @@ for snap in snapshots_to_read:
     # Run TerminalPlot:
     if args.snapshot:
         v = TerminalPlot(file=snap, style=args.style, path=path,
-                         name=args.name, format=args.format,
+                         name=name, format=args.format,
                          vmin=args.vmin, vmax=args.vmax,
                          xlim=args.xlim, ylim=args.ylim,
                          ulengthselect=args.ulength, show=show)
@@ -274,6 +278,9 @@ for snap in snapshots_to_read:
                       age=args.maxstellarage, bhfocus=args.bhfocus,
                       xrange=args.xrange, yrange=args.yrange,
                       zrange=args.zrange, box=args.box, cut=args.cut)
+
+    if args.starformationrate:
+        v.star_formation_rate()
 
     if args.blackholeevolution:
         v.black_hole_evolution(vcr=args.variablecircradius)

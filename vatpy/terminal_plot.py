@@ -176,13 +176,15 @@ class TerminalPlot:
         # Read the data:
         h, iu = read_hdf5(file=self.file)
 
-        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        time_int = h['Header'].attrs['Time']
+        time_phys = time_int * iu['utime'] / const['Myr']
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         numpart = h['Header'].attrs['NumPart_ThisFile']
 
         print('  * Snapshot information')
-        print(f'  | Time    : {round(time, 2)} Myr')
-        print(f'  | BoxSize : {round(boxsize, 2)} kpc')
+        print(f'  | Time (internal) : {round(time_int, 2)}')
+        print(f'  | Time (physical) : {round(time_phys, 2)} Myr')
+        print(f'  | BoxSize       : {round(boxsize, 2)} kpc')
         print('  |')
         print('  | Number of particles')
         print(f'  | PartType0 (gas)      : {numpart[0]}')
@@ -890,6 +892,50 @@ class TerminalPlot:
                           location='bottom')
         cb.set_label(label='Stellar age [Myr]', size=12)
         cb.ax.tick_params(labelsize=12)
+
+        # Save:
+        print('  * Figure generated successfully!')
+        self.save(fig=fig, funcname=funcname)
+
+        # Display figure:
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
+        else:
+            print('  * Interactive display of figure is now running')
+            plt.show()
+
+        return None
+
+    ##########################################################################
+    ##########################################################################
+    def star_formation_rate(self, funcname='sfr'):
+        '''TODO
+        '''
+        # Read the data:
+        print(f'  * Reading data of {self.file}')
+        h, iu = read_hdf5(file=self.file)
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        pos_stars = (h['PartType4']['Coordinates'] * iu['ulength']
+                     / const['kpc'])
+        mass_stars = h['PartType4']['Masses'] * iu['umass'] / const['Msol']
+        time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
+                      / const['Myr'])
+
+        bins = np.arange(0, time+10, 10)
+        bins[-1] = time
+        SFR, bin_edges = np.histogram(time_stars, bins=bins,
+                                      weights=mass_stars)
+        bin_mids = (bin_edges[:-1] + bin_edges[1:]) / 2
+        bin_widths = (bin_edges[1:] - bin_edges[:-1])
+        SFR = np.log10(SFR / (bin_widths * 1e6))
+
+        fig, ax = plt.subplots(figsize=(6, 4.5), layout='constrained')
+        ax.plot(bin_mids, SFR, lw=2)
+        ax.set_xlabel('Time [Myr]')
+        ax.set_ylabel(r'$\log_{10}(\text{SFR}$' +
+                      r'$ \ [\text{M}_\odot \ \text{yr}^{-1}])$')
+        ax.grid()
 
         # Save:
         print('  * Figure generated successfully!')
