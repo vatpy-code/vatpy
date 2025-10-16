@@ -200,6 +200,15 @@ class TerminalPlot:
         print('  | Table of Particle Masses [i.u.]')
         print(f'  | {mt[0]}, {mt[1]}, {mt[2]}, {mt[3]}, {mt[4]}, {mt[5]}')
 
+        if numpart[4] > 0:
+            print('  |')
+            print('  * Star particles detected')
+            print(f'  | Total number of stars: {numpart[4]}')
+            sne = h['PartType4']['NumberOfSupernovae'][:]
+            stars = h['PartType4']['StellarMasses'][:]
+            print(f'  | Total number of OB stars: {np.sum(sne)}')
+            print(f'  | Max mass of star particles: {np.max(stars)}')
+
         if numpart[5] == 1:
             print('  |')
             print('  * A central BH detected')
@@ -211,6 +220,9 @@ class TerminalPlot:
             print(f'  | Mass [i.u.]        : {Mbh}')
             IDbh = h['PartType5']['ParticleIDs'][0]
             print(f'  | Particle ID        : {IDbh}')
+        elif numpart[5] > 1:
+            print('  |')
+            print('  * Multiple BHs detected!')
 
         print('  |')
 
