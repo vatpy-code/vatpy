@@ -1,10 +1,13 @@
 # FONTS
-font.family:     sans-serif
-font.sans-serif: DejaVu Sans
-font.size:       18
+font.family: serif
+font.serif:  DejaVu Serif
+font.size:   14
 
 # LATEX
-mathtext.fontset: dejavusans
+mathtext.fontset: dejavuserif
+
+# FIGURE                                                                  *
+figure.dpi: 200  # figure dots per inch
 
 # TICKS
 xtick.top:           True    # draw ticks on the top side
@@ -38,6 +41,8 @@ ytick.minor.right:   True    # draw y axis right minor ticks
 # AXES
 axes.linewidth: 1.0    # edge line width
 axes.grid:      False  # display grid or not
+
+axes.titlesize: medium
 
 # GRID
 grid.linewidth: 0.35

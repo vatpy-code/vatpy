@@ -64,6 +64,10 @@ parser.add_argument('-sa', '--stellarage', action='store_true',
                     star particles (plus an underlying gas column density map
                     or gas surface density map sliced at a given z-value)
                     ''')
+parser.add_argument('-sfr', '--starformationrate', action='store_true',
+                    help='''
+                    TODO
+                    ''')
 parser.add_argument('-bhevol', '--blackholeevolution', action='store_true',
                     help='''
                     Generate a collection of plots showing the time evolution
@@ -155,21 +159,21 @@ parser.add_argument('-movie', '--movie', action='store', default=None,
                     ''')
 
 # -------------- General arguments
-parser.add_argument('-path', '--savepath', action='store',
-                    default=f'{os.getcwd()}/vplots/', help='''
+parser.add_argument('-path', '--path', action='store',
+                    default=f'{os.getcwd()}/vplots', help='''
                     Path to save generated figure at (default: current working
                     directory)
                     ''')
-parser.add_argument('-name', '--savename', action='store',
-                    default=None, help='''
+parser.add_argument('-name', '--name', action='store', default=None,
+                    help='''
                     Name to save generated figure as (default: name of the
                     plotting function)
                     ''')
-parser.add_argument('-format', '--saveformat', action='store', default='png',
+parser.add_argument('-format', '--format', action='store', default='png',
                     type=str, help='''
                     Format to save generated figure as (default: png)
                     ''')
-parser.add_argument('-style', '--mplstyle', action='store',
+parser.add_argument('-style', '--style', action='store',
                     default=configv.mplstyle, type=str, help='''
                     Matplotlib style sheet (default: see configv.py)
                     ''')
@@ -184,18 +188,16 @@ args = parser.parse_args()
 print('\nWelcome to Vatpy TerminalPlot')
 
 if args.movie:
-    print('  * Starting to generate movie frames up to snapshot: ',
-          args.snapshot)
+    print('  * Starting to generate movie frames up to snapshot: ' +
+          f'{args.snapshot}')
 
     # Check if vframes directory already exists or not:
     if os.path.isdir(f'{os.getcwd()}/vframes'):
-        print('  * Directory for generated frames found in the current path!')
+        print('  * Directory for vframes detected!')
     else:
-        print('  * Directory for generated frames NOT found in the current' +
-              ' path')
-        print('  * Creating a directory for generated frames in the current' +
-              ' path')
-        os.makedirs('./vframes')
+        print('  * Directory for vframes NOT detected!')
+        print('    -> Creating a vframes directory')
+        os.makedirs(f'{os.getcwd()}/vframes')
 
     # Check if some frames already have been generated or not:
     f = 0
@@ -204,14 +206,13 @@ if args.movie:
     frame = '000'[:3-len(str(f))] + str(f)
     if os.path.isdir(f'{os.getcwd()}/vframes/{args.movie}'):
         while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
-                             f'{args.movie}_{frame}.{args.saveformat}'):
+                             f'{args.movie}_{frame}.{args.format}'):
             f += 1
             frame = '000'[:3-len(str(f))] + str(f)
-        print(f'  * Found {f - 1} frames already generated in' +
+        print(f'  * Found {f - 1} already generated frames in' +
               f' \'vframes/{args.movie}\'')
     else:
-        print(f'  * Creating a directory \'{args.movie}\' in vframes (to' +
-              ' save generated frames in)')
+        print(f'  * Creating a \'{args.movie}\' subdirectory in vframes')
         os.makedirs(f'{os.getcwd()}/vframes/{args.movie}')
 
     snapshot_split = args.snapshot.split('.')
@@ -219,21 +220,21 @@ if args.movie:
     snapshot_list = ['000'[:3-len(str(s))] + str(s) for s in
                      np.arange(f, snapshot_final+1, 1)]
     snapshots_to_read = [f'snap_{s}.hdf5' for s in snapshot_list]
-    savepath = f'{os.getcwd()}/vframes/{args.movie}/'
-    savename = f'{args.movie}'
+    path = f'{os.getcwd()}/vframes/{args.movie}/'
+    name = f'{args.movie}'
     show = False
 else:
     snapshots_to_read = [args.snapshot]
-    savepath = args.savepath
-    savename = args.savename
+    path = args.path
+    name = args.name
     show = args.show
 
 # Loop over snapshot(s):
 for snap in snapshots_to_read:
     # Run TerminalPlot:
     if args.snapshot:
-        v = TerminalPlot(file=snap, style=args.mplstyle, savepath=savepath,
-                         savename=savename, saveformat=args.saveformat,
+        v = TerminalPlot(file=snap, style=args.style, path=path,
+                         name=name, format=args.format,
                          vmin=args.vmin, vmax=args.vmax,
                          xlim=args.xlim, ylim=args.ylim,
                          ulengthselect=args.ulength, show=show)
@@ -277,6 +278,9 @@ for snap in snapshots_to_read:
                       age=args.maxstellarage, bhfocus=args.bhfocus,
                       xrange=args.xrange, yrange=args.yrange,
                       zrange=args.zrange, box=args.box, cut=args.cut)
+
+    if args.starformationrate:
+        v.star_formation_rate()
 
     if args.blackholeevolution:
         v.black_hole_evolution(vcr=args.variablecircradius)

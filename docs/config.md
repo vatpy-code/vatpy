@@ -1,4 +1,4 @@
-# ArepoNoctua
+# Config.sh options
 
 *TODO*
 

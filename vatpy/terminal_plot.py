@@ -1,8 +1,6 @@
-'''
-Description: File containing the TerminalPlot class.
-Authour(s): Jonathan Petersson
-Last updated: 2025-05-07
-'''
+# Description: File containing the TerminalPlot class.
+# Authour(s): Jonathan Petersson
+# Last updated: 2025-08-27
 
 
 # -------------- Required packages
@@ -27,28 +25,38 @@ import configv
 
 # -------------- TerminalPlot
 class TerminalPlot:
-    '''
-    TerminalPlot: Class to make simple, but informative, visual plots of Arepo
-                  snapshots, directly in the terminal (or notebook). Most
-                  importantly, it contains funtions to generate column density
-                  maps of the gas surface density, as well column density maps
-                  of various chemical species, such as HI, HII, and H2. The
-                  class also contains functions to inspect the surface density
-                  of dark matter and stellar components. For more details, see
-                  each function's individual description.
-    '''
-    def __init__(self, file, style=configv.mplstyle,
-                 savepath=f'{os.getcwd()}/vplots/', savename=None,
-                 saveformat='png', vmin=None, vmax=None, xlim=None, ylim=None,
-                 ulengthselect=configv.unit_for_length, show=True):
+    '''Class to make simple, but informative, visual plots of Arepo snapshots,
+    directly in the terminal (or notebook). Most importantly, it contains
+    funtions to generate column density maps of the gas surface density, as
+    well column density maps of various chemical species, such as HI, HII, and
+    H2. The class also contains functions to inspect the surface density of
+    dark matter and stellar components. For more details, see each function's
+    individual description.
 
-        print(f'  * Setting up environment to analyse {file}')
+    Args:
+        file (str): File to analyse
+        style (str): Matplotlib style option
+        path (str): Path to save file(s) at
+        name (str): Name to save file(s) as
+        format (str): Format to save file(s) as (e.g. png/jpg/pdf/tiff)
+        vmin (float): Global vmin value
+        vmax (float): Global vmax value
+        xlim (tuple): Global x-axis min and max values
+        ylim (tuple): Global y-axis min and max values
+        ulengthselect (str): Unit length (see configv.py for more details)
+        show (bool): If True, try to display the generated figure(s)
+    '''
+    def __init__(self, file, style=configv.mplstyle, path='./vplots',
+                 name=None, format='png', vmin=None, vmax=None, xlim=None,
+                 ylim=None, ulengthselect=configv.unit_for_length, show=True):
+
+        print(f'  * Setting up an environment to analyse {file}')
 
         # Variables:
         self.file = file
-        self.savepath = savepath
-        self.savename = savename
-        self.saveformat = saveformat
+        self.path = path
+        self.name = name
+        self.format = format
         self.vmin, self.vmax = vmin, vmax
         self.xlim, self.ylim = xlim, ylim
         self.show = show
@@ -115,47 +123,68 @@ class TerminalPlot:
         '''
         Description: Function to save figures.
         '''
+        # Name selection:
+        if self.name:
+            savename = self.name
+        else:
+            savename = funcname
+
         # Figure name:
         filestr = self.file.split('.')
-        figname = f'{funcname}_{filestr[0]}'
-        if self.savename:
-            figname = self.savename + '_' + filestr[0][-3:]
-        figname += f'.{self.saveformat}'
+        figname = f'{savename}_{filestr[0]}'
+        if self.name:
+            figname = self.name + '_' + filestr[0][-3:]
+        figname += f'.{self.format}'
 
         # Check if Vatpy plot directory already exists:
-        if os.path.isdir(self.savepath):
-            print('  * Path where to save figure found')
+        if os.path.isdir(self.path):
+            print('  * Path to save figure at detected')
         else:
-            print('  * Path where to save figure NOT found')
-            print('  * Creating a \'vplot\' directory')
+            print('  * Path to save figure at NOT detected')
+            print('  * Creating a \'vplots\' directory')
             os.mkdir(f'{os.getcwd()}/vplots/')
 
         # Save figure:
-        fig.savefig(f'{self.savepath}/{figname}')
-        print('  * Figure saved successfully as')
+        fig.savefig(f'{self.path}/{figname}')
+        print('  * Figure saved as')
         print(f'    - name: {figname}')
-        print(f'    - path: {self.savepath}')
+        print(f'    - at: {self.path}')
+
+        return None
+
+    def display(self):
+        '''
+        Description: TODO
+        '''
+
+        if self.show is not True:
+            print('  * Display of figure is turned OFF')
+            plt.close()
+        else:
+            print('  * Display of figure is now running')
+            plt.show()
 
         return None
 
     ##########################################################################
     ##########################################################################
     def info(self):
-        '''
-        Description: Function to provide some general information about the
-                     given snapshot, such as the physical time, size of the
-                     simulation domain, number of particles, etc.
+        '''Function to provide some general information about the given
+        snapshot, such as the physical time, size of the simulation domain,
+        number of particles, etc.
         '''
         # Read the data:
         h, iu = read_hdf5(file=self.file)
 
-        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        time_int = h['Header'].attrs['Time']
+        time_phys = time_int * iu['utime'] / const['Myr']
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         numpart = h['Header'].attrs['NumPart_ThisFile']
 
         print('  * Snapshot information')
-        print(f'  | Time    : {round(time, 2)} Myr')
-        print(f'  | BoxSize : {round(boxsize, 2)} kpc')
+        print(f'  | Time (internal) : {round(time_int, 2)}')
+        print(f'  | Time (physical) : {round(time_phys, 2)} Myr')
+        print(f'  | BoxSize       : {round(boxsize, 2)} kpc')
         print('  |')
         print('  | Number of particles')
         print(f'  | PartType0 (gas)      : {numpart[0]}')
@@ -171,6 +200,15 @@ class TerminalPlot:
         print('  | Table of Particle Masses [i.u.]')
         print(f'  | {mt[0]}, {mt[1]}, {mt[2]}, {mt[3]}, {mt[4]}, {mt[5]}')
 
+        if numpart[4] > 0:
+            print('  |')
+            print('  * Star particles detected')
+            print(f'  | Total number of stars: {numpart[4]}')
+            sne = h['PartType4']['NumberOfSupernovae'][:]
+            stars = h['PartType4']['StellarMasses'][:]
+            print(f'  | Total number of OB stars: {np.sum(sne)}')
+            print(f'  | Max mass of star particles: {np.max(stars)}')
+
         if numpart[5] == 1:
             print('  |')
             print('  * A central BH detected')
@@ -182,6 +220,9 @@ class TerminalPlot:
             print(f'  | Mass [i.u.]        : {Mbh}')
             IDbh = h['PartType5']['ParticleIDs'][0]
             print(f'  | Particle ID        : {IDbh}')
+        elif numpart[5] > 1:
+            print('  |')
+            print('  * Multiple BHs detected!')
 
         print('  |')
 
@@ -190,15 +231,19 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def density(self, axis='z', rotate=0, quantity='mass', bins=100,
-                interpolation='kdtree', bhfocus=False, xrange=None,
-                yrange=None, zrange=None, box=None, cut=None):
-        '''
-        Description: Function to generate a column density map of the gas
-                     surface density, with the possibility to also show the
-                     column density of various chemical species, such as HI,
-                     HII, and H2. This is achieved by first interpolating the
-                     selected gas quantity onto a grid, and later doing a sum
-                     along the line-of-sight.
+                interpolation='kdtree', bhfocus=False, funcname='dens',
+                xrange=None, yrange=None, zrange=None, box=None, cut=None):
+        '''Function to generate a column density map of the gas surface
+        density, with the possibility to also show the column density of
+        various chemical species, such as HI, HII, and H2. This is achieved by
+        first interpolating the selected gas quantity onto a grid, and later
+        doing a sum along the line-of-sight.
+
+        Args:
+            axis (str): Rotation axis
+            rotate (float): Amount of rotation
+            quantity (str): Gas quantity to visualise
+                            (options: mass/n/HI/HII/H2/CO/He/e)
         '''
         # Read the data:
         print(f'  * Reading data of {self.file}')
@@ -292,30 +337,24 @@ class TerminalPlot:
         fig.colorbar(im, cax=cax, label=cbar_label[quantity])
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'dens'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
-        if self.show is not True:
-            print('  * Interactive display of figure is NOT allowed')
-            plt.close()
-        else:
-            print('  * Interactive display of figure is now running')
-            plt.show()
+        self.display()
 
         return None
 
     ##########################################################################
     ##########################################################################
     def temperature(self, axis='z', rotate=0, bins=100, interpolation='kdtree',
-                    bhfocus=False, xrange=None, yrange=None, zrange=None,
-                    box=None, cut=None):
+                    bhfocus=False, funcname='temp', xrange=None, yrange=None,
+                    zrange=None, box=None, cut=None):
         '''
         Description: TODO
         '''
         # Read the data:
-        print('  * Reading data of snapshot')
+        print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
         pos = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
         dens = h['PartType0']['Density'] * iu['udens']
@@ -378,8 +417,7 @@ class TerminalPlot:
         fig.colorbar(im, cax=cax, label=r'$\log_{10}(T \ [\mathrm{K}])$')
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'temp'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -394,7 +432,7 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
-    def resolution(self, bins=100, levels=5, smooth=0):
+    def resolution(self, bins=100, levels=5, smooth=0, funcname='resol'):
         '''
         Description: TODO
         '''
@@ -466,8 +504,7 @@ class TerminalPlot:
                    fontsize=14)
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'resol'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -483,12 +520,13 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def stellar(self, axis='z', rotate=0, bins=100, bhfocus=False,
-                xrange=None, yrange=None, zrange=None, box=None):
+                funcname='stellar', xrange=None, yrange=None, zrange=None,
+                box=None):
         '''
         Description: TODO
         '''
         # Read the data:
-        print('  * Reading data of snapshot')
+        print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
@@ -557,8 +595,7 @@ class TerminalPlot:
                      + r' [M$_\odot$ kpc$^{-2}$])')
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'stellar'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -574,12 +611,13 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def darkmatter(self, axis='z', rotate=0, bins=100, bhfocus=False,
-                   xrange=None, yrange=None, zrange=None, box=None):
+                   funcname='dm', xrange=None, yrange=None, zrange=None,
+                   box=None):
         '''
         Description: TODO
         '''
         # Read the data:
-        print('  * Reading data of snapshot')
+        print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
@@ -646,8 +684,7 @@ class TerminalPlot:
                      + r' [M$_\odot$ kpc$^{-2}$])')
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'dm'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -663,13 +700,14 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def star_formation(self, axis='z', rotate=0, bins=100, sfb=100,
-                       interpolation='kdtree', bhfocus=False, xrange=None,
-                       yrange=None, zrange=None, box=None, cut=None):
+                       interpolation='kdtree', bhfocus=False, funcname='sf',
+                       xrange=None, yrange=None, zrange=None, box=None,
+                       cut=None):
         '''
         Description: TODO
         '''
         # Read the data:
-        print('  * Reading data of snapshot')
+        print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
@@ -760,8 +798,7 @@ class TerminalPlot:
         cb.ax.tick_params(labelsize=12)
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'sf'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -777,13 +814,13 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def stellar_age(self, axis='z', rotate=0, bins=100, age=100,
-                    interpolation='kdtree', bhfocus=False, xrange=None,
-                    yrange=None, zrange=None, box=None, cut=None):
+                    interpolation='kdtree', bhfocus=False, funcname='sa',
+                    xrange=None, yrange=None, zrange=None, box=None, cut=None):
         '''
         Description: TODO
         '''
         # Read the data:
-        print('  * Reading data of snapshot')
+        print(f'  * Reading data of {self.file}')
         h, iu = read_hdf5(file=self.file)
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
@@ -869,8 +906,7 @@ class TerminalPlot:
         cb.ax.tick_params(labelsize=12)
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'sa'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -885,7 +921,51 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
-    def black_hole_evolution(self, vcr):
+    def star_formation_rate(self, funcname='sfr'):
+        '''TODO
+        '''
+        # Read the data:
+        print(f'  * Reading data of {self.file}')
+        h, iu = read_hdf5(file=self.file)
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        pos_stars = (h['PartType4']['Coordinates'] * iu['ulength']
+                     / const['kpc'])
+        mass_stars = h['PartType4']['Masses'] * iu['umass'] / const['Msol']
+        time_stars = (h['PartType4']['StellarFormationTime'] * iu['utime']
+                      / const['Myr'])
+
+        bins = np.arange(0, time+10, 10)
+        bins[-1] = time
+        SFR, bin_edges = np.histogram(time_stars, bins=bins,
+                                      weights=mass_stars)
+        bin_mids = (bin_edges[:-1] + bin_edges[1:]) / 2
+        bin_widths = (bin_edges[1:] - bin_edges[:-1])
+        SFR = np.log10(SFR / (bin_widths * 1e6))
+
+        fig, ax = plt.subplots(figsize=(6, 4.5), layout='constrained')
+        ax.plot(bin_mids, SFR, lw=2)
+        ax.set_xlabel('Time [Myr]')
+        ax.set_ylabel(r'$\log_{10}(\text{SFR}$' +
+                      r'$ \ [\text{M}_\odot \ \text{yr}^{-1}])$')
+        ax.grid()
+
+        # Save:
+        print('  * Figure generated successfully!')
+        self.save(fig=fig, funcname=funcname)
+
+        # Display figure:
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
+        else:
+            print('  * Interactive display of figure is now running')
+            plt.show()
+
+        return None
+
+    ##########################################################################
+    ##########################################################################
+    def black_hole_evolution(self, vcr, funcname='bhevol'):
         '''
         Description: TODO
         '''
@@ -1020,8 +1100,7 @@ class TerminalPlot:
             ax[1, 4].set_visible(False)
 
         # Save:
-        print('  * Figure generated successfully')
-        funcname = 'bhevol'
+        print('  * Figure generated successfully!')
         self.save(fig=fig, funcname=funcname)
 
         # Display figure:
@@ -1082,7 +1161,7 @@ class TerminalPlot:
                       f' {os.getcwd()}/{framedir}.mp4' +
                       ' > ffmpeg.out 2> ffmpeg.err')
         if f == 0:
-            print('  * Film successfully generated!')
+            print('  * Film generated successfully!')
         else:
             print('  * Error: Something went wrong, please check the ffmpeg' +
                   ' output/error file')

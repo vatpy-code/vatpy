@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-print('\nWelcome to this Vatpy image display script')
+print('\nWelcome to Vatpy Image Display')
 
 # File:
 file = str(sys.argv[1])

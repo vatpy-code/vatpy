@@ -1,20 +1,20 @@
 ## ***************************************************************************
 ## * FONT                                                                    *
 ## ***************************************************************************
-font.family    : serif
-font.serif     : DejaVu Serif
-font.size      : 11
+font.family: serif
+font.serif:  DejaVu Serif
+font.size:   11
 
 ## ***************************************************************************
 ## * LaTeX                                                                   *
 ## ***************************************************************************
-mathtext.fontset : dejavuserif
+mathtext.fontset: dejavuserif
 
 ## ***************************************************************************
 ## * FIGURE                                                                  *
 ## ***************************************************************************
-figure.figsize:      3.4645669291, 2.5984251969  # figure size in inches
-figure.dpi:          300       # figure dots per inch
+figure.figsize: 3.4645669291, 3.4645669291  # figure size in inches
+figure.dpi:     300                         # figure dots per inch
 
 ## ***************************************************************************
 ## * TICKS                                                                   *
@@ -50,8 +50,8 @@ ytick.minor.right:   True    # draw y axis right minor ticks
 ## ***************************************************************************
 ## * AXES                                                                    *
 ## ***************************************************************************
-axes.linewidth: 1.0     # edge line width
-axes.grid:      False   # display grid or not
+axes.linewidth: 1.0    # edge line width
+axes.grid:      False  # display grid or not
 
 ## ***************************************************************************
 ## * GRIDS                                                                   *
