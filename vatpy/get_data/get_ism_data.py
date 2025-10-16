@@ -94,7 +94,8 @@ def get_ism_data(h, iu, bin_edges_dens, bin_edges_temp, norm=False, Rcut=None):
     return ism_data
 
 
-def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, Rcut=None):
+def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, bins_abun,
+                           Rcut=None):
     '''TODO
     '''
     # Directory of ISM phase data:
@@ -155,6 +156,15 @@ def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, Rcut=None):
         diagram_data['hist2d_Ptherm_vs_rho'] = np.log10(H.T)
         diagram_data['hist2d_Ptherm_vs_rho_bin_xedges'] = xedges
         diagram_data['hist2d_Ptherm_vs_rho_bin_yedges'] = yedges
+
+    # Hydrogen abundance vs temperature:
+    H, xedges, yedges = np.histogram2d(np.log10(temp[maskR]), xHI[maskR],
+                                       bins=(bins_temp, bins_abun),
+                                       weights=mass_H[maskR])
+    with np.errstate(divide='ignore'):
+        diagram_data['hist2d_xHI_vs_T'] = np.log10(H.T)
+        diagram_data['hist2d_xHI_vs_T_bin_xedges'] = xedges
+        diagram_data['hist2d_xHI_vs_T_bin_yedges'] = yedges
 
     return diagram_data
 
