@@ -11,21 +11,20 @@ import os
 class FilmMaker:
     '''TODO
     '''
-    def __init__(self, film, snap_range):
+    def __init__(self, film):
         # Variables:
         self.film = film
-        self.snap_range = snap_range
 
         print('\nWelcome to Vatpy FilmMaker')
         print(f'  * Selected film: {self.film}')
 
     ##########################################################################
     ##########################################################################
-    def search_for_frames(self):
+    def search_for_frames(self, snap_start, snap_end):
         '''TODO
         '''
-        snap_start = int(self.snap_range[0])
-        snap_end = int(self.snap_range[1])
+        # Initial snapshot start:
+        snap_start_init = snap_start
 
         # Check if vframes directory exists:
         if os.path.isdir('./vframes'):
@@ -42,27 +41,26 @@ class FilmMaker:
                         snap_start += 1
                         fnr = '000'[:3-len(str(snap_start))] + str(snap_start)
                 print('  * Found ' +
-                      f'{int(snap_start - int(self.snap_range[0]))} ' +
+                      f'{int(snap_start - snap_start_init)} ' +
                       'already generated frames!')
             else:
                 os.system(f'mkdir ./vframes/{self.film}')
         else:
             os.system('mkdir ./vframes')
+            os.system(f'mkdir ./vframes/{self.film}')
 
         return snap_start, snap_end
 
     ##########################################################################
     ##########################################################################
-    def generate(self):
+    def generate(self, snap_range):
         '''TODO
         '''
-        # Snapshot range:
-        snap_start = int(self.snap_range[0])
-        snap_end = int(self.snap_range[1])
-
         # Check already generated frames:
         print('  * Searching for already generated frames...')
-        search = self.search_for_frames()
+        snap_start = snap_range[0]
+        snap_end = snap_range[1]
+        search = self.search_for_frames(snap_start, snap_end)
         if search != 1:
             snap_start = search[0]
             snap_end = search[1]
@@ -72,13 +70,36 @@ class FilmMaker:
             if self.film == 'noctua':
                 from .noctua import plot_noctua
                 plot_noctua(snap_start, snap_end)
+            if self.film == 'mosaic':
+                from .mosaic import plot_mosaic
+                plot_mosaic(snap_start, snap_end)
             else:
                 print('  * No matching film!')
                 print('  * Ending the script\n')
 
         # ffmpeg:
         print('  * Running ffmpeg to generate film...')
-        self.ffmpeg(snap_start, snap_end)
+        self.ffmpeg(start=snap_range[0], end=snap_range[1])
+
+        print('  * Done!\n')
+
+        return None
+
+    def generate_single_snap(self, snap):
+        '''TODO
+        '''
+        # Generate plots according to selected film:
+        print('  * Starting to generate frames...')
+        if self.film == 'deepdive':
+            from .deepdive import plot_deepdive
+            frame_end = plot_deepdive(snap)
+        else:
+            print('  * No matching film!')
+            print('  * Ending the script\n')
+
+        # ffmpeg:
+        print('  * Running ffmpeg to generate film...')
+        self.ffmpeg(start=0, end=frame_end)
 
         print('  * Done!\n')
 

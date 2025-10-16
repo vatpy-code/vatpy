@@ -14,8 +14,10 @@ from .read import read_hdf5, read_dump
 
 
 # -------------- Declare function(s)
-def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False,
-                               N=int(1e5), backgrounddensity_in_cgs=1e-30):
+def convert_pNbody_IC_to_Arepo(source, dest, delstellardisc=False,
+                               addbackgroundgrid=False, N=int(1e5),
+                               backgrounddensity_in_cgs=1e-30,
+                               Rmin=None, Zmin=None):
     '''
     Description:
     '''
@@ -99,7 +101,8 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False,
                     partIDs[partIDs == 0] = np.sum(num_part_total)
 
         if ('PartType4' in f) and ('PartType2' not in f):
-            print('  * Making particles assigned to PartType4, into PartType2 instead')
+            print('  * Making particles assigned to PartType4, into' +
+                  ' PartType2 instead')
             pt2 = f.create_group('PartType2')
             for i in f['PartType4'].keys():
                 pt2[i] = f['PartType4'][i][:]
@@ -114,9 +117,24 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False,
             h.attrs['NumPart_ThisFile'] = num_part_thisfile
             h.attrs['NumPart_Total'] = num_part_total
 
+        if delstellardisc is True:
+            del f['PartType2']
+            num_part_thisfile[2] = 0
+            num_part_total[2] = 0
+
+            h.attrs['NumPart_ThisFile'] = num_part_thisfile
+            h.attrs['NumPart_Total'] = num_part_total
+
         if addbackgroundgrid == True:
             print('  * Adding a background grid of gas cells')
             grid_pos = boxsize * np.random.rand(N, 3) - boxsize/2
+            if Rmin:
+                mask = np.linalg.norm(grid_pos[:,:2], axis=1) >= Rmin
+                grid_pos = grid_pos[mask]
+            if Zmin:
+                mask = np.abs(grid_pos[:,2]) >= Zmin
+                grid_pos = grid_pos[mask]
+            
             interp = NearestNDInterpolator(f['PartType1']['Coordinates'][:],
                                            f['PartType1']['Velocities'][:])
             grid_vel = interp(grid_pos)

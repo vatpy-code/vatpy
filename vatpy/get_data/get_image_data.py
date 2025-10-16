@@ -5,7 +5,7 @@ Last updated: 2023-09-27
 '''
 
 # -------------- Required packages
-import numpy as np
+from scipy.spatial.transform import Rotation
 
 from ..constants import const
 from ..read import read_hdf5
@@ -15,8 +15,9 @@ from ..interpolation import interpolate_to_2d_kdtree, interpolate_to_2d
 
 # -------------- Declare function(s)
 def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
-                   interpolation='kdtree', unitlength='kpc', blackholefocus=False,
-                   xrange=None, yrange=None, zrange=None, box=None, cut=None):
+                   interpolation='kdtree', unitlength='kpc',
+                   blackholefocus=False, xrange=None, yrange=None, zrange=None,
+                   box=None, cut=None):
     # Unit length:
     if unitlength == 'kpc':
         ulength = const['kpc']
@@ -61,7 +62,17 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         zrange = (box[0], box[1])
 
     # Rotation:
-    if rotate != 0:
+    if axis != 'zyx':
+        if rotate != 0:
+            rotation = Rotation.from_euler(axis, rotate, degrees=True)
+            if blackholefocus:
+                pos = rotation.apply(pos)
+            else:
+                pos = rotation.apply(pos - boxsize/2)
+                pos += boxsize/2
+        else:
+            None
+    else:
         rotation = Rotation.from_euler(axis, rotate, degrees=True)
         if blackholefocus:
             pos = rotation.apply(pos)

@@ -12,12 +12,18 @@ from vatpy import FilmMaker
 
 
 # -------------- Run script
-snap_min = sys.argv[1]
-snap_max = sys.argv[2]
-snap_range = (snap_min, snap_max)
-film = sys.argv[3]
+if sys.argv[1] == 's':
+    snap = int(sys.argv[2])
+    film = sys.argv[3]
+    fm = FilmMaker(film=film)
+    fm.generate_single_snap(snap=snap)
+else:
+    snap_min = int(sys.argv[1])
+    snap_max = int(sys.argv[2])
+    snap_range = (snap_min, snap_max)
+    film = sys.argv[3]
 
-fm = FilmMaker(film=film, snap_range=snap_range)
-fm.generate()
+    fm = FilmMaker(film=film)
+    fm.generate(snap_range=snap_range)
 
 # -------------- End of file
