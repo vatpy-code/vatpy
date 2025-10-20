@@ -160,6 +160,10 @@ parser.add_argument('-movie', '--movie', action='store', default=None,
                     type=str, help='''
                     Generate a movie up to the given snapshot
                     ''')
+parser.add_argument('-fps', '--fps', action='store', default=15,
+                    type=int, help='''
+                    FPS for ffmpeg movie (default: 15)
+                    ''')
 
 # -------------- General arguments
 parser.add_argument('-path', '--path', action='store',
@@ -212,7 +216,7 @@ if args.movie:
                              f'{args.movie}_{frame}.{args.format}'):
             f += 1
             frame = '000'[:3-len(str(f))] + str(f)
-        print(f'  * Found {f - 1} already generated frames in' +
+        print(f'  * Found {f - 1 - args.startingsnapshot} already generated frames in' +
               f' \'vframes/{args.movie}\'')
     else:
         print(f'  * Creating a \'{args.movie}\' subdirectory in vframes')
@@ -286,7 +290,7 @@ for snap in snapshots_to_read:
         v.black_hole_evolution(vcr=args.variablecircradius)
 
     if args.ffmpeg:
-        v.ffmpeg(framedir=args.ffmpeg, skip=args.startingsnapshot)
+        v.ffmpeg(framedir=args.ffmpeg, skip=args.startingsnapshot, fps=args.fps)
 
 print('  * Run completed!\n')
 

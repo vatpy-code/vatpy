@@ -1057,7 +1057,7 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
-    def ffmpeg(self, framedir, skip):
+    def ffmpeg(self, framedir, skip, fps):
         '''
         Description: TODO
         '''
@@ -1087,7 +1087,7 @@ class TerminalPlot:
                   ' without the neccessary frames needed to do so,' +
                   ' therefore, exiting the ffmpeg function')
             return None
-        fps = 15
+        # fps = 15
         res_width = 1920
         res_height = 1080
 
