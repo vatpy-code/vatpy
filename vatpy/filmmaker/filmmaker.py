@@ -70,7 +70,7 @@ class FilmMaker:
             if self.film == 'noctua':
                 from .noctua import plot_noctua
                 plot_noctua(snap_start, snap_end)
-            if self.film == 'mosaic':
+            elif self.film == 'mosaic':
                 from .mosaic import plot_mosaic
                 plot_mosaic(snap_start, snap_end)
             else:

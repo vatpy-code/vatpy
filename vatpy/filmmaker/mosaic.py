@@ -247,13 +247,15 @@ def plot_mosaic(start, end):
         fig.colorbar(im, cax=cax, orientation='horizontal', label=r'''
                      $\log_{10}(\Sigma_\mathrm{StarP} \ [\mathrm{M}_\odot \
                      \mathrm{kpc}^{-2}])$''')
-        ax[1,3].pcolormesh(bins_sf[0], bins_sf[2], imStarP_edge, vmin=vmin_star, vmax=vmax_star, cmap=cmap_star)
+        ax[1, 3].pcolormesh(bin_edges_stars, bin_edges_stars, H_stars_edge,
+                            vmin=vmin_stars, vmax=vmax_stars, cmap=cmap_stars)
 
         # HI surface density:
-        im = ax[2,0].imshow(imHI_face, extent=(xrange[0], xrange[1], yrange[0], yrange[1]), 
-                            vmin=vmin_HI, vmax=vmax_HI, origin='lower', cmap=cmap_H)
-        ax[2,0].set_facecolor(cubehelix(0))
-        cax = ax[2,0].inset_axes([0.05, 0.95, 0.6, 0.015])
+        im = ax[2, 0].imshow(np.log10(im_gas_face['HI']),
+                             extent=im_gas_face['extent'], origin='lower',
+                             vmin=vmin_HI, vmax=vmax_HI, cmap=cmap_HI)
+        #ax[2, 0].set_facecolor(cmap_HI(0))
+        cax = ax[2, 0].inset_axes([0.05, 0.95, 0.6, 0.015])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
         cbar.set_label(label='$\log_{10}(\Sigma_\mathrm{HI} \ [\mathrm{cm}^{-2}])$', color='w')
         cbar.ax.tick_params(colors='w')

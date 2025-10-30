@@ -35,14 +35,15 @@ def plot_noctua(start, end):
         file = 'snap_' + snap + '.hdf5'
         print(f'  * Generating frame for snapshot {i}')
 
-        im_dens_global = get_image_data(file=file, bins=bins, box=(48, 52),
-                                        quantity=['mass', 'temp'])
-        im_dens_local = get_image_data(file=file, bins=bins,
-                                       box=(49.75, 50.25),
-                                       quantity=['mass', 'temp'])
+        im_dens_global = get_image_data(file=file, bins=bins, box=(-2, 2),
+                                        quantity=['mass', 'temp'],
+                                        halfboxfocus=True)
+        im_dens_local = get_image_data(file=file, bins=bins, box=(-0.25, 0.25),
+                                       quantity=['mass', 'temp'],
+                                       halfboxfocus=True)
         im_dens_bh = get_image_data(file=file, bins=bins, box=(-25, 25),
-                                    blackholefocus=True, unitlength='pc',
-                                    quantity=['mass', 'temp'])
+                                    unitlength='pc', quantity=['mass', 'temp'],
+                                    blackholefocus=True)
 
         fig = plt.figure(figsize=(12, 9.6), layout='constrained')
         ax1 = plt.subplot2grid((4, 5), (0, 0), rowspan=3, colspan=3)
@@ -115,7 +116,9 @@ def plot_noctua(start, end):
 
         # BH:
         h, iu = read_hdf5(file=file)
+        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
         coord_bh = h['PartType5']['Coordinates'] * iu['ulength'] / const['kpc']
+        coord_bh -= boxsize / 2
         ax2.scatter(coord_bh[:, 0], coord_bh[:, 1], marker='.', s=140, c='k')
         ax6.scatter(coord_bh[:, 0], coord_bh[:, 1], marker='.', s=40, c='k')
 
@@ -127,7 +130,7 @@ def plot_noctua(start, end):
         if 'PartType3' in h.keys():
             coord_nsc = (h['PartType3']['Coordinates'] * iu['ulength'] /
                          const['pc'])
-            coord_nsc -= coord_bh * 1e3
+            coord_nsc -= (coord_bh + boxsize / 2) * 1e3
 
             ax3.scatter(coord_nsc[:, 0], coord_nsc[:, 1], marker='.', s=1,
                         c='w', alpha=0.2)
@@ -138,7 +141,7 @@ def plot_noctua(start, end):
         if 'PartType4' in h.keys():
             coord_stars = (h['PartType4']['Coordinates'] * iu['ulength'] /
                            const['pc'])
-            coord_stars -= coord_bh * 1e3
+            coord_stars -= (coord_bh + boxsize / 2) * 1e3
             lifetime = ((h['PartType4']['StellarFormationTime'] * iu['utime'] -
                          h['Header'].attrs['Time']) / const['Myr'])
 
