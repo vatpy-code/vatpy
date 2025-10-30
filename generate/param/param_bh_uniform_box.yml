@@ -53,11 +53,11 @@ Direction:
 Xray:
   filename:          'sink_snap_000'
   
-  sink_pos:          [2.5, 2.5, 2.5]
+  sink_pos:          [1.25, 1.25, 1.25]
   sink_vel:          [0, 0, 0]
   sink_angmom:       [0, 0, 1]
   sink_mass:         10000
-  sink_ID:           1000002
+  sink_ID:           20000002
 
   bh_acc_radius:     0.01
   bh_mass:           10000
