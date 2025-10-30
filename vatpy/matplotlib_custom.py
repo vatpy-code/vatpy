@@ -14,7 +14,7 @@ def mplfigsize(option, ratio=None):
     mm = 1 / 25.4  # [in]
     figsizes = {
         'A&A_1col': (88 * mm, 88 * mm),
-        'A&A_2col': (120 * mm, 120 * mm)
+        'A&A_2col': (170 * mm, 170 * mm)
     }
 
     # Select figure size:
@@ -24,5 +24,13 @@ def mplfigsize(option, ratio=None):
         height /= ratio
 
     return (width, height)
+
+
+def mplstyle(plt, option):
+    '''TODO
+    '''
+    plt.style.use(f'~/vatpy/mpl/{option}.mplstyle')
+
+    return None
 
 # -------------- End of file

@@ -10,6 +10,7 @@ from .constants import const
 
 # Matplotlib custom functions:
 from .matplotlib_custom import mplfigsize
+from .matplotlib_custom import mplstyle
 
 # Functions to get gas properties:
 from .get_gas_property import number_density
@@ -32,6 +33,9 @@ from .get_data.get_black_hole_data import get_black_hole_data
 # Get ISM data:
 from .get_data.get_ism_data import get_ism_data
 from .get_data.get_ism_data import get_phase_diagram_data
+
+# Get surface density data:
+from .get_data.get_surface_density_data import get_surface_density_data
 
 # Get a complete set of images for the gas:
 from .get_data.get_image_data import get_image_data
