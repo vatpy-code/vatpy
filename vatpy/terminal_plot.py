@@ -491,10 +491,12 @@ class TerminalPlot:
         xlim = np.array(xlim)
 
         mu = (1 + 4 * 0.1)
-        jeans10 = np.sqrt((15 * self.kb * 10) / (4 * np.pi * self.G * mu *
-                                                 self.mp * 10**(xlim)))
-        jeans100 = np.sqrt((15 * self.kb * 100) / (4 * np.pi * self.G * mu *
-                                                   self.mp * 10**(xlim)))
+        jeans10 = np.sqrt((15 * const['kb'] * 10) / (4 * np.pi * const['G'] *
+                                                     mu * const['mp'] *
+                                                     10**(xlim)))
+        jeans100 = np.sqrt((15 * const['kb'] * 100) / (4 * np.pi * const['G'] *
+                                                       mu * const['mp'] *
+                                                       10**(xlim)))
 
         ax[0].plot(xlim, np.log10(jeans10 / const['pc']), c='k', ls='--',
                    lw=1, alpha=0.8, label=r'$\Lambda_J$($T=10$ K)')
@@ -1123,18 +1125,21 @@ class TerminalPlot:
         if os.path.isdir(f'./vframes/{framedir}'):
             fnr = 0
             if skip:
-                fnr += 1
+                fnr += skip
             frame = '000'[:3-len(str(fnr))] + str(fnr)
             print(f'  * Searching for {framedir} frames')
             while os.path.isfile(f'./vframes/{framedir}/' +
                                  f'{framedir}_{frame}.png'):
                 fnr += 1
                 frame = '000'[:3-len(str(fnr))] + str(fnr)
-            print(f'  * Found {fnr} frames!')
+            fnr_print = fnr
+            if skip:
+                fnr_print -= skip
+            print(f'  * Found {fnr_print} frames!')
 
         start = 0
         if skip:
-            start += 1
+            start += skip
         file_split = self.file.split('.')
         vframes = int(file_split[0][-3:])
         if not skip:

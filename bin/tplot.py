@@ -140,9 +140,9 @@ parser.add_argument('-age', '--maxstellarage', action='store', default=100,
                     type=float, help='''
                     Maximum stellar age of newly formed star particles
                     ''')
-parser.add_argument('-skip', '--skipfirstsnapshot', action='store_true',
-                    default=False,
-                    help='Skip the first snapshot when generating a movie')
+parser.add_argument('-skip', '--skipsnapshots', action='store',
+                    default=0, type=int,
+                    help='Skip the first X snapshots when generating a movie')
 
 # -------------- Common arguments
 parser.add_argument('-vmin', '--vmin', action='store', default=None,
@@ -201,15 +201,18 @@ if args.movie:
 
     # Check if some frames already have been generated or not:
     f = 0
-    if args.skipfirstsnapshot:
-        f += 1
+    if args.skipsnapshots > 0:
+        f += args.skipsnapshots
     frame = '000'[:3-len(str(f))] + str(f)
     if os.path.isdir(f'{os.getcwd()}/vframes/{args.movie}'):
         while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
                              f'{args.movie}_{frame}.{args.format}'):
             f += 1
             frame = '000'[:3-len(str(f))] + str(f)
-        print(f'  * Found {f - 1} already generated frames in' +
+        f_print = f
+        if args.skipsnapshots > 0:
+            f_print -= args.skipsnapshots
+        print(f'  * Found {f_print} already generated frames in' +
               f' \'vframes/{args.movie}\'')
     else:
         print(f'  * Creating a \'{args.movie}\' subdirectory in vframes')
@@ -286,7 +289,7 @@ for snap in snapshots_to_read:
         v.black_hole_evolution(vcr=args.variablecircradius)
 
     if args.ffmpeg:
-        v.ffmpeg(framedir=args.ffmpeg, skip=args.skipfirstsnapshot)
+        v.ffmpeg(framedir=args.ffmpeg, skip=args.skipsnapshots)
 
 print('  * Run completed!\n')
 
