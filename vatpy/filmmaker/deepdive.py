@@ -4,6 +4,7 @@
 
 
 # -------------- Required packages
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -20,7 +21,7 @@ def plot_deepdive(start):
     '''
     plt.style.use(f'{configv.homedir}/vatpy/mpl/noctua.mplstyle')
 
-    bins = 200
+    bins = 150
 
     vmin_dens, vmax_dens = -5, -2
     vmin_temp, vmax_temp = 2, 6
@@ -30,7 +31,7 @@ def plot_deepdive(start):
     cmap_age = 'cmr.guppy_r'
 
     # Spherical coordinates:
-    Nact = 4
+    Nact = 5
     radius_list = []
     rot_list = []
 
@@ -40,19 +41,43 @@ def plot_deepdive(start):
     rot_list.append(np.full((Nframes, 3), 0))
 
     # Act 2:
-    Nframes = 10
+    Nframes = 20
     radius_list.append(np.full(Nframes, 2))
     rot_array = np.full((Nframes, 3), 0)
-    rot_array[:, 0] = np.linspace(0, 360, Nframes)
-    rot_array[:, 2] = np.linspace(0, 360, Nframes)
+    rot_array[:, 0] = np.linspace(0, 90, Nframes)
+    rot_array[:, 1] = np.linspace(0, 45, Nframes)
     rot_list.append(rot_array)
 
     # Act 3:
+    Nframes = 20
+    radius_list.append(np.full(Nframes, 2))
+    rot_array = np.full((Nframes, 3), 0)
+    rot_array[:, 0] = np.linspace(90, 180, Nframes)
+    rot_array[:, 1] = np.linspace(45, 90, Nframes)
+    rot_list.append(rot_array)
+
+    # Act 3:
+    Nframes = 20
+    radius_list.append(np.full(Nframes, 2))
+    rot_array = np.full((Nframes, 3), 0)
+    rot_array[:, 0] = np.linspace(180, 270, Nframes)
+    rot_array[:, 1] = np.linspace(90, 135, Nframes)
+    rot_list.append(rot_array)
+
+    # Act 4:
+    Nframes = 20
+    radius_list.append(np.full(Nframes, 2))
+    rot_array = np.full((Nframes, 3), 0)
+    rot_array[:, 0] = np.linspace(270, 360, Nframes)
+    rot_array[:, 1] = np.linspace(135, 180, Nframes)
+    rot_list.append(rot_array)
+
+    # Act 5:
     Nframes = 10
     radius_list.append(np.linspace(2, 0.1, Nframes))
     rot_list.append(np.full((Nframes, 3), 0))
 
-    # Act 4:
+    # Act 6:
     Nframes = 20
     radius_list.append(np.full(Nframes, 0.1))
     rot_array = np.full((Nframes, 3), 0)
@@ -60,7 +85,6 @@ def plot_deepdive(start):
             np.linspace(90, 90, int(Nframes/4)),
             np.linspace(90, 90, int(Nframes/4)),
             np.linspace(90, 90, int(Nframes/4))]
-    print(xrot)
     rot_array[:, 0] = np.array(xrot).flatten()
     zrot = [np.linspace(0, 0, int(Nframes/4)),
             np.linspace(0, 360, int(Nframes/4)),
@@ -75,27 +99,30 @@ def plot_deepdive(start):
     print(f'  * Generating frames for snapshot {start}')
 
     frame_nr = 0
-    for i in range(0, Nact):
+    for i in range(1, 5):
         for j in range(0, len(radius_list[i])):
-            print(f'  * Frame {frame_nr}')
-
-            box = (-radius_list[i][j], radius_list[i][j])
-            rotate = rot_list[i][j]
-
-            im_dens = get_image_data(file=file, bins=bins, box=box,
-                                     blackholefocus=True, unitlength='kpc',
-                                     quantity=['mass'], axis='zyx',
-                                     rotate=rotate)
-
-            fig, ax = plt.subplots(figsize=(10, 10), layout='constrained')
-
-            im = ax.imshow(np.log10(im_dens['mass']), cmap=cmap_dens,
-                           extent=im_dens['extent'],
-                           vmin=vmin_dens, vmax=vmax_dens)
-
             frame = '000'[:3-len(str(frame_nr))] + str(frame_nr)
-            fig.savefig(f'./vframes/deepdive/deepdive_{frame}.png')
-            plt.close()
+            if os.path.isfile(f'./vframes/deepdive/deepdive_{frame}.png'):
+                print(f'  * Frame {frame_nr} already generated!')
+            else:
+                print(f'  * Generating frame {frame_nr}...')
+
+                box = (-radius_list[i][j], radius_list[i][j])
+                rotate = rot_list[i][j]
+
+                im_dens = get_image_data(file=file, bins=bins, box=box,
+                                         blackholefocus=True, unitlength='kpc',
+                                         quantity=['mass'], axis='xyz',
+                                         rotate=rotate)
+
+                fig, ax = plt.subplots(figsize=(10, 10), layout='constrained')
+
+                im = ax.imshow(np.log10(im_dens['mass']), cmap=cmap_dens,
+                               extent=im_dens['extent'], origin='lower',
+                               vmin=vmin_dens, vmax=vmax_dens)
+
+                fig.savefig(f'./vframes/deepdive/deepdive_{frame}.png')
+                plt.close()
 
             frame_nr += 1
 

@@ -88,6 +88,18 @@ class FilmMaker:
     def generate_single_snap(self, snap):
         '''TODO
         '''
+        # Check for directory:
+        print('  * Searching for frames directory...')
+        if os.path.isdir('./vframes'):
+            if os.path.isdir(f'./vframes/{self.film}'):
+                print('  * Directory for frames detected!')
+            else:
+                print('  * Directory for frames not detected, creating one...')
+                os.system(f'mkdir ./vframes/{self.film}')
+        else:
+            print('  * Directory for frames not detected, creating one...')
+            os.system('mkdir ./vframes')
+
         # Generate plots according to selected film:
         print('  * Starting to generate frames...')
         if self.film == 'deepdive':

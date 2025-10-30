@@ -12,18 +12,19 @@ from vatpy import FilmMaker
 
 
 # -------------- Run script
-if sys.argv[1] == 's':
+if sys.argv[1] == 'noctua':
+    snap_min = int(sys.argv[2])
+    snap_max = int(sys.argv[3])
+    snap_range = (snap_min, snap_max)
+    film = sys.argv[1]
+    fm = FilmMaker(film=film)
+    fm.generate(snap_range=snap_range)
+elif sys.argv[1] == 'deepdive':
     snap = int(sys.argv[2])
-    film = sys.argv[3]
+    film = sys.argv[1]
     fm = FilmMaker(film=film)
     fm.generate_single_snap(snap=snap)
 else:
-    snap_min = int(sys.argv[1])
-    snap_max = int(sys.argv[2])
-    snap_range = (snap_min, snap_max)
-    film = sys.argv[3]
-
-    fm = FilmMaker(film=film)
-    fm.generate(snap_range=snap_range)
+    print('  * No matching film...')
 
 # -------------- End of file

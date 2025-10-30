@@ -62,7 +62,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         zrange = (box[0], box[1])
 
     # Rotation:
-    if axis != 'zyx':
+    if axis != 'xyz':
         if rotate != 0:
             rotation = Rotation.from_euler(axis, rotate, degrees=True)
             if blackholefocus:
@@ -70,8 +70,6 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
             else:
                 pos = rotation.apply(pos - boxsize/2)
                 pos += boxsize/2
-        else:
-            None
     else:
         rotation = Rotation.from_euler(axis, rotate, degrees=True)
         if blackholefocus:
