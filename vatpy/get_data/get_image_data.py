@@ -16,8 +16,8 @@ from ..interpolation import interpolate_to_2d_kdtree, interpolate_to_2d
 # -------------- Declare function(s)
 def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
                    interpolation='kdtree', unitlength='kpc',
-                   blackholefocus=False, xrange=None, yrange=None, zrange=None,
-                   box=None, cut=None):
+                   blackholefocus=False, halfboxfocus=False, xrange=None,
+                   yrange=None, zrange=None, box=None, cut=None):
     # Unit length:
     if unitlength == 'kpc':
         ulength = const['kpc']
@@ -38,6 +38,9 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     if blackholefocus:
         bh = (h['PartType5']['Coordinates'][0] * iu['ulength'] / ulength)
         pos -= bh
+
+    if halfboxfocus:
+        pos -= boxsize / 2
 
     # Coordinate ranges:
     if not box:
@@ -65,7 +68,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     if axis != 'zyx':
         if rotate != 0:
             rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if blackholefocus:
+            if blackholefocus or halfboxfocus:
                 pos = rotation.apply(pos)
             else:
                 pos = rotation.apply(pos - boxsize/2)
@@ -74,7 +77,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
             None
     else:
         rotation = Rotation.from_euler(axis, rotate, degrees=True)
-        if blackholefocus:
+        if blackholefocus or halfboxfocus:
             pos = rotation.apply(pos)
         else:
             pos = rotation.apply(pos - boxsize/2)
@@ -114,6 +117,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         image_data[quantity[i]] = interpValues
 
     image_data['extent'] = [xrange[0], xrange[1], yrange[0], yrange[1]]
+    image_data['time'] = time
 
     return image_data
 
