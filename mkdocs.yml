@@ -32,11 +32,13 @@ nav:
     - Source code:
       - terminal_plot.py: terminal_plot.md
     - Contact: contact.md
-  - Extra:
-    - ArepoNoctua:
-      - Framework description: noctua.md
-      - Config.sh options: config.md
-      - Parameter file options: param.md
+  - Updates:
+    - Changelog: changelog.md 
+  # - Extra:
+    # - ArepoNoctua:
+      # - Framework description: noctua.md
+      # - Config.sh options: config.md
+      # - Parameter file options: param.md
 
 copyright: Copyright &copy; 2025 Jonathan Petersson
 
