@@ -401,7 +401,7 @@ class TerminalPlot:
 
         im = ax.imshow(np.log10(interpTemp), vmin=self.vmin, vmax=self.vmax,
                        extent=(xrange[0], xrange[1], yrange[0], yrange[1]),
-                       origin='lower', cmap='afmhot')
+                       origin='lower', cmap=configv.cmap['temperature'])
         ax.text(0.95, 0.05, f'{time:.2f} Myr', color='k',
                 ha='right', va='bottom', transform=ax.transAxes,
                 bbox={'facecolor': 'white', 'edgecolor': 'none',
@@ -789,14 +789,15 @@ class TerminalPlot:
         fig.colorbar(im_gas, cax=cax, label=r'$\log_{10}(\Sigma_\mathrm{Gas}$'
                      + r' $[\mathrm{g} \ \mathrm{cm}^{-2}])$')
 
-        im_sf = ax.imshow(H, origin='lower', cmap='winter',
-                          extent=(xrange[0], xrange[1], yrange[0], yrange[1]))
+        im_sf = ax.imshow(H, origin='lower',
+                          extent=(xrange[0], xrange[1], yrange[0], yrange[1]),
+                          cmap=configv.cmap['starformation'])
         cax = ax.inset_axes([0.02, 0.94, 0.7, 0.04])
         cb = fig.colorbar(im_sf, cax=cax, orientation='horizontal',
                           location='bottom')
         cb.set_label(label=r'$\log_{10}(\Sigma_\mathrm{SFR}$'
                      + r' $[\mathrm{M}_\odot$ yr$^{-1}$'
-                     + f'{self.ulengthselect}' + '$^{-2}$' + '])', size=12)
+                     + f' {self.ulengthselect}' + '$^{-2}$' + '])', size=12)
         cb.ax.tick_params(labelsize=12)
 
         # Save:
@@ -899,8 +900,9 @@ class TerminalPlot:
 
         time_diff = np.abs(time - time_stars[mask])
         im_sa = ax.scatter(pos_stars[:, 0][mask], pos_stars[:, 1][mask],
-                           c=time_diff, s=10, marker='.', cmap='viridis',
-                           vmin=0, vmax=np.min([age, np.max(time_diff)]))
+                           c=time_diff, s=10, marker='.', vmin=0,
+                           vmax=np.min([age, np.max(time_diff)]),
+                           cmap=configv.cmap['stellarage'])
         cax = ax.inset_axes([0.02, 0.94, 0.7, 0.04])
         cb = fig.colorbar(im_sa, cax=cax, orientation='horizontal',
                           location='bottom')

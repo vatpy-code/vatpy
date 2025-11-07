@@ -10,7 +10,10 @@ cmap = {
     'default': 'viridis',
     'darkmatter': 'magma',
     'stellar': 'bone',
-    'gas': 'inferno'
+    'gas': 'inferno',
+    'temperature': 'afmhot',
+    'starformation': 'winter',
+    'stellarage': 'viridis_r'
 }
 
 # Unit selection
