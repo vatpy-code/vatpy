@@ -237,6 +237,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Welcome to Vatpy
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="." class="md-nav__link md-nav__link--active">
         
   
@@ -248,6 +261,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#example-gallery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Gallery
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -471,7 +512,7 @@
   
   
   <span class="md-ellipsis">
-    Extra
+    Updates
     
   </span>
   
@@ -482,47 +523,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
-            Extra
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    ArepoNoctua
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_1">
-            <span class="md-nav__icon md-icon"></span>
-            ArepoNoctua
+            Updates
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -533,71 +534,17 @@
   
   
     <li class="md-nav__item">
-      <a href="noctua/" class="md-nav__link">
+      <a href="changelog/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Framework description
+    Changelog
     
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="config/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Config.sh options
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="param/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Parameter file options
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -637,7 +584,28 @@ performed using the Arepo code (Springel 2010). </p>
 (as long as the output is in HDF5-format), however, more specific capabilities, 
 such as creating visual maps of the gas chemistry, is at the moment only adapted
 to simulations run using the ArepoNoctua numerical framework (Petersson et al. 2025).</p>
-<p><br><br>
+<h2 id="example-gallery">Example Gallery</h2>
+<p>Below you can see a set of visual maps from the Noctua suite of simulations
+(Petersson et al. 2025), highlighting some key quantities, such as the total column
+density of gas (top left), the average gas temperature (top right), the star formation
+rate surface density (bottom left), and the stellar age of newly formed star particles
+(bottom right), in a simulated low-mass dwarf galaxy at approximately 400 Myr in its evolution.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 0%;">
+  <img src="assets/dens_snap_200.png" width="50%" />
+  <img src="assets/temp_snap_200.png" width="50%" />
+  <img src="assets/sf_snap_200.png" width="50%" />
+  <img src="assets/sa_snap_200.png" width="50%" />
+</div>
+
+<p style="text-align: center">
+<i>Visual maps of a simulated low-mass dwarf galaxy from the Noctua suite of simulations
+(Petersson et al. 2025), made using Vatpy</i>
+</p>
+
+<p><br><br></p>
+<p><i>Used by researchers at</i><br>
+<img src="assets/epfl.png" width="12%"/></p>
+<p><br>
 Last updated: 2025-09-04</p>
 
 
@@ -686,7 +654,9 @@ Last updated: 2025-09-04</p>
 </footer>
       
   <!-- Add scripts that need to run afterwards here -->
-  <img src="assets/images/epfl.png" style="width: 5%; margin-left: auto; margin-right: auto;"/>
+  <!--
+  <img src="assets/images/epfl.png" style="width: 5%;"/>
+  -->
 
     </div>
     <div class="md-dialog" data-md-component="dialog">
