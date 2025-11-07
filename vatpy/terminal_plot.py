@@ -797,7 +797,7 @@ class TerminalPlot:
                           location='bottom')
         cb.set_label(label=r'$\log_{10}(\Sigma_\mathrm{SFR}$'
                      + r' $[\mathrm{M}_\odot$ yr$^{-1}$'
-                     + f'{self.ulengthselect}' + '$^{-2}$' + '])', size=12)
+                     + f' {self.ulengthselect}' + '$^{-2}$' + '])', size=12)
         cb.ax.tick_params(labelsize=12)
 
         # Save:
