@@ -5,6 +5,7 @@ Last updated: 2023-09-27
 '''
 
 # -------------- Required packages
+import numpy as np
 from scipy.spatial.transform import Rotation
 
 from ..constants import const
@@ -34,6 +35,12 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     dens_gas = h['PartType0']['Density'] * iu['udens']
     num = number_density(h, iu)
     temp = temperature(h, iu)
+
+    if 'MagneticField' in h['PartType0'].keys():
+        bfield = h['PartType0']['MagneticField'] * iu['umagfield']
+        bfield_tot = np.linalg.norm(bfield, axis=1)
+    else:
+        bfield_tot = np.zeros(shape=np.shape(dens_gas))
 
     if blackholefocus:
         bh = (h['PartType5']['Coordinates'][0] * iu['ulength'] / ulength)
@@ -84,13 +91,17 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     # Selection of gas quantity:
     image_data = {}
     for i in range(0, len(quantity)):
-        if ((quantity[i] != 'mass') and (quantity[i] != 'temp')):
+        if ((quantity[i] != 'mass') and (quantity[i] != 'temp') and
+                (quantity[i] != 'bfield')):
             dens = num[quantity[i]]
         else:
             dens = dens_gas
 
         if quantity[i] == 'temp':
             values = temp
+            weights = dens
+        elif quantity[i] == 'bfield':
+            values = bfield_tot
             weights = dens
         else:
             values = dens

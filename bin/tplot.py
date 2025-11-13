@@ -38,6 +38,9 @@ parser.add_argument('-temp', '--temperature', action='store_true',
                     a projection, or as a slice through a given z-value (see
                     -cut for more details)
                     ''')
+parser.add_argument('-bfield', '--magneticfield', action='store_true',
+                    help='''TODO
+                    ''')
 parser.add_argument('-res', '--resolution', action='store_true',
                     help='''
                     Generate a gas resolution plot, showing the mass and
@@ -256,6 +259,12 @@ for snap in snapshots_to_read:
                       bhfocus=args.bhfocus, xrange=args.xrange,
                       yrange=args.yrange, zrange=args.zrange, box=args.box,
                       cut=args.cut)
+
+    if args.magneticfield:
+        v.magneticfield(axis=args.axis, rotate=args.rotate, bins=args.bins,
+                        bhfocus=args.bhfocus, xrange=args.xrange,
+                        yrange=args.yrange, zrange=args.zrange, box=args.box,
+                        cut=args.cut)
 
     if args.resolution:
         v.resolution(bins=args.bins, levels=args.levels, smooth=args.smooth)

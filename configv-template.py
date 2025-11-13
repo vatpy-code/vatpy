@@ -12,6 +12,7 @@ cmap = {
     'stellar': 'bone',
     'gas': 'inferno',
     'temperature': 'afmhot',
+    'magneticfield': 'viridis',
     'starformation': 'winter',
     'stellarage': 'viridis_r'
 }

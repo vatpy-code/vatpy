@@ -36,6 +36,7 @@ def read_hdf5(file):
     uaccel = uvel/utime
     uinterg = uvel**2
     uangmom = ulength * uvel * umass
+    umagfield = ulength**(-1/2) * umass**(1/2) * utime**(-1)
     iu = {
         'ulength': ulength,
         'umass': umass,
@@ -44,10 +45,12 @@ def read_hdf5(file):
         'udens': udens,
         'uaccel': uaccel,
         'uinterg': uinterg,
-        'uangmom': uangmom
+        'uangmom': uangmom,
+        'umagfield': umagfield
     }
 
     return h, iu
+
 
 def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
               rcirc=False, rad=False, nfreq=1):

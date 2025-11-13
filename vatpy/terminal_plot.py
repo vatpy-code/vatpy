@@ -432,6 +432,94 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
+    def magneticfield(self, axis='z', rotate=0, bins=100,
+                      interpolation='kdtree', bhfocus=False, funcname='bfield',
+                      xrange=None, yrange=None, zrange=None, box=None,
+                      cut=None):
+        '''TODO
+        '''
+        # Read the data:
+        print(f'  * Reading data of {self.file}')
+        h, iu = read_hdf5(file=self.file)
+        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        pos = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
+        dens = h['PartType0']['Density'] * iu['udens']
+        bfield = h['PartType0']['MagneticField'] * iu['umagfield']
+        bfield_tot = np.linalg.norm(bfield, axis=1)
+
+        print('  * Generating a magnetic field strength (density-weighted)' +
+              ' map')
+
+        # Centre the data on the black hole:
+        if bhfocus:
+            bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
+                  / self.ulength)
+            pos -= bh
+
+        # Coordinate ranges:
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
+
+        # Rotation of particle positions:
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                               pos=pos, bhfocus=bhfocus)
+
+        # Interpolation:
+        if interpolation == 'kdtree':
+            interpBfield = interpolate_to_2d_kdtree(pos=pos, unit=self.ulength,
+                                                    values=bfield_tot,
+                                                    bins=bins, xrange=xrange,
+                                                    yrange=yrange,
+                                                    zrange=zrange, cut=cut,
+                                                    weights=dens)
+        else:
+            interpBfield = interpolate_to_2d(pos=pos, unit=self.ulength,
+                                             values=bfield, bins=bins,
+                                             xrange=xrange, yrange=yrange,
+                                             zrange=zrange, cut=cut,
+                                             weights=dens)
+
+        # Plot:
+        fig, ax = plt.subplots(figsize=(8, 6.4))
+        fig.subplots_adjust(left=0.18, right=0.82, bottom=0.14, top=0.94,
+                            wspace=0, hspace=0)
+
+        im = ax.imshow(np.log10(interpBfield), vmin=self.vmin, vmax=self.vmax,
+                       extent=(xrange[0], xrange[1], yrange[0], yrange[1]),
+                       origin='lower', cmap=configv.cmap['magneticfield'])
+        ax.text(0.95, 0.05, f'{time:.2f} Myr', color='k',
+                ha='right', va='bottom', transform=ax.transAxes,
+                bbox={'facecolor': 'white', 'edgecolor': 'none',
+                      'boxstyle': 'round', 'alpha': 0.5})
+        ax.set_aspect('equal')
+        ax.set_xlabel(f'$x$ [{self.ulengthselect}]')
+        ax.set_ylabel(f'$y$ [{self.ulengthselect}]')
+        ax.set_xlim(self.xlim)
+        ax.set_ylim(self.ylim)
+
+        div = make_axes_locatable(ax)
+        cax = div.append_axes('right', size='5%', pad=0)
+        fig.colorbar(im, cax=cax, label=r'$B-field$')
+
+        # Save:
+        print('  * Figure generated successfully!')
+        self.save(fig=fig, funcname=funcname)
+
+        # Display figure:
+        if self.show is not True:
+            print('  * Interactive display of figure is NOT allowed')
+            plt.close()
+        else:
+            print('  * Interactive display of figure is now running')
+            plt.show()
+
+        return None
+
+    ##########################################################################
+    ##########################################################################
     def resolution(self, bins=100, levels=5, smooth=0, funcname='resol'):
         '''
         Description: TODO
