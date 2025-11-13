@@ -48,7 +48,7 @@ class UniformBox:
 
     ##########################################################################
     ##########################################################################
-    def uniform_background(self, N, ambientdensity):
+    def uniform_background(self, N, ambientdensity, T=1e4):
         '''
         Description: Generate a background of uniform density.
         '''
@@ -63,7 +63,7 @@ class UniformBox:
 
         # Internal Energy:
         mu = 1 + 4*0.1
-        interg = np.full(N, (3 * const['kb'] * 1e4) / (2 * mu * const['mp']))
+        interg = np.full(N, (3 * const['kb'] * T) / (2 * mu * const['mp']))
 
         ic_uniform_background = {
             'Coordinates': pos / self.ulength,
@@ -100,7 +100,7 @@ class UniformBox:
 
     ##########################################################################
     ##########################################################################
-    def generate(self, N, ambientdensity, pos_star, vel_star, mass_star,
+    def generate(self, N, ambientdensity, T, pos_star, vel_star, mass_star,
                  pos_sink, vel_sink, mass_sink, filename, savepath,
                  check=False, relax=False, NumRelax=1, meshrelaxdir=None,
                  wait='manual'):
@@ -111,7 +111,8 @@ class UniformBox:
         '''
 
         # Generate ICs for PartType0:
-        ic_gas = self.uniform_background(N=N, ambientdensity=ambientdensity)
+        ic_gas = self.uniform_background(N=N, ambientdensity=ambientdensity,
+                                         T=T)
 
         # Generate ICs for PartType4:
         ic_star = self.star_particle(pos=pos_star, vel=vel_star,
