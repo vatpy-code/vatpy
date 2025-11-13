@@ -1,7 +1,7 @@
 # FONTS
 font.family: serif
 font.serif:  DejaVu Serif
-font.size:   14
+font.size:   10
 
 # LATEX
 mathtext.fontset: dejavuserif
@@ -10,7 +10,7 @@ mathtext.fontset: dejavuserif
 figure.dpi: 200  # figure dots per inch
 
 # TICKS
-xtick.top:           True    # draw ticks on the top side
+xtick.top:           False    # draw ticks on the top side
 xtick.bottom:        True    # draw ticks on the bottom side
 xtick.major.size:    5.25    # major tick size in points
 xtick.minor.size:    3.00    # minor tick size in points
@@ -25,7 +25,7 @@ xtick.minor.top:     True    # draw x axis top minor ticks
 xtick.minor.bottom:  True    # draw x axis bottom minor ticks
 
 ytick.left:          True    # draw ticks on the left side
-ytick.right:         True    # draw ticks on the right side
+ytick.right:         False   # draw ticks on the right side
 ytick.major.size:    5.25    # major tick size in points
 ytick.minor.size:    3.00    # minor tick size in points
 ytick.major.width:   1.0     # major tick width in points
@@ -48,5 +48,5 @@ axes.titlesize: medium
 grid.linewidth: 0.35
 
 # LEGEND
-legend.fontsize: 14
+legend.fontsize: 10
 legend.frameon:  False

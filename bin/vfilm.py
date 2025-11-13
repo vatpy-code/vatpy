@@ -12,7 +12,7 @@ from vatpy import FilmMaker
 
 
 # -------------- Run script
-if sys.argv[1] == 'noctua':
+if sys.argv[1] == 'noctua' or 'mosaic':
     snap_min = int(sys.argv[2])
     snap_max = int(sys.argv[3])
     snap_range = (snap_min, snap_max)
