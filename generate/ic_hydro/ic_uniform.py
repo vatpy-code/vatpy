@@ -39,6 +39,7 @@ with open(paramfile, 'r') as file:
 
     N = param['N']
     ambientdensity = float(param['ambientdensity'])
+    T = float(param['gastemperature'])
 
     pos_star = np.array(param['pos_star']) * const['pc']
     vel_star = np.array([0, 0, 0])
@@ -54,7 +55,7 @@ with open(paramfile, 'r') as file:
 
 # -------------- Run script
 UB = UniformBox(ulength=ulength, umass=umass, uvel=uvel, boxsize=boxsize)
-UB.generate(N=N, ambientdensity=ambientdensity, pos_star=pos_star,
+UB.generate(N=N, ambientdensity=ambientdensity, T=T, pos_star=pos_star,
             vel_star=vel_star, mass_star=mass_star, pos_sink=pos_sink,
             vel_sink=vel_sink, mass_sink=mass_sink, filename=filename,
             savepath=savepath, relax=relax, NumRelax=NumRelax,

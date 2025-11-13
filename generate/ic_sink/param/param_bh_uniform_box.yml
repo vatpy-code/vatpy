@@ -53,11 +53,11 @@ Direction:
 Xray:
   filename:          'sink_snap_000'
   
-  sink_pos:          [1.25, 1.25, 1.25]
+  sink_pos:          [0.125, 0.125, 0.125]
   sink_vel:          [0, 0, 0]
   sink_angmom:       [0, 0, 1]
   sink_mass:         10000
-  sink_ID:           20000002
+  sink_ID:           250002
 
   bh_acc_radius:     0.01
   bh_mass:           10000
@@ -75,3 +75,25 @@ Xray:
 
 ###############################################################################
 ###############################################################################
+Gaches:
+  filename:          'sink_snap_000'
+  
+  sink_pos:          [0.01, 0.01, 0.01]
+  sink_vel:          [0, 0, 0]
+  sink_angmom:       [0, 0, 1]
+  sink_mass:         10000
+  sink_ID:           1000002
+
+  bh_acc_radius:     0.01
+  bh_mass:           10000
+  bh_disk_mass:      0
+  bh_reservoir:      0
+
+  feedback:          False
+  spin:              True
+  bh:                True
+  hm:                True
+  rcirc:             True
+  rad:               True
+  
+  nfreq:             7

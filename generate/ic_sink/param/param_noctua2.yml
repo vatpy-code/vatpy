@@ -1,0 +1,23 @@
+noMHDnoNSC:
+  filename:          'sink_snap_000'
+  
+  sink_pos:          [750.1074717429626, 750.1339759557618, 750.134149236987]
+  sink_vel:          [-0.5211232324125985, -0.9872893720121467, 0.7086574614876816]
+  sink_angmom:       [0, 0, 0]
+  sink_mass:         10000
+  sink_ID:           41956001
+
+  bh_acc_radius:     0.01
+  bh_mass:           10000
+  bh_disk_mass:      0
+  bh_reservoir:      0
+
+  feedback:          False
+  spin:              True
+  bh:                True
+  hm:                True
+  rcirc:             True
+  rad:               True
+  
+  nfreq:             5
+

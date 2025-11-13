@@ -25,7 +25,7 @@ Omega0         0.0
 OmegaLambda    0.0
 OmegaBaryon    0.0
 HubbleParam    1.0
-BoxSize        2.5
+BoxSize        0.02
 
 %--- [output control]
 OutputListOn                 0
@@ -46,7 +46,7 @@ MaxSizeTimestep                       0.005
 MinSizeTimestep                       1.0e-10
 
 %--- [treatment of empty space, temperature limits, cooling]
-InitGasTemp                             1.0e4
+InitGasTemp                             2.0e1
 MinGasTemp                              0.0
 MinimumDensityOnStartUp                 0.0
 LimitUBelowThisDensity                  0.0
@@ -99,9 +99,9 @@ GasSoftFactor                    2.5
 CellMaxAngleFactor       2.25
 CellShapingSpeed         0.5
 MaxVolume                1000
-MinVolume                1e-10
+MinVolume                1e-15
 MaxVolumeDiff            8
-ReferenceGasPartMass     10     % refinment
+ReferenceGasPartMass     1e-4      % refinment
 TargetGasMassFactor      1.0    % refinment
 RefinementCriterion      1      % refinment
 DerefinementCriterion    1      % refinment
