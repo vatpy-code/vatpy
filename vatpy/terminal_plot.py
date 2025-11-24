@@ -18,7 +18,7 @@ from .read import read_hdf5
 from .constants import const
 from .get_gas_property import number_density, temperature
 from .interpolation import interpolate_to_2d, interpolate_to_2d_kdtree
-from .get_data import get_black_hole_data
+from .get_data.get_black_hole_data import get_black_hole_data
 
 import configv
 
@@ -1063,9 +1063,10 @@ class TerminalPlot:
         '''
         # Snapshot range:
         file_list = os.listdir()
-        snap_list = [i for i in file_list if 'snap_' in i]
-        snap_list = [i for i in snap_list if 'sink_' not in i]
-        snum_list = [int(i[5:-5]) for i in snap_list]
+        snap_list = [i for i in file_list if 'sink_snap_' in i]
+        #snap_list = [i for i in snap_list if 'sink_snap_' not in i]
+        print(snap_list)
+        snum_list = [int(i[10:]) for i in snap_list]
         n = np.min(snum_list)
         N = int(self.file[len(self.file)-8:-5])
 
@@ -1087,7 +1088,7 @@ class TerminalPlot:
                       ls=ls, lw=lw, c=c)
         ax[0, 0].set_title(r'$\log_{10}(M_\mathrm{Sink}$' +
                            r' $[\mathrm{M}_\odot])$', fontsize=fs)
-        ax[0, 0].set_xlim(0, np.max(BHData['Time']))
+        ax[0, 0].set_xlim(np.min(BHData['Time']), np.max(BHData['Time']))
         ax[0, 0].grid()
 
         # BH growth:
@@ -1153,7 +1154,7 @@ class TerminalPlot:
         # BH Accretion rate:
         FracEddBH = np.array(BHData['MdotBH']) / np.array(BHData['MdotEdd'])
         FracEddBH[FracEddBH <= 0] = 1e-99
-        ax[1, 2].plot(BHData['TimeMid'], np.log10(FracEddBH), lw=lw, c=c,
+        ax[1, 2].plot(BHData['TimeAcc'], np.log10(FracEddBH), lw=lw, c=c,
                       zorder=10)
         ax[1, 2].axhline(0, c='k', ls=':', lw=1, zorder=9)
         ax[1, 2].axhline(np.log10(0.02), c='k', ls='--', lw=1, zorder=9)
@@ -1165,7 +1166,7 @@ class TerminalPlot:
 
         MdotBH = np.array(BHData['MdotBH'])
         MdotBH[MdotBH <= 0] = 1e-99
-        ax[1, 3].plot(BHData['TimeMid'], np.log10(MdotBH), lw=2, c=c,
+        ax[1, 3].plot(BHData['TimeAcc'], np.log10(MdotBH), lw=2, c=c,
                       zorder=10)
         ax[1, 3].set_xlabel('Time [Myr]')
         ax[1, 3].set_title(r'$\log_{10}(\dot{M}_\mathrm{BH}$' +
