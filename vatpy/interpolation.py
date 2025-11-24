@@ -9,8 +9,9 @@ import numpy as np
 from scipy.interpolate import NearestNDInterpolator
 from scipy.spatial import KDTree
 
+
 # -------------- Declare function(s)
-def interpolate_to_2d(pos, unit, values, bins, xrange, yrange, zrange, 
+def interpolate_to_2d(pos, unit, values, bins, xrange, yrange, zrange,
                       cut=None, weights=None):
     # Generate a grid:
     X, dX = np.linspace(xrange[0], xrange[1], bins, retstep=True)
@@ -30,7 +31,7 @@ def interpolate_to_2d(pos, unit, values, bins, xrange, yrange, zrange,
     interp = NearestNDInterpolator(pos, values)
     if weights:
         interp_w = NearestNDInterpolator(pos, weights)
-    
+
     # Interpolate onto the grid:
     interpValues = interp(coord)
     if weights:
@@ -38,19 +39,19 @@ def interpolate_to_2d(pos, unit, values, bins, xrange, yrange, zrange,
 
     # Sum along the z-axis:
     if np.any(weights):
-        H = (np.histogram2d(coord[:,0], coord[:,1], bins=(X, Y), 
+        H = (np.histogram2d(coord[:, 0], coord[:, 1], bins=(X, Y),
                             weights=(interpValues * interpWeights))[0]
-             / np.histogram2d(coord[:,0], coord[:,1], bins=(X, Y), 
+             / np.histogram2d(coord[:, 0], coord[:, 1], bins=(X, Y),
                               weights=(interpWeights))[0])
     else:
-        H = np.histogram2d(coord[:,0], coord[:,1], bins=(X, Y), 
+        H = np.histogram2d(coord[:, 0], coord[:, 1], bins=(X, Y),
                            weights=(interpValues * dZ * unit))[0]
     H = H.T
 
     return H
 
 
-def interpolate_to_2d_kdtree(pos, unit, values, bins, xrange, yrange, zrange, 
+def interpolate_to_2d_kdtree(pos, unit, values, bins, xrange, yrange, zrange,
                              cut=None, weights=None):
     # Tree construction:
     tree = KDTree(pos, leafsize=10)
@@ -71,15 +72,15 @@ def interpolate_to_2d_kdtree(pos, unit, values, bins, xrange, yrange, zrange,
 
     # Find Indices:
     q = tree.query(coord)
-    
+
     # Sum along the z-axis:
     if np.any(weights):
-        H = (np.histogram2d(coord[:,0], coord[:,1], bins=(X, Y), 
+        H = (np.histogram2d(coord[:, 0], coord[:, 1], bins=(X, Y),
                             weights=(values[q[1]] * weights[q[1]]))[0]
-             / np.histogram2d(coord[:,0], coord[:,1], bins=(X, Y), 
+             / np.histogram2d(coord[:, 0], coord[:, 1], bins=(X, Y),
                               weights=(weights[q[1]]))[0])
     else:
-        H = np.histogram2d(coord[:,0], coord[:,1], bins=(X, Y), 
+        H = np.histogram2d(coord[:, 0], coord[:, 1], bins=(X, Y),
                            weights=(values[q[1]] * dZ * unit))[0]
     H = H.T
 
