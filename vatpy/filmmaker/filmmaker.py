@@ -73,6 +73,15 @@ class FilmMaker:
             elif self.film == 'mosaic':
                 from .mosaic import plot_mosaic
                 plot_mosaic(snap_start, snap_end)
+            elif self.film == 'zoom':
+                from .zoom import plot_zoom
+                plot_zoom(snap_start, snap_end)
+            elif self.film == 'ionflux':
+                from .ionflux import plot_ionflux
+                plot_ionflux(snap_start, snap_end)
+            elif self.film == 'ionrate':
+                from .ionrate import plot_ionrate
+                plot_ionrate(snap_start, snap_end)
             else:
                 print('  * No matching film!')
                 print('  * Ending the script\n')

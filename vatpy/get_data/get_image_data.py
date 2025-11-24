@@ -32,15 +32,36 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
     boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / ulength
     pos = h['PartType0']['Coordinates'] * iu['ulength'] / ulength
+    mass = h['PartType0']['Masses'] * iu['umass']
     dens_gas = h['PartType0']['Density'] * iu['udens']
     num = number_density(h, iu)
     temp = temperature(h, iu)
+    vol = mass / dens_gas
 
     if 'MagneticField' in h['PartType0'].keys():
         bfield = h['PartType0']['MagneticField'] * iu['umagfield']
         bfield_tot = np.linalg.norm(bfield, axis=1)
     else:
         bfield_tot = np.zeros(shape=np.shape(dens_gas))
+
+    if 'PhotonRates' in h['PartType0'].keys():
+        rates = h['PartType0']['PhotonRates'][:]
+        HIPI = rates[:, 0] / vol
+        # HIPH = rates[:, 1] / vol
+        # H2PI = rates[:, 2] / vol
+        # H2PH = rates[:, 3] / vol
+        H2PD = rates[:, 4] / vol
+        # DUSTPE = rates[:, 5] / vol
+        # HEPI = rates[:, 6] / vol
+        # HEPH = rates[:, 7] / vol
+
+    if 'PhotonFlux' in h['PartType0'].keys():
+        flux = h['PartType0']['PhotonFlux'][:]
+        # F056 = flux[:, 0] / vol
+        F112 = flux[:, 1] / vol
+        F136 = flux[:, 2] / vol
+        # F152 = flux[:, 3] / vol
+        # F246 = flux[:, 4] / vol
 
     if blackholefocus:
         bh = (h['PartType5']['Coordinates'][0] * iu['ulength'] / ulength)
@@ -92,7 +113,9 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     image_data = {}
     for i in range(0, len(quantity)):
         if ((quantity[i] != 'mass') and (quantity[i] != 'temp') and
-                (quantity[i] != 'bfield')):
+            (quantity[i] != 'bfield') and (quantity[i] != 'HIPI') and
+            (quantity[i] != 'H2PD') and (quantity[i] != 'F112') and
+                (quantity[i] != 'F136')):
             dens = num[quantity[i]]
         else:
             dens = dens_gas
@@ -102,6 +125,18 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
             weights = dens
         elif quantity[i] == 'bfield':
             values = bfield_tot
+            weights = dens
+        elif quantity[i] == 'HIPI':
+            values = HIPI
+            weights = dens
+        elif quantity[i] == 'H2PD':
+            values = H2PD
+            weights = dens
+        elif quantity[i] == 'F112':
+            values = F112
+            weights = dens
+        elif quantity[i] == 'F136':
+            values = F136
             weights = dens
         else:
             values = dens

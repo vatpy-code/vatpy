@@ -54,25 +54,28 @@ def plot_noctua(start, end):
         ax6 = plt.subplot2grid((4, 5), (3, 1), rowspan=1, colspan=1)
         ax7 = plt.subplot2grid((4, 5), (3, 2), rowspan=1, colspan=1)
 
-        im1 = ax1.imshow(np.log10(im_dens_global['mass']), cmap=cmap_dens,
+        im1 = ax1.imshow(np.log10(im_dens_global['mass']), origin='lower',
                          extent=im_dens_global['extent'],
-                         vmin=vmin_dens, vmax=vmax_dens)
-        ax2.imshow(np.log10(im_dens_local['mass']), cmap=cmap_dens,
+                         vmin=vmin_dens, vmax=vmax_dens, cmap=cmap_dens)
+        ax2.imshow(np.log10(im_dens_local['mass']), origin='lower',
                    extent=im_dens_local['extent'],
-                   vmin=vmin_dens, vmax=vmax_dens)
-        ax3.imshow(np.log10(im_dens_bh['mass']), cmap=cmap_dens,
-                   extent=im_dens_bh['extent'], vmin=vmin_dens, vmax=vmax_dens)
-        ax4.imshow(np.log10(im_dens_bh['mass']), cmap=cmap_dens,
-                   extent=im_dens_bh['extent'], vmin=vmin_dens, vmax=vmax_dens)
+                   vmin=vmin_dens, vmax=vmax_dens, cmap=cmap_dens)
+        ax3.imshow(np.log10(im_dens_bh['mass']), origin='lower',
+                   extent=im_dens_bh['extent'],
+                   vmin=vmin_dens, vmax=vmax_dens, cmap=cmap_dens)
+        ax4.imshow(np.log10(im_dens_bh['mass']), origin='lower',
+                   extent=im_dens_bh['extent'],
+                   vmin=vmin_dens, vmax=vmax_dens, cmap=cmap_dens)
 
-        im5 = ax5.imshow(np.log10(im_dens_global['temp']), cmap=cmap_temp,
+        im5 = ax5.imshow(np.log10(im_dens_global['temp']), origin='lower',
                          extent=im_dens_global['extent'],
-                         vmin=vmin_temp, vmax=vmax_temp)
-        ax6.imshow(np.log10(im_dens_local['temp']), cmap=cmap_temp,
+                         vmin=vmin_temp, vmax=vmax_temp, cmap=cmap_temp)
+        ax6.imshow(np.log10(im_dens_local['temp']), origin='lower',
                    extent=im_dens_local['extent'],
-                   vmin=vmin_temp, vmax=vmax_temp)
-        ax7.imshow(np.log10(im_dens_bh['temp']), cmap=cmap_temp,
-                   extent=im_dens_bh['extent'], vmin=vmin_temp, vmax=vmax_temp)
+                   vmin=vmin_temp, vmax=vmax_temp, cmap=cmap_temp)
+        ax7.imshow(np.log10(im_dens_bh['temp']), origin='lower',
+                   extent=im_dens_bh['extent'],
+                   vmin=vmin_temp, vmax=vmax_temp, cmap=cmap_temp)
 
         # Colorbars:
         cax1 = ax1.inset_axes([0.05, 0.95, 0.4, 0.03])
@@ -149,6 +152,8 @@ def plot_noctua(start, end):
             ax4.scatter(coord_stars[:, 0][mask], coord_stars[:, 1][mask],
                         marker='.', s=5, c=lifetime[mask], cmap=cmap_age,
                         alpha=1.0)
+            ax4.set_xlim(im_dens_bh['extent'][0], im_dens_bh['extent'][1])
+            ax4.set_ylim(im_dens_bh['extent'][2], im_dens_bh['extent'][3])
 
         # Info panel:
         ax9 = plt.subplot2grid((4, 5), (3, 4), rowspan=1, colspan=1)
