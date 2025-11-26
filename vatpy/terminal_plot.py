@@ -1064,8 +1064,6 @@ class TerminalPlot:
         # Snapshot range:
         file_list = os.listdir()
         snap_list = [i for i in file_list if 'sink_snap_' in i]
-        #snap_list = [i for i in snap_list if 'sink_snap_' not in i]
-        print(snap_list)
         snum_list = [int(i[10:]) for i in snap_list]
         n = np.min(snum_list)
         N = int(self.file[len(self.file)-8:-5])
