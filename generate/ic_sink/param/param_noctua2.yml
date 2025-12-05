@@ -1,4 +1,4 @@
-noMHDnoNSC:
+MBH4noMHDnoNSC:
   filename:          'sink_snap_000'
   
   sink_pos:          [750.1074717429626, 750.1339759557618, 750.134149236987]
@@ -21,7 +21,7 @@ noMHDnoNSC:
   
   nfreq:             5
 
-Fiducial:
+MBH4:
   filename:          'sink_snap_000'
   
   sink_pos:          [750.1222378014918, 749.7744306826298, 750.2332372143053]
@@ -42,5 +42,5 @@ Fiducial:
   rcirc:             True
   rad:               True
   
-  nfreq:             5
+  nfreq:             7
 
