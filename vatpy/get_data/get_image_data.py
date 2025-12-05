@@ -18,7 +18,8 @@ from ..interpolation import interpolate_to_2d_kdtree, interpolate_to_2d
 def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
                    interpolation='kdtree', unitlength='kpc',
                    blackholefocus=False, halfboxfocus=False, xrange=None,
-                   yrange=None, zrange=None, box=None, cut=None):
+                   yrange=None, zrange=None, box=None, cut=None,
+                   xraybins=0):
     # Unit length:
     if unitlength == 'kpc':
         ulength = const['kpc']
@@ -44,24 +45,33 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     else:
         bfield_tot = np.zeros(shape=np.shape(dens_gas))
 
+    photonrates = {}
     if 'PhotonRates' in h['PartType0'].keys():
         rates = h['PartType0']['PhotonRates'][:]
-        HIPI = rates[:, 0] / vol
-        # HIPH = rates[:, 1] / vol
-        # H2PI = rates[:, 2] / vol
-        # H2PH = rates[:, 3] / vol
-        H2PD = rates[:, 4] / vol
-        # DUSTPE = rates[:, 5] / vol
-        # HEPI = rates[:, 6] / vol
-        # HEPH = rates[:, 7] / vol
+        photonrates['HIPI'] = rates[:, 0] / vol
+        photonrates['HIPH'] = rates[:, 1] / vol
+        photonrates['H2PI'] = rates[:, 2] / vol
+        photonrates['H2PH'] = rates[:, 3] / vol
+        photonrates['H2PD'] = rates[:, 4] / vol
+        photonrates['DUSTPE'] = rates[:, 5] / vol
+        photonrates['HEPI'] = rates[:, 6] / vol
+        photonrates['HEPH'] = rates[:, 7] / vol
 
+    photonflux = {}
     if 'PhotonFlux' in h['PartType0'].keys():
         flux = h['PartType0']['PhotonFlux'][:]
-        # F056 = flux[:, 0] / vol
-        F112 = flux[:, 1] / vol
-        F136 = flux[:, 2] / vol
-        # F152 = flux[:, 3] / vol
-        # F246 = flux[:, 4] / vol
+        photonflux['F056'] = flux[:, 0] / vol
+        photonflux['F112'] = flux[:, 1] / vol
+        photonflux['F136'] = flux[:, 2] / vol
+        photonflux['F152'] = flux[:, 3] / vol
+        photonflux['F246'] = flux[:, 4] / vol
+        if xraybins >= 1:
+            photonflux['FXRAY0'] = flux[:, 5] / vol
+        if xraybins >= 2:
+            photonflux['FXRAY1'] = flux[:, 6] / vol
+        if xraybins >= 4:
+            photonflux['FXRAY2'] = flux[:, 7] / vol
+            photonflux['FXRAY3'] = flux[:, 8] / vol
 
     if blackholefocus:
         bh = (h['PartType5']['Coordinates'][0] * iu['ulength'] / ulength)
@@ -112,10 +122,9 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
     # Selection of gas quantity:
     image_data = {}
     for i in range(0, len(quantity)):
-        if ((quantity[i] != 'mass') and (quantity[i] != 'temp') and
-            (quantity[i] != 'bfield') and (quantity[i] != 'HIPI') and
-            (quantity[i] != 'H2PD') and (quantity[i] != 'F112') and
-                (quantity[i] != 'F136')):
+        if ((quantity[i] not in ['mass', 'temp', 'bfield']) and
+                (quantity[i] not in photonrates.keys()) and
+                (quantity[i] not in photonflux.keys())):
             dens = num[quantity[i]]
         else:
             dens = dens_gas
@@ -126,17 +135,11 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         elif quantity[i] == 'bfield':
             values = bfield_tot
             weights = dens
-        elif quantity[i] == 'HIPI':
-            values = HIPI
+        elif quantity[i] in photonrates.keys():
+            values = photonrates[quantity[i]]
             weights = dens
-        elif quantity[i] == 'H2PD':
-            values = H2PD
-            weights = dens
-        elif quantity[i] == 'F112':
-            values = F112
-            weights = dens
-        elif quantity[i] == 'F136':
-            values = F136
+        elif quantity[i] in photonflux.keys():
+            values = photonflux[quantity[i]]
             weights = dens
         else:
             values = dens
