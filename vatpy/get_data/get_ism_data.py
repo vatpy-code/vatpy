@@ -94,7 +94,8 @@ def get_ism_data(h, iu, bin_edges_dens, bin_edges_temp, norm=False, Rcut=None):
     return ism_data
 
 
-def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, Rcut=None):
+def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, Rcut=None,
+                           n_range=None, T_range=None):
     '''TODO
     '''
     # Directory of ISM phase data:
@@ -135,10 +136,19 @@ def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, Rcut=None):
         maskR = np.full(len(pos), True)
 
     # Temperature vs density:
-    H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
-                                       np.log10(temp[maskR]),
-                                       bins=(bins_dens, bins_temp),
-                                       weights=mass_H[maskR])
+    if (n_range is not None) and (T_range is not None):
+        H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
+                                           np.log10(temp[maskR]),
+                                           bins=[np.linspace(n_range[0],
+                                                             n_range[1], bins_dens),
+                                                np.linspace(T_range[0],
+                                                            T_range[1], bins_temp)],
+                                           weights=mass_H[maskR])
+    else:
+        H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
+                                           np.log10(temp[maskR]),
+                                           bins=(bins_dens, bins_temp),
+                                           weights=mass_H[maskR])
 
     with np.errstate(divide='ignore'):
         diagram_data['hist2d_T_vs_rho'] = np.log10(H.T)
