@@ -1,8 +1,8 @@
 MBH4noMHDnoNSC:
   filename:          'sink_snap_000'
   
-  sink_pos:          [750.1074717429626, 750.1339759557618, 750.134149236987]
-  sink_vel:          [-0.5211232324125985, -0.9872893720121467, 0.7086574614876816]
+  sink_pos:          [750.3304356909448, 749.7978810595761, 750.3345406259516]
+  sink_vel:          [1.5046331102172756, 1.4733721987649044, 0.3109576550269917]
   sink_angmom:       [0, 0, 0]
   sink_mass:         10000
   sink_ID:           41956001
@@ -17,15 +17,38 @@ MBH4noMHDnoNSC:
   bh:                True
   hm:                True
   rcirc:             True
-  rad:               True
+  rad:               False
+  
+  nfreq:             5
+
+MBH4noNSC:
+  filename:          'sink_snap_000'
+  
+  sink_pos:          [750.0849111194453, 749.8662759844467, 750.3052888526918]
+  sink_vel:          [-0.5440627423961086, -1.7198158631610028, 1.7288593930380343]
+  sink_angmom:       [0, 0, 0]
+  sink_mass:         10000
+  sink_ID:           41956001
+
+  bh_acc_radius:     0.01
+  bh_mass:           10000
+  bh_disk_mass:      0
+  bh_reservoir:      0
+
+  feedback:          False
+  spin:              True
+  bh:                True
+  hm:                True
+  rcirc:             True
+  rad:               False
   
   nfreq:             5
 
 MBH4:
   filename:          'sink_snap_000'
   
-  sink_pos:          [750.1222378014918, 749.7744306826298, 750.2332372143053]
-  sink_vel:          [-0.39030125219251166, 0.6381344955889238, 1.437545767671894]
+  sink_pos:          [750.0942683102504, 749.6948899968883, 750.2810284061751]
+  sink_vel:          [0.3011879814257199, 0.4136262932679346, -0.6390484464507031]
   sink_angmom:       [0, 0, 0]
   sink_mass:         10000
   sink_ID:           41956001
@@ -40,7 +63,7 @@ MBH4:
   bh:                True
   hm:                True
   rcirc:             True
-  rad:               True
+  rad:               False
   
-  nfreq:             7
+  nfreq:             5
 
