@@ -4,6 +4,10 @@ vplots
 .DS_Store
 __pycache__
 .ipynb_checkpoints
+sink*
+param_bh_uniform_box.yml
+.env
+*.ipynb
 
 # Tutorials:
 tutorials/plots
