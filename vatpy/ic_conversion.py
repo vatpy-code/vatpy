@@ -13,7 +13,7 @@ from scipy.interpolate import NearestNDInterpolator
 from .read import read_hdf5, read_dump
 
 # -------------- Declare function(s)
-def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5), backgrounddensity_in_cgs=1e-30, addBH = False, mass=1e5):
+def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5), backgrounddensity_in_cgs=1e-30, addBH = False, bh_mass=1e5):
     '''
     Description: 
     '''
@@ -157,7 +157,7 @@ def convert_pNbody_IC_to_Arepo(source, dest, addbackgroundgrid=False, N=int(1e5)
             pt5.create_dataset('ParticleIDs', data=np.array([id_BH]))
             pt5.create_dataset('Coordinates', data=np.array([[0.0], [0.0], [0.0]]).T)
             pt5.create_dataset('Velocities', data=np.array([[0.0], [0.0], [0.0]]).T)
-            pt5.create_dataset('Masses', data=np.array([mass]))
+            pt5.create_dataset('Masses', data=np.array([bh_mass]))
 
             num_part_thisfile[5] = 1
             num_part_total[5] = 1
