@@ -136,4 +136,48 @@ def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
 
     return time, NSinksAllTasks, sinks
 
+def read_sne(filepath, initLine:int=0, initTime:float=0., num_cols:int=None, num_save_cols:int=None):
+    '''
+    Description: Read the supernovas.txt output file from Arepo. Please
+                 note that there is high risk of mismatch between data fields
+                 unless you know what the expected data structure is of your
+                 simulation output.
+
+    Args:
+        filepath (str): Full path of supernovas.txt file
+        initLine (int): Which line to start at (default: 0, i.e., the first line)
+        initTime (float): Filter out SN events that occur before initTime [unit time] (default: 0.0)
+        num_cols (int): Number of columns you expect each line to have. Must be defined!
+        num_save_cols (int): Number of columns you want to save (0 is the leftmost).
+                    If left undefined, the function will assume num_save_cols = num_cols 
+    '''
+    if num_cols is None:
+        raise ValueError('Missing an argument for number of columns.')
+    
+    if num_save_cols is None:
+        num_save_cols = num_cols
+    
+    columns = [[] for _ in range(num_save_cols)]
+    print(initLine)
+    with open(filepath, 'r') as file:
+        for n, line in enumerate(file):
+            if n < initLine:
+                continue
+
+            stripped_line = line.strip()
+            if not stripped_line:
+                continue
+            
+            values = stripped_line.split(',')
+            if len(values) < num_cols:
+                raise ValueError(f'Length of line {n} is smaller than num_cols.\n   num_cols: {num_cols}\n   line length: {len(values)}')
+            
+            if float(values[0]) < initTime:
+                continue
+            
+            for i in range(num_save_cols):
+                columns[i].append(float(values[i]))
+            
+        return np.vstack([np.array(col) for col in columns]).T
+
 # -------------- End of file
