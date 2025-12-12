@@ -5,6 +5,7 @@
 
 # -------------- Required packages
 import os
+import re
 import numpy as np
 import cmasher as cmr
 import matplotlib as mpl
@@ -19,6 +20,7 @@ from .constants import const
 from .get_gas_property import number_density, temperature
 from .interpolation import interpolate_to_2d, interpolate_to_2d_kdtree
 from .get_data import get_black_hole_data
+
 
 import configv
 
@@ -1066,17 +1068,22 @@ class TerminalPlot:
             fnr = 0
             if skip:
                 fnr = skip
-            frame = '000'[:3-len(str(fnr))] + str(fnr)
+            # frame = '000'[:3-len(str(fnr))] + str(fnr)
+            frame = f'{fnr:0>3}'
             print(f'  * Searching for {framedir} frames')
             while os.path.isfile(f'./vframes/{framedir}/' +
                                  f'{framedir}_{frame}.png'):
                 fnr += 1
-                frame = '000'[:3-len(str(fnr))] + str(fnr)
+                # frame = '000'[:3-len(str(fnr))] + str(fnr)
+                frame = f'{fnr:0>3}'
             print(f'  * Found {fnr - skip} frames!')
 
         start = 0
-        file_split = self.file.split('.')
-        vframes = int(file_split[0][-3:])
+        pattern = re.compile(r'^snap_(\d+)\.hdf5$')
+        match = pattern.match(self.file)
+        vframes = int(match.group(1))
+        # file_split = self.file.split('.')
+        # vframes = int(file_split[0][-3:])
         if skip:
             start = skip
             vframes = vframes - skip + 1
@@ -1087,7 +1094,7 @@ class TerminalPlot:
                   ' without the neccessary frames needed to do so,' +
                   ' therefore, exiting the ffmpeg function')
             return None
-        # fps = 15
+
         res_width = 1920
         res_height = 1080
 
