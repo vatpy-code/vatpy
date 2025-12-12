@@ -91,7 +91,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         image_data[quantity[i]] = interpDens
 
     image_data['extent'] = [xrange[0], xrange[1], yrange[0], yrange[1]]
-
+    image_data['time'] = time
     return image_data
 
 # -------------- End of file

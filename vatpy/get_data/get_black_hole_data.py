@@ -26,6 +26,7 @@ def get_black_hole_data(output_dir, n, N, vcr=False):
 
     BlackHoleData = {
         'Time'       : [],
+        'Coord'      : [],
         'MassBH'     : [],
         'MassDisk'   : [],
         'MassReserv' : [],
@@ -50,11 +51,17 @@ def get_black_hole_data(output_dir, n, N, vcr=False):
         h, iu = read_hdf5(f'{output_dir}/snap_{snap}.hdf5')
         dump = read_dump(f'{output_dir}/sink_snap_{snap}', feedback=False,
                          spin=vcr, bh=True, hm=vcr, rcirc=vcr)[2]
+        if i < (n + 1):
+            bxsz = h['Header'].attrs['BoxSize']
+            BlackHoleData['BoxSize'] = bxsz
+            BlackHoleData['iu'] = iu
 
+        
         # Append data to the dictionary:
         BlackHoleData['Time'].append(h['Header'].attrs['Time'] 
                                      * iu['utime'] / Myr)
-        BlackHoleData['MassBH'].append(dump['BlackHoleMass'][0] 
+        BlackHoleData['Coord'].append(h['PartType5']['Coordinates'][:])
+        BlackHoleData['MassBH'].append(dump['BlackHoleMass'][0]
                                        * iu['umass'] / Msol)
         BlackHoleData['MassDisk'].append(dump['BlackHoleDiskMass'][0] 
                                          * iu['umass'] / Msol)
