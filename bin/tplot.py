@@ -2,6 +2,7 @@
 import os
 import argparse
 import numpy as np
+import re
 
 # -------------- Import Vatpy TerminalPlot
 from vatpy import TerminalPlot
@@ -144,7 +145,12 @@ parser.add_argument('-age', '--maxstellarage', action='store', default=100,
 parser.add_argument('-start', '--startingsnapshot', action='store',
                     default=False, type=int,
                     help='''
-                    Start at the given snapshot when generating a movie (defaults to first snapshot)
+                    Start at the given snapshot when generating a movie (defaults to snapshot 0)
+                    ''')
+parser.add_argument('-overwrite', '--overwriteexisting', action='store_true',
+                    default=False,
+                    help='''
+                    Ignore and overwrite already existing frames (defaults to false)
                     ''')
 
 # -------------- Common arguments
@@ -210,23 +216,37 @@ if args.movie:
     f = 0
     if args.startingsnapshot:
         f = args.startingsnapshot
-    frame = '000'[:3-len(str(f))] + str(f)
+        print(f'  * Starting snapshot set to snapshot {args.startingsnapshot}')
+    # frame = '000'[:3-len(str(f))] + str(f)
+    frame = f'{f:0>3}'
     if os.path.isdir(f'{os.getcwd()}/vframes/{args.movie}'):
-        while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
+        if args.overwriteexisting:
+            while os.path.isfile(f'{os.getcwd()}/vframes/{args.movie}/' +
                              f'{args.movie}_{frame}.{args.format}'):
-            f += 1
-            frame = '000'[:3-len(str(f))] + str(f)
-        print(f'  * Found {f - 1 - args.startingsnapshot} already generated frames in' +
-              f' \'vframes/{args.movie}\'')
+                f += 1
+                # frame = '000'[:3-len(str(f))] + str(f)
+                frame = f'{f:0>3}'
+            print(f'  * Found {f - 1 - args.startingsnapshot} already generated frames in' +
+                f' \'vframes/{args.movie}\'')
+        else:
+            print(f'  * Overwriting frames already generated in' +
+                f' \'vframes/{args.movie}\'')
     else:
         print(f'  * Creating a \'{args.movie}\' subdirectory in vframes')
         os.makedirs(f'{os.getcwd()}/vframes/{args.movie}')
 
-    snapshot_split = args.snapshot.split('.')
-    snapshot_final = int(snapshot_split[0][-3:])
-    snapshot_list = ['000'[:3-len(str(s))] + str(s) for s in
+    # snapshot_split = args.snapshot.split('.')
+    # snapshot_final = int(snapshot_split[0][-3:])
+    # snapshot_list = ['000'[:3-len(str(s))] + str(s) for s in
+    #                  np.arange(f, snapshot_final+1, 1)]
+    
+    pattern = re.compile(r'^snap_(\d+)\.hdf5$')
+    match = pattern.match(args.snapshot)
+    snapshot_final = int(match.group(1))
+    snapshot_list = [f'{s:0>3}' for s in
                      np.arange(f, snapshot_final+1, 1)]
     snapshots_to_read = [f'snap_{s}.hdf5' for s in snapshot_list]
+    # print('Start: ', snapshots_to_read[0], '. End: ', snapshots_to_read[-1])
     path = f'{os.getcwd()}/vframes/{args.movie}/'
     name = f'{args.movie}'
     show = False
