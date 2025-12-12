@@ -9,23 +9,15 @@ Last updated: 2024-11-12
 import numpy as np
 
 from ..read import read_hdf5, read_dump
+from ..constants import const
 
 
 # -------------- Declare function(s)
 def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
-                        vcr=False, rad=False, nfreq=5):
-    # Constants:
-    G = 6.67259e-8  # [cm^3 g^-1 s^-2]
-    c = 2.998e10  # [cm s^-1]
-    mp = 1.6726e-24  # [g]
-    kb = 1.380658e-16  # [erg K^-1]
-    pc = 3.08567758e18  # [cm]
-    kpc = 3.08567758e21  # [cm]
-    Myr = 1e6 * 365.25 * 24 * 60 * 60  # [s]
-    Msol = 1.9891e33  # [g]
-    thom = 6.6525e-25  # [cm^2]
-
-    BlackHoleData = {
+                        vcr=False, rad=False, nfreq=5,
+                        convert_to_arrays=False):
+    # Data dictionary:
+    black_hole_data = {
         'Time': [],
         'MassBH': [],
         'MassDisk': [],
@@ -39,9 +31,11 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
         'CircRadius': []
     }
 
+    # Simple flag for when we use a varibale circ. radius:
     if vcr is True:
         spin, hm, rcirc = True, True, True
 
+    # Loop over snapshots:
     for i in range(n, N+1):
         # Snapshot selection:
         snap = '000'[len(str(i)):] + str(i)
@@ -57,40 +51,47 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
                          nfreq=nfreq)[2]
 
         # Append data to the dictionary:
-        BlackHoleData['Time'].append(h['Header'].attrs['Time']
-                                     * iu['utime'] / Myr)
-        BlackHoleData['MassBH'].append(dump['BlackHoleMass'][0]
-                                       * iu['umass'] / Msol)
-        BlackHoleData['MassDisk'].append(dump['BlackHoleDiskMass'][0]
-                                         * iu['umass'] / Msol)
-        BlackHoleData['MassReserv'].append(dump['BlackHoleReservoir'][0]
-                                           * iu['umass'] / Msol)
-        BlackHoleData['MassSink'].append(dump['Mass'][0] * iu['umass'] / Msol)
+        black_hole_data['Time'].append(h['Header'].attrs['Time']
+                                       * iu['utime'] / const['Myr'])
+        black_hole_data['MassBH'].append(dump['BlackHoleMass'][0]
+                                         * iu['umass'] / const['Msol'])
+        black_hole_data['MassDisk'].append(dump['BlackHoleDiskMass'][0]
+                                           * iu['umass'] / const['Msol'])
+        black_hole_data['MassReserv'].append(dump['BlackHoleReservoir'][0]
+                                             * iu['umass'] / const['Msol'])
+        black_hole_data['MassSink'].append(dump['Mass'][0] * iu['umass']
+                                           / const['Msol'])
         if vcr == True:
-            BlackHoleData['AngMom'].append(dump['AngularMomentum'][0]
-                                           * iu['uangmom'])
-            BlackHoleData['CircRadius'].append(dump['BlackHoleCircRadius'][0]
-                                               * iu['ulength'] / pc)
+            black_hole_data['AngMom'].append(dump['AngularMomentum'][0]
+                                             * iu['uangmom'])
+            black_hole_data['CircRadius'].append(dump['BlackHoleCircRadius'][0]
+                                                 * iu['ulength'] / const['pc'])
 
     # Accretion rates:
-    dt = (np.array(BlackHoleData['Time'])[1:]
-          - np.array(BlackHoleData['Time'])[:-1])
-    mt = ((np.array(BlackHoleData['Time'])[1:]
-           + np.array(BlackHoleData['Time'])[:-1]) / 2)
-    BlackHoleData['TimeAcc'] = list(mt)
-    mdot_sink = ((np.array(BlackHoleData['MassSink'])[1:]
-                  - np.array(BlackHoleData['MassSink'])[:-1]) / (dt * 1e6))
-    BlackHoleData['MdotSink'] = list(mdot_sink)
-    mdot_bh = ((np.array(BlackHoleData['MassBH'])[1:]
-                - np.array(BlackHoleData['MassBH'])[:-1]) / (dt * 1e6))
-    BlackHoleData['MdotBH'] = list(mdot_bh)
+    dt = (np.array(black_hole_data['Time'])[1:]
+          - np.array(black_hole_data['Time'])[:-1])
+    mt = ((np.array(black_hole_data['Time'])[1:]
+           + np.array(black_hole_data['Time'])[:-1]) / 2)
+    black_hole_data['TimeAcc'] = list(mt)
+    mdot_sink = ((np.array(black_hole_data['MassSink'])[1:]
+                  - np.array(black_hole_data['MassSink'])[:-1]) / (dt * 1e6))
+    black_hole_data['MdotSink'] = list(mdot_sink)
+    mdot_bh = ((np.array(black_hole_data['MassBH'])[1:]
+                - np.array(black_hole_data['MassBH'])[:-1]) / (dt * 1e6))
+    black_hole_data['MdotBH'] = list(mdot_bh)
 
     # Eddington accretion limit:
-    MeanMassBH = ((np.array(BlackHoleData['MassBH'])[:-1]
-                   + np.array(BlackHoleData['MassBH'])[1:]) / 2)
-    LimitEdd = (4 * np.pi * G * MeanMassBH * Msol * mp) / (0.1 * thom * c)
-    BlackHoleData['MdotEdd'] = list(LimitEdd / (Msol / (365.25 * 24 * 60 * 60)))
+    mean_bh_mass = ((np.array(black_hole_data['MassBH'])[:-1]
+                     + np.array(black_hole_data['MassBH'])[1:]) / 2)
+    limit_Edd = (4 * np.pi * const['G'] * mean_bh_mass * const['Msol'] *
+                 const['mp']) / (0.1 * const['thom'] * const['c'])
+    black_hole_data['MdotEdd'] = list(limit_Edd / (const['Msol'] / const['yr']))
 
-    return BlackHoleData
+    # Convert the data into arrays instead of lists:
+    if convert_to_arrays is True:
+        for key in black_hole_data.keys():
+            black_hole_data[key] = np.array(black_hole_data[key])
+
+    return black_hole_data
 
 # -------------- End of file
