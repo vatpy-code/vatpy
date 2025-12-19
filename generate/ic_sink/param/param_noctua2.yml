@@ -90,3 +90,27 @@ MBH4_HUV:
 
   nfreq:             5
 
+MBH4_HUV_SGS:
+  filename:          'sink_snap_000'
+
+  sink_pos:          [750.0942683102504, 749.6948899968883, 750.2810284061751]
+  sink_vel:          [0.3011879814257199, 0.4136262932679346, -0.6390484464507031]
+  sink_angmom:       [0, 0, 0]
+  sink_mass:         10000
+  sink_ID:           41956001
+
+  bh_acc_radius:     0.01
+  bh_mass:           10000
+  bh_disk_mass:      0
+  bh_reservoir:      0
+
+  feedback:          False
+  spin:              True
+  bh:                True
+  hm:                True
+  rcirc:             True
+  sgs:               True
+  rad:               True
+
+  nfreq:             5
+

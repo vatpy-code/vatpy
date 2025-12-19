@@ -32,19 +32,20 @@ with open(paramfile, 'r') as file:
     bh = param['bh']
     hm = param['hm']
     rcirc = param['rcirc']
+    sgs = param['sgs']
     rad = param['rad']
     nfreq = param['nfreq']
 
 filename = param['filename']
 print(f'  * Writing data to: {filename}')
 write_dump(filename=filename, ic=param, feedback=feedback, spin=spin, bh=bh,
-           hm=hm, rcirc=rcirc, rad=rad, nfreq=nfreq)
+           hm=hm, rcirc=rcirc, sgs=sgs, rad=rad, nfreq=nfreq)
 
 print('  * Binary file generated!')
 print('  * Reading newly created binary file to check that all data have' +
       ' been generated correctly')
 dump = read_dump(param['filename'], feedback=feedback, spin=spin, bh=bh, hm=hm,
-                 rcirc=rcirc, rad=rad, nfreq=nfreq)
+                 rcirc=rcirc, sgs=sgs, rad=rad, nfreq=nfreq)
 print('  * Binary file content:')
 for i in dump[2].keys():
     print(f'      {i}: {dump[2][i]}')
