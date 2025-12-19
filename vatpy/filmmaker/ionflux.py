@@ -23,7 +23,7 @@ def plot_ionflux(start, end):
     plt.style.use(f'{configv.homedir}/vatpy/mpl/mosaic.mplstyle')
 
     # Parameters:
-    bins = 100
+    bins = 200
     box1 = (-2, 2)
     box2 = (-250, 250)
     box3 = (-12.5, 12.5)
@@ -167,7 +167,7 @@ def plot_ionflux(start, end):
             return None
 
         # Figure:
-        fig, ax = plt.subplots(6, 7, figsize=(15, 15*(4.5/7)),
+        fig, ax = plt.subplots(6, 7, figsize=(16, 16*(4.5/7)),
                                gridspec_kw={'height_ratios': [1, 1/2, 1, 1/2,
                                                               1, 1/2],
                                             'width_ratios': [1, 1, 1, 1, 1,
