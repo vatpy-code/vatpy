@@ -11,7 +11,7 @@ import pycstruct
 
 # -------------- Declare function(s)
 def write_dump(filename, ic, feedback=False, spin=False, bh=False, hm=False,
-               rcirc=False, rad=False, nfreq=1):
+               rcirc=False, sgs=False, rad=False, nfreq=1):
     '''
     Description:
     '''
@@ -46,6 +46,8 @@ def write_dump(filename, ic, feedback=False, spin=False, bh=False, hm=False,
         struct.add('float64', 'CellsTotalMassBuffer')
         if rcirc is True:
             struct.add('float64', 'BlackHoleCircRadius')
+            if sgs is True:
+                struct.add('float64', 'BlackHoleDiskSpin', shape=3)
         if rad is True:
             struct.add('float64', 'BlackHoleEddFrac')
             struct.add('float64', 'PhotoIonRate', shape=nfreq)
@@ -81,6 +83,8 @@ def write_dump(filename, ic, feedback=False, spin=False, bh=False, hm=False,
         data['CellsTotalMassBuffer'] = 0
         if rcirc is True:
             data['BlackHoleCircRadius'] = 0
+            if sgs is True:
+                data['BlackHoleDiskSpin'] = [0, 0, 0]
         if rad is True:
             data['BlackHoleEddFrac'] = 0
             data['PhotoIonRate'] = np.zeros(nfreq)

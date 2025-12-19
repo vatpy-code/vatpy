@@ -53,7 +53,7 @@ def read_hdf5(file):
 
 
 def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
-              rcirc=False, rad=False, nfreq=1):
+              rcirc=False, sgs=False, rad=False, nfreq=1):
     '''
     Description: Read a sink particle (binary) file output from Arepo. Please
                  note that there is high risk of mismatch between data fields
@@ -85,6 +85,8 @@ def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
                    'CellsTotalMassBuffer']
         if rcirc is True:
             fields += ['BlackHoleCircRadius']
+            if sgs is True:
+                fields += ['BlackHoleDiskSpin']
         if rad is True:
             fields += ['BlackHoleEddFrac', 'PhotoIonRate']
 
@@ -123,6 +125,8 @@ def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
             struct.add('float64', 'CellsTotalMassBuffer')
             if rcirc is True:
                 struct.add('float64', 'BlackHoleCircRadius')
+                if sgs is True:
+                    struct.add('float64', 'BlackHoleDiskSpin', shape=3)
             if rad is True:
                 struct.add('float64', 'BlackHoleEddFrac')
                 struct.add('float64', 'PhotoIonRate', shape=nfreq)
