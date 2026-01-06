@@ -8,6 +8,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from scipy.spatial.transform import Rotation
 
 from ..read import read_hdf5, read_dump
 from ..constants import const
@@ -131,7 +132,10 @@ def plot_ionflux(start, end):
 
             if add_moving_bh is True:
                 ax_face.plot(bh_pos[0], bh_pos[1], c='k', marker='o', ms=2)
-                ax_edge.plot(bh_pos[0], bh_pos[2], c='k', marker='o', ms=2)
+                rotation = Rotation.from_euler('x', 90, degrees=True)
+                bh_pos_edge = rotation.apply(bh_pos)
+                ax_edge.plot(bh_pos_edge[0], bh_pos_edge[1], c='k', marker='o',
+                             ms=2)
 
             if add_fixed_bh is True:
                 for a in [ax_face, ax_edge]:
