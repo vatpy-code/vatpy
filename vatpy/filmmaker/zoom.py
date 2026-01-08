@@ -6,6 +6,7 @@
 # -------------- Required packages
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.spatial.transform import Rotation
 
 from ..read import read_hdf5
 from ..constants import const
@@ -52,6 +53,8 @@ def plot_zoom(start, end):
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['pc']
         bh_pos = h['PartType5']['Coordinates'][0] * iu['ulength'] / const['pc']
         bh_pos -= boxsize / 2
+        rotation = Rotation.from_euler('x', 90, degrees=True)
+        bh_pos_edge = rotation.apply(bh_pos)
 
         # Gaseous component:
         quantity = ['mass', 'temp']
@@ -85,12 +88,12 @@ def plot_zoom(start, end):
                              vmin=vmin_dens_lvl1, vmax=vmax_dens_lvl1,
                              extent=im_gas_face1['extent'],
                              origin='lower', cmap=cmap_dens)
-        cax = ax[0, 0].inset_axes([0.05, 0.95, 0.6, 0.015])
+        cax = ax[0, 0].inset_axes([0.05, 0.93, 0.35, 0.03])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
         cbar.set_label(label=r'$\log_{10}(\Sigma_\mathrm{Gas} \ [\mathrm{g}$' +
-                       r'$ \ \mathrm{cm}^{-2}])$', color='k')
-        cbar.ax.tick_params(colors='k')
-        cbar.outline.set_edgecolor('k')
+                       r'$ \ \mathrm{cm}^{-2}])$', color='w')
+        cbar.ax.tick_params(colors='w', which='both')
+        cbar.outline.set_edgecolor('w')
         ax[0, 0].set_xticks([])
         ax[0, 0].set_yticks([])
 
@@ -109,14 +112,16 @@ def plot_zoom(start, end):
                              vmin=vmin_dens_lvl2, vmax=vmax_dens_lvl2,
                              extent=im_gas_face2['extent'],
                              origin='lower', cmap=cmap_dens)
-        cax = ax[0, 1].inset_axes([0.05, 0.95, 0.6, 0.015])
+        cax = ax[0, 1].inset_axes([0.05, 0.93, 0.35, 0.03])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
         cbar.set_label(label=r'$\log_{10}(\Sigma_\mathrm{Gas} \ [\mathrm{g}$' +
-                       r'$ \ \mathrm{cm}^{-2}])$', color='k')
-        cbar.ax.tick_params(colors='k')
-        cbar.outline.set_edgecolor('k')
+                       r'$ \ \mathrm{cm}^{-2}])$', color='w')
+        cbar.ax.tick_params(colors='w', which='both')
+        cbar.outline.set_edgecolor('w')
         ax[0, 1].set_xticks([])
         ax[0, 1].set_yticks([])
+
+        ax[0, 1].plot([bh_pos[0]], [bh_pos[1]], c='k', marker='o', ms=5)
 
         # Density level 2 (edge-on):
         im = ax[1, 1].imshow(np.log10(im_gas_edge2['mass']),
@@ -128,28 +133,31 @@ def plot_zoom(start, end):
         ax[1, 1].set_ylim(im_gas_edge2['extent'][1]/2,
                           im_gas_edge2['extent'][2]/2)
 
+        ax[1, 1].plot([bh_pos_edge[0]], [bh_pos_edge[1]], c='k', marker='o',
+                      ms=5)
+
         # Density level 3 (face-on):
         im = ax[0, 2].imshow(np.log10(im_gas_face3['mass']),
                              vmin=vmin_dens_lvl3, vmax=vmax_dens_lvl3,
                              extent=im_gas_face3['extent'],
                              origin='lower', cmap=cmap_dens)
-        cax = ax[0, 2].inset_axes([0.05, 0.95, 0.6, 0.015])
+        cax = ax[0, 2].inset_axes([0.05, 0.93, 0.35, 0.03])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
         cbar.set_label(label=r'$\log_{10}(\Sigma_\mathrm{Gas} \ [\mathrm{g}$' +
-                       r'$ \ \mathrm{cm}^{-2}])$', color='k')
-        cbar.ax.tick_params(colors='k')
-        cbar.outline.set_edgecolor('k')
+                       r'$ \ \mathrm{cm}^{-2}])$', color='w')
+        cbar.ax.tick_params(colors='w', which='both')
+        cbar.outline.set_edgecolor('w')
         ax[0, 2].set_xticks([])
         ax[0, 2].set_yticks([])
 
-        ax[0, 2].plot([0], [0], c='k', marker='o', ms=10,
-                      markeredgecolor='tab:cyan', markeredgewidth=2, ls='none')
+        ax[0, 2].plot([0], [0], c='k', marker='o', ms=7,
+                      markeredgecolor='w', markeredgewidth=1, ls='none')
         ax[0, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
                       bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='-', c='tab:cyan', lw=4)
-        ax[0, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
-                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='--', c='k', lw=2)
+                      ls='-', c='k', lw=2)
+        ax[0, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 12)),
+                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 12)),
+                      ls='none', c='w', marker='.', ms=2)
 
         # Density level 3 (edge-on):
         im = ax[1, 2].imshow(np.log10(im_gas_edge3['mass']),
@@ -161,25 +169,25 @@ def plot_zoom(start, end):
         ax[1, 2].set_ylim(im_gas_edge3['extent'][1]/2,
                           im_gas_edge3['extent'][2]/2)
 
-        ax[1, 2].plot([0], [0], c='k', marker='o', ms=10,
-                      markeredgecolor='tab:cyan', markeredgewidth=2, ls='none')
+        ax[1, 2].plot([0], [0], c='k', marker='o', ms=7,
+                      markeredgecolor='w', markeredgewidth=1, ls='none')
         ax[1, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
                       bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='-', c='tab:cyan', lw=4)
-        ax[1, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
-                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='--', c='k', lw=2)
+                      ls='-', c='k', lw=2)
+        ax[1, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 12)),
+                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 12)),
+                      ls='none', c='w', marker='.', ms=2)
 
         # Temperature level 1 (face-on):
         im = ax[2, 0].imshow(np.log10(im_gas_face1['temp']),
                              vmin=vmin_temp_lvl1, vmax=vmax_temp_lvl1,
                              extent=im_gas_face1['extent'],
                              origin='lower', cmap=cmap_temp)
-        cax = ax[2, 0].inset_axes([0.05, 0.95, 0.6, 0.015])
+        cax = ax[2, 0].inset_axes([0.05, 0.93, 0.35, 0.03])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
-        cbar.set_label(label=r'$\log_{10}(T \ [\mathrm{K}])$', color='k')
-        cbar.ax.tick_params(colors='k')
-        cbar.outline.set_edgecolor('k')
+        cbar.set_label(label=r'$\log_{10}(T \ [\mathrm{K}])$', color='w')
+        cbar.ax.tick_params(colors='w', which='both')
+        cbar.outline.set_edgecolor('w')
         ax[2, 0].set_xticks([])
         ax[2, 0].set_yticks([])
 
@@ -198,13 +206,15 @@ def plot_zoom(start, end):
                              vmin=vmin_temp_lvl2, vmax=vmax_temp_lvl2,
                              extent=im_gas_face2['extent'],
                              origin='lower', cmap=cmap_temp)
-        cax = ax[2, 1].inset_axes([0.05, 0.95, 0.6, 0.015])
+        cax = ax[2, 1].inset_axes([0.05, 0.93, 0.35, 0.03])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
-        cbar.set_label(label=r'$\log_{10}(T \ [\mathrm{K}])$', color='k')
-        cbar.ax.tick_params(colors='k')
-        cbar.outline.set_edgecolor('k')
+        cbar.set_label(label=r'$\log_{10}(T \ [\mathrm{K}])$', color='w')
+        cbar.ax.tick_params(colors='w', which='both')
+        cbar.outline.set_edgecolor('w')
         ax[2, 1].set_xticks([])
         ax[2, 1].set_yticks([])
+
+        ax[2, 1].plot([bh_pos[0]], [bh_pos[1]], c='k', marker='o', ms=5)
 
         # Temperature level 2 (edge-on):
         im = ax[3, 1].imshow(np.log10(im_gas_edge2['temp']),
@@ -216,27 +226,30 @@ def plot_zoom(start, end):
         ax[3, 1].set_ylim(im_gas_edge2['extent'][1]/2,
                           im_gas_edge2['extent'][2]/2)
 
+        ax[3, 1].plot([bh_pos_edge[0]], [bh_pos_edge[1]], c='k', marker='o',
+                      ms=5)
+
         # Temperature level 3 (face-on):
         im = ax[2, 2].imshow(np.log10(im_gas_face3['temp']),
                              vmin=vmin_temp_lvl3, vmax=vmax_temp_lvl3,
                              extent=im_gas_face3['extent'],
                              origin='lower', cmap=cmap_temp)
-        cax = ax[2, 2].inset_axes([0.05, 0.95, 0.6, 0.015])
+        cax = ax[2, 2].inset_axes([0.05, 0.93, 0.35, 0.03])
         cbar = fig.colorbar(im, cax=cax, orientation='horizontal')
-        cbar.set_label(label=r'$\log_{10}(T \ [\mathrm{K}])$', color='k')
-        cbar.ax.tick_params(colors='k')
-        cbar.outline.set_edgecolor('k')
+        cbar.set_label(label=r'$\log_{10}(T \ [\mathrm{K}])$', color='w')
+        cbar.ax.tick_params(colors='w', which='both')
+        cbar.outline.set_edgecolor('w')
         ax[2, 2].set_xticks([])
         ax[2, 2].set_yticks([])
 
-        ax[2, 2].plot([0], [0], c='k', marker='o', ms=10,
-                      markeredgecolor='tab:cyan', markeredgewidth=2, ls='none')
+        ax[2, 2].plot([0], [0], c='k', marker='o', ms=7,
+                      markeredgecolor='w', markeredgewidth=1, ls='none')
         ax[2, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
                       bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='-', c='tab:cyan', lw=4)
-        ax[2, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
-                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='--', c='k', lw=2)
+                      ls='-', c='k', lw=2)
+        ax[2, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 12)),
+                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 12)),
+                      ls='none', c='w', marker='.', ms=2)
 
         # Temperature level 3 (edge-on):
         im = ax[3, 2].imshow(np.log10(im_gas_edge3['temp']),
@@ -248,14 +261,14 @@ def plot_zoom(start, end):
         ax[3, 2].set_ylim(im_gas_edge3['extent'][1]/2,
                           im_gas_edge3['extent'][2]/2)
 
-        ax[3, 2].plot([0], [0], c='k', marker='o', ms=10,
-                      markeredgecolor='tab:cyan', markeredgewidth=2, ls='none')
+        ax[3, 2].plot([0], [0], c='k', marker='o', ms=7,
+                      markeredgecolor='w', markeredgewidth=1, ls='none')
         ax[3, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
                       bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='-', c='tab:cyan', lw=4)
-        ax[3, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 360)),
-                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 360)),
-                      ls='--', c='k', lw=2)
+                      ls='-', c='k', lw=2)
+        ax[3, 2].plot(bh_acc_radius * np.cos(np.linspace(0, 2*np.pi, 12)),
+                      bh_acc_radius * np.sin(np.linspace(0, 2*np.pi, 12)),
+                      ls='none', c='w', marker='.', ms=2)
 
         # Time:
         ax[3, 2].text(1, -0.02, f'{time:.2f} Myr', fontsize=18, color='k',
