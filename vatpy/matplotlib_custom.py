@@ -7,7 +7,7 @@
 # N/A
 
 # -------------- Declare function(s)
-def mplfigsize(option, ratio=None):
+def mplfigsize(option='A&A_1col', ratio=None):
     '''TODO
     '''
     # Figure size options:
@@ -26,7 +26,7 @@ def mplfigsize(option, ratio=None):
     return (width, height)
 
 
-def mplstyle(plt, option):
+def mplstyle(plt, option='AA'):
     '''TODO
     '''
     plt.style.use(f'~/vatpy/mpl/{option}.mplstyle')
