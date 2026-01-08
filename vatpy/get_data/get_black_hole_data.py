@@ -14,7 +14,7 @@ from ..constants import const
 
 # -------------- Declare function(s)
 def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
-                        vcr=False, rad=False, nfreq=5,
+                        vcr=False, rad=False, sgs=False, nfreq=5,
                         convert_to_arrays=False):
     # Data dictionary:
     black_hole_data = {
@@ -48,7 +48,7 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
         h, iu = read_hdf5(f'{output_dir}/snap_{snap}.hdf5')
         dump = read_dump(f'{output_dir}/sink_snap_{snap}', feedback=False,
                          spin=spin, bh=True, hm=hm, rcirc=rcirc, rad=rad,
-                         nfreq=nfreq)[2]
+                         sgs=sgs, nfreq=nfreq)[2]
 
         # Append data to the dictionary:
         black_hole_data['Time'].append(h['Header'].attrs['Time']
