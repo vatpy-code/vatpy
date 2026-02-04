@@ -5,8 +5,6 @@ applied to simulations made by Arepo (as long as the output is in HDF5-format), 
 creating visual maps of the gas chemistry, is at the moment only adapted to simulations run using the ArepoNoctua numerical
 framework (Petersson et al. 2025).
 
-![vatpy logo](logo/vatpy_vertical.png)
-
 ## User Guide
 Please see the dedicated user guide on the official Vatpy Docs page: https://vatpy-code.github.io/vatpy, for detailed instructions
 on how to install and use Vatpy for your work.

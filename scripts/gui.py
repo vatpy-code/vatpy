@@ -201,7 +201,7 @@ root.maxsize(800, 700)
 root.geometry('800x700+0+0')
 
 # Logo display:
-logo = Image.open(f'{homedir}/vatpy/logo/vatpy.png')
+logo = Image.open(f'{homedir}/vatpy/logo/gui_logo.png')
 logo_resize = logo.resize((300, 200))
 logo_img = ImageTk.PhotoImage(logo_resize)
 tk.Label(root, image=logo_img, borderwidth=2, bg='black').grid(row=0, column=0, padx=10, pady=10, rowspan=3, columnspan=2)
