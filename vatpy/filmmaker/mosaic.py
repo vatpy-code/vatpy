@@ -29,7 +29,7 @@ def plot_mosaic(start, end):
 
     vmin_dens, vmax_dens = -5, -2
     vmin_temp, vmax_temp = 2.5, 5.5
-    vmin_bfield, vmax_bfield = None, None
+    vmin_bfield, vmax_bfield = -1, 1
 
     vmin_HI, vmax_HI = 19, 21.5
     vmin_HII, vmax_HII = 18, 20

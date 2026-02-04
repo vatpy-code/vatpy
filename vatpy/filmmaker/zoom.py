@@ -77,7 +77,7 @@ def plot_zoom(start, end):
                                       axis='x', rotate=90, blackholefocus=True)
 
         # Figure:
-        fig, ax = plt.subplots(4, 3, figsize=(16, 15),
+        fig, ax = plt.subplots(4, 3, figsize=(14, 14),
                                gridspec_kw={'height_ratios': [1, 1/2, 1, 1/2],
                                             'width_ratios': [1, 1, 1]})
         fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.95,

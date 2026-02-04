@@ -79,6 +79,9 @@ class FilmMaker:
             elif self.film == 'ionflux':
                 from .ionflux import plot_ionflux
                 plot_ionflux(snap_start, snap_end)
+            elif self.film == 'ionfluxhuv':
+                from .ionfluxhuv import plot_ionfluxhuv
+                plot_ionfluxhuv(snap_start, snap_end)
             elif self.film == 'ionrate':
                 from .ionrate import plot_ionrate
                 plot_ionrate(snap_start, snap_end)
