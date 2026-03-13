@@ -1,6 +1,6 @@
 '''
 Description: Interpolation of data (e.g. gas physical properties).
-Last updated: 2023-09-27
+Last updated: 2026-03-11
 Authour(s): Jonathan Petersson
 '''
 
@@ -12,17 +12,26 @@ from scipy.spatial import KDTree
 
 # -------------- Declare function(s)
 def interpolate_to_2d(pos, unit, values, bins, xrange, yrange, zrange,
-                      cut=None, weights=None):
+                      xbins=None, ybins=None, zbins=None, cut=None,
+                      weights=None):
+    # Bin selection:
+    if xbins is None:
+        xbins = bins
+    if ybins is None:
+        ybins = bins
+    if zbins is None:
+        zbins = bins
+
     # Generate a grid:
-    X, dX = np.linspace(xrange[0], xrange[1], bins, retstep=True)
-    Y, dY = np.linspace(yrange[0], yrange[1], bins, retstep=True)
+    X, dX = np.linspace(xrange[0], xrange[1], xbins, retstep=True)
+    Y, dY = np.linspace(yrange[0], yrange[1], ybins, retstep=True)
     mX = (X[:-1] + X[1:]) / 2
     mY = (Y[:-1] + Y[1:]) / 2
     if cut is not None:
         mZ = cut
         dZ = 1 / unit
     else:
-        Z, dZ = np.linspace(zrange[0], zrange[1], bins, retstep=True)
+        Z, dZ = np.linspace(zrange[0], zrange[1], zbins, retstep=True)
         mZ = (Z[:-1] + Z[1:]) / 2
     XX, YY, ZZ = np.meshgrid(mX, mY, mZ)
     coord = np.column_stack((XX.flatten(), YY.flatten(), ZZ.flatten()))
@@ -52,20 +61,29 @@ def interpolate_to_2d(pos, unit, values, bins, xrange, yrange, zrange,
 
 
 def interpolate_to_2d_kdtree(pos, unit, values, bins, xrange, yrange, zrange,
-                             cut=None, weights=None):
+                             xbins=None, ybins=None, zbins=None, cut=None,
+                             weights=None):
+    # Bin selection:
+    if xbins is None:
+        xbins = bins
+    if ybins is None:
+        ybins = bins
+    if zbins is None:
+        zbins = bins
+
     # Tree construction:
     tree = KDTree(pos, leafsize=10)
 
     # Generate a grid:
-    X, dX = np.linspace(xrange[0], xrange[1], bins, retstep=True)
-    Y, dY = np.linspace(yrange[0], yrange[1], bins, retstep=True)
+    X, dX = np.linspace(xrange[0], xrange[1], xbins, retstep=True)
+    Y, dY = np.linspace(yrange[0], yrange[1], ybins, retstep=True)
     mX = (X[:-1] + X[1:]) / 2
     mY = (Y[:-1] + Y[1:]) / 2
     if cut is not None:
         mZ = cut
         dZ = 1 / unit
     else:
-        Z, dZ = np.linspace(zrange[0], zrange[1], bins, retstep=True)
+        Z, dZ = np.linspace(zrange[0], zrange[1], zbins, retstep=True)
         mZ = (Z[:-1] + Z[1:]) / 2
     XX, YY, ZZ = np.meshgrid(mX, mY, mZ)
     coord = np.column_stack((XX.flatten(), YY.flatten(), ZZ.flatten()))
