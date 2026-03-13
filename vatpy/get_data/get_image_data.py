@@ -16,10 +16,10 @@ from ..interpolation import interpolate_to_2d_kdtree, interpolate_to_2d
 
 # -------------- Declare function(s)
 def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
-                   interpolation='kdtree', unitlength='kpc',
-                   blackholefocus=False, halfboxfocus=False, xrange=None,
-                   yrange=None, zrange=None, box=None, cut=None,
-                   xraybins=0):
+                   interpolation='kdtree', unitlength='kpc', xraybins=0,
+                   blackholefocus=False, halfboxfocus=False,
+                   xrange=None, xbins=None, yrange=None, ybins=None,
+                   zrange=None, zbins=None, box=None, cut=None):
     # Unit length:
     if unitlength == 'kpc':
         ulength = const['kpc']
@@ -65,8 +65,10 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         photonflux['F136'] = flux[:, 2] / vol
         photonflux['F152'] = flux[:, 3] / vol
         photonflux['F246'] = flux[:, 4] / vol
+        photonflux['FUVTOT'] = np.sum(flux[:, :4], axis=1) / vol
         if xraybins >= 1:
             photonflux['FXRAY0'] = flux[:, 5] / vol
+            photonflux['FXRAYTOT'] = np.sum(flux[:, 5:], axis=1) / vol
         if xraybins >= 2:
             photonflux['FXRAY1'] = flux[:, 6] / vol
         if xraybins >= 4:
@@ -149,17 +151,18 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         if interpolation == 'kdtree':
             interpValues = interpolate_to_2d_kdtree(pos=pos, unit=ulength,
                                                     values=values, bins=bins,
-                                                    xrange=xrange,
-                                                    yrange=yrange,
-                                                    zrange=zrange, cut=cut,
-                                                    weights=weights)
+                                                    xrange=xrange, xbins=xbins,
+                                                    yrange=yrange, ybins=ybins,
+                                                    zrange=zrange, zbins=zbins,
+                                                    cut=cut, weights=weights)
 
         else:
             interpValues = interpolate_to_2d(pos=pos, unit=ulength,
                                              values=values, bins=bins,
-                                             xrange=xrange, yrange=yrange,
-                                             zrange=zrange, cut=cut,
-                                             weights=weights)
+                                             xrange=xrange, xbins=xbins,
+                                             yrange=yrange, ybins=ybins,
+                                             zrange=zrange, zbins=zbins,
+                                             cut=cut, weights=weights)
         # Add the image data:
         image_data[quantity[i]] = interpValues
 
