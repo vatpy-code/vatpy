@@ -48,7 +48,8 @@ class TerminalPlot:
     '''
     def __init__(self, file, style=configv.mplstyle, path='./vplots',
                  name=None, format='png', vmin=None, vmax=None, xlim=None,
-                 ylim=None, ulengthselect=configv.unit_for_length, show=True):
+                 ylim=None, ulengthselect=configv.unit_for_length, show=True,
+                 noxylabels=False, noxyticks=False):
 
         print(f'  * Setting up an environment to analyse {file}')
 
@@ -60,6 +61,8 @@ class TerminalPlot:
         self.vmin, self.vmax = vmin, vmax
         self.xlim, self.ylim = xlim, ylim
         self.show = show
+        self.noxylabels = noxylabels
+        self.noxyticks = noxyticks
 
         # Mpl style:
         self.style = style
@@ -104,14 +107,14 @@ class TerminalPlot:
 
         return xrange, yrange, zrange
 
-    def do_rotation(self, boxsize, axis, rotate, pos, bhfocus):
+    def do_rotation(self, boxsize, axis, rotate, pos, boxcenter, bhfocus):
         '''
         Description: Function to rotate the position of particles.
         '''
         # If applicable, rotate the position of particles:
         if rotate != 0:
             rotation = Rotation.from_euler(axis, rotate, degrees=True)
-            if bhfocus:
+            if boxcenter or bhfocus:
                 pos = rotation.apply(pos)
             else:
                 pos = rotation.apply(pos - boxsize/2)
@@ -231,8 +234,9 @@ class TerminalPlot:
     ##########################################################################
     ##########################################################################
     def density(self, axis='z', rotate=0, quantity='mass', bins=100,
-                interpolation='kdtree', bhfocus=False, funcname='dens',
-                xrange=None, yrange=None, zrange=None, box=None, cut=None):
+                interpolation='kdtree', boxcenter=False, bhfocus=False,
+                bhshow=False, funcname='dens', xrange=None, yrange=None,
+                zrange=None, box=None, cut=None):
         '''Function to generate a column density map of the gas surface
         density, with the possibility to also show the column density of
         various chemical species, such as HI, HII, and H2. This is achieved by
@@ -255,11 +259,17 @@ class TerminalPlot:
 
         print('  * Generating a gas surface density map')
 
+        # Parameters related to black hole(s):
+        if bhfocus or bhshow:
+            bh = h['PartType5']['Coordinates'] * iu['ulength'] / self.ulength
+
+        # Centre the data on the middle point in the box:
+        if boxcenter:
+            pos -= (boxsize / 2)
+
         # Centre the data on the black hole:
         if bhfocus:
-            bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
-                  / self.ulength)
-            pos -= bh
+            pos -= bh[0]
 
         # Coordinate ranges:
         xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
@@ -274,7 +284,7 @@ class TerminalPlot:
 
         # Rotation of particle positions:
         pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
-                               pos=pos, bhfocus=bhfocus)
+                               pos=pos, boxcenter=boxcenter, bhfocus=bhfocus)
 
         # Interpolation:
         if interpolation == 'kdtree':
@@ -288,25 +298,47 @@ class TerminalPlot:
                                            xrange=xrange, yrange=yrange,
                                            zrange=zrange, cut=cut)
 
-        # Plot:
+        # Figure:
         fig, ax = plt.subplots(figsize=(8, 6.4))
         fig.subplots_adjust(left=0.18, right=0.82, bottom=0.14, top=0.94,
                             wspace=0, hspace=0)
 
+        # Gas column density:
         im = ax.imshow(np.log10(interpDens), vmin=self.vmin, vmax=self.vmax,
                        extent=(xrange[0], xrange[1], yrange[0], yrange[1]),
                        origin='lower', cmap=configv.cmap['gas'])
+
+        # Options for BH:
         if bhfocus:
-            ax.scatter(0, 0, s=40, c='k')
+            ax.scatter(0, 0, s=40, c='k', marker='o')
+        if bhshow and not bhfocus:
+            if boxcenter:
+                bh -= (boxsize / 2)
+            bh = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                                  pos=bh, boxcenter=boxcenter,
+                                  bhfocus=bhfocus)
+            ax.scatter(bh[:, 0], bh[:, 1], s=40, c='k', marker='o')
+
+        # Infos:
         ax.text(0.95, 0.05, f'{time:.2f} Myr', color='k',
                 ha='right', va='bottom', transform=ax.transAxes,
                 bbox={'facecolor': 'white', 'edgecolor': 'none',
                       'boxstyle': 'round', 'alpha': 0.5})
+
+        # Plot options:
         ax.set_aspect('equal')
-        ax.set_xlabel(f'$x$ [{self.ulengthselect}]')
-        ax.set_ylabel(f'$y$ [{self.ulengthselect}]')
+        if not self.noxylabels:
+            ax.set_xlabel(f'$x$ [{self.ulengthselect}]')
+            ax.set_ylabel(f'$y$ [{self.ulengthselect}]')
         ax.set_xlim(self.xlim)
         ax.set_ylim(self.ylim)
+        if self.noxyticks:
+            ax.set_xticks([])
+            ax.set_yticks([])
+            xtext = int(ax.get_xlim()[1] - ax.get_xlim()[0])
+            ytext = int(ax.get_ylim()[1] - ax.get_ylim()[0])
+            ax.text(0, 1, f'{xtext}x{ytext} {self.ulengthselect}', color='k',
+                    ha='left', va='bottom', transform=ax.transAxes)
 
         # Colorbar:
         if not cut:
@@ -331,7 +363,6 @@ class TerminalPlot:
             'mass': (r'$\log_{10}(\Sigma_\mathrm{Gas}$'
                      r' $[\mathrm{g} \ \mathrm{cm}^{-%d}])$' % dim)
         }
-
         div = make_axes_locatable(ax)
         cax = div.append_axes('right', size='5%', pad=0)
         fig.colorbar(im, cax=cax, label=cbar_label[quantity])
