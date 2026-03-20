@@ -1,5 +1,5 @@
 '''
-Description:
+Description: TODO
 Authour(s): Jonathan Petersson
 Last updated: 2024-11-12
 '''
@@ -28,7 +28,8 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
         'MdotEdd': [],
         'MdotSink': [],
         'AngMom': [],
-        'CircRadius': []
+        'CircRadius': [],
+        'PhotoIonRate': []
     }
 
     # Simple flag for when we use a varibale circ. radius:
@@ -61,11 +62,13 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
                                              * iu['umass'] / const['Msol'])
         black_hole_data['MassSink'].append(dump['Mass'][0] * iu['umass']
                                            / const['Msol'])
-        if vcr == True:
+        if vcr is True:
             black_hole_data['AngMom'].append(dump['AngularMomentum'][0]
                                              * iu['uangmom'])
             black_hole_data['CircRadius'].append(dump['BlackHoleCircRadius'][0]
                                                  * iu['ulength'] / const['pc'])
+        if rad is True:
+            black_hole_data['PhotoIonRate'].append(dump['PhotoIonRate'][0])
 
     # Accretion rates:
     dt = (np.array(black_hole_data['Time'])[1:]
@@ -85,7 +88,8 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
                      + np.array(black_hole_data['MassBH'])[1:]) / 2)
     limit_Edd = (4 * np.pi * const['G'] * mean_bh_mass * const['Msol'] *
                  const['mp']) / (0.1 * const['thom'] * const['c'])
-    black_hole_data['MdotEdd'] = list(limit_Edd / (const['Msol'] / const['yr']))
+    mdot_Edd = limit_Edd / (const['Msol'] / const['yr'])
+    black_hole_data['MdotEdd'] = list(mdot_Edd)
 
     # Convert the data into arrays instead of lists:
     if convert_to_arrays is True:

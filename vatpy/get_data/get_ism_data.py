@@ -6,6 +6,7 @@
 # -------------- Required packages
 import numpy as np
 
+from ..read import read_hdf5
 from ..constants import const
 from ..get_gas_property import number_density, temperature, thermalpressure
 
@@ -95,12 +96,19 @@ def get_ism_data(h, iu, bin_edges_dens, bin_edges_temp, norm=False, Rcut=None):
     return ism_data
 
 
-def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, bins_abun,
-                           Rcut=None):
+def get_phase_diagram_data(output_dir, N, bins_dens, bins_temp, bins_pres=None,
+                           bins_abun=None, Rcut=None):
     '''TODO
     '''
-    # Directory of ISM phase data:
-    diagram_data = {}
+    # Snapshot selection:
+    snap = '000'[len(str(N)):] + str(N)
+    print(f'Reading data of snapshot {snap}', end='\r')
+
+    # Read HDF5 & binary dump file:
+    h, iu = read_hdf5(f'{output_dir}/snap_{snap}.hdf5')
+
+    # Data directory:
+    data = {}
 
     # Gas cell properties:
     boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
@@ -119,7 +127,7 @@ def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, bins_abun,
     mass_H = num_H * vol * const['mp'] / const['Msol']
     mass_H2 = num['H2'] * vol * 2 * const['mp'] / const['Msol']
 
-    # Gas temperature and abundances:
+    # Gas temperature:
     temp = temperature(h, iu)
 
     # Gas pressure:
@@ -132,41 +140,48 @@ def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, bins_abun,
     xHI = 1 - 2*xH2 - xHII
 
     if Rcut:
-        maskR = np.linalg.norm(pos - boxsize/2, axis=1) < Rcut
+        mask_radius = np.linalg.norm(pos - boxsize/2, axis=1) < Rcut
     else:
-        maskR = np.full(len(pos), True)
+        mask_radius = np.full(len(pos), True)
 
     # Temperature vs density:
-    H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
-                                       np.log10(temp[maskR]),
+    H, xedges, yedges = np.histogram2d(np.log10(num_H[mask_radius]),
+                                       np.log10(temp[mask_radius]),
                                        bins=(bins_dens, bins_temp),
-                                       weights=mass_H[maskR])
-
+                                       weights=mass_H[mask_radius])
     with np.errstate(divide='ignore'):
-        diagram_data['hist2d_T_vs_rho'] = np.log10(H.T)
-        diagram_data['hist2d_T_vs_rho_bin_xedges'] = xedges
-        diagram_data['hist2d_T_vs_rho_bin_yedges'] = yedges
+        data['hist2d_T_vs_rho'] = np.log10(H.T)
+        data['hist2d_T_vs_rho_bin_xedges'] = xedges
+        data['hist2d_T_vs_rho_bin_yedges'] = yedges
+        data['extent_T_vs_rho'] = [xedges[0], xedges[-1], yedges[0],
+                                   yedges[-1]]
 
     # Pressure vs density:
-    H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
-                                       np.log10(thermpres[maskR]),
-                                       bins=(bins_dens, bins_pres),
-                                       weights=mass_H[maskR])
-
-    with np.errstate(divide='ignore'):
-        diagram_data['hist2d_Ptherm_vs_rho'] = np.log10(H.T)
-        diagram_data['hist2d_Ptherm_vs_rho_bin_xedges'] = xedges
-        diagram_data['hist2d_Ptherm_vs_rho_bin_yedges'] = yedges
+    if bins_pres:
+        H, xedges, yedges = np.histogram2d(np.log10(num_H[mask_radius]),
+                                           np.log10(thermpres[mask_radius]),
+                                           bins=(bins_dens, bins_pres),
+                                           weights=mass_H[mask_radius])
+        with np.errstate(divide='ignore'):
+            data['hist2d_Ptherm_vs_rho'] = np.log10(H.T)
+            data['hist2d_Ptherm_vs_rho_bin_xedges'] = xedges
+            data['hist2d_Ptherm_vs_rho_bin_yedges'] = yedges
+            data['extent_Ptherm_vs_rho'] = [xedges[0], xedges[-1], yedges[0],
+                                            yedges[-1]]
 
     # Hydrogen abundance vs temperature:
-    H, xedges, yedges = np.histogram2d(np.log10(temp[maskR]), xHI[maskR],
-                                       bins=(bins_temp, bins_abun),
-                                       weights=mass_H[maskR])
-    with np.errstate(divide='ignore'):
-        diagram_data['hist2d_xHI_vs_T'] = np.log10(H.T)
-        diagram_data['hist2d_xHI_vs_T_bin_xedges'] = xedges
-        diagram_data['hist2d_xHI_vs_T_bin_yedges'] = yedges
+    if bins_abun:
+        H, xedges, yedges = np.histogram2d(np.log10(temp[mask_radius]),
+                                           xHI[mask_radius],
+                                           bins=(bins_temp, bins_abun),
+                                           weights=mass_H[mask_radius])
+        with np.errstate(divide='ignore'):
+            data['hist2d_xHI_vs_T'] = np.log10(H.T)
+            data['hist2d_xHI_vs_T_bin_xedges'] = xedges
+            data['hist2d_xHI_vs_T_bin_yedges'] = yedges
+            data['extent_xHI_vs_T'] = [xedges[0], xedges[-1], yedges[0],
+                                       yedges[-1]]
 
-    return diagram_data
+    return data
 
 # -------------- End of file
