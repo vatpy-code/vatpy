@@ -18,7 +18,8 @@ import configv
 def plot_noctua(start, end):
     '''TODO
     '''
-    plt.style.use(f'{configv.homedir}/vatpy/mpl/noctua.mplstyle')
+    plt.style.use(f'{configv.homedir}/vatpy/mpl/custom_to_filmmaker/' +
+                  'noctua.mplstyle')
 
     bins = 300
 

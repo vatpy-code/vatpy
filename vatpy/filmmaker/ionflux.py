@@ -21,7 +21,8 @@ import configv
 def plot_ionflux(start, end):
     '''TODO
     '''
-    plt.style.use(f'{configv.homedir}/vatpy/mpl/mosaic.mplstyle')
+    plt.style.use(f'{configv.homedir}/vatpy/mpl/custom_to_filmmaker/' +
+                  'mosaic.mplstyle')
 
     # Parameters:
     bins = 200
