@@ -34,6 +34,10 @@ from .get_data.get_black_hole_data import get_black_hole_data
 from .get_data.get_ism_data import get_ism_data
 from .get_data.get_ism_data import get_phase_diagram_data
 
+# Get star formation data:
+from .get_data.get_star_formation_data import get_star_formation_data
+from .get_data.get_star_formation_data import get_star_formation_data_simple
+
 # Get surface density data:
 from .get_data.get_surface_density_data import get_surface_density_data
 

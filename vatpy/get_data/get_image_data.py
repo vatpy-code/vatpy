@@ -74,6 +74,16 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         if xraybins >= 4:
             photonflux['FXRAY2'] = flux[:, 7] / vol
             photonflux['FXRAY3'] = flux[:, 8] / vol
+        energyflux = (5.6 * flux[:, 0] + 11.2 * flux[:, 1] +
+                      13.6 * flux[:, 2] + 15.2 * flux[:, 3] +
+                      24.6 * flux[:, 4])
+        if xraybins >= 4:
+            xray_energy_bins = np.logspace(2, 4, 5)
+            energyflux += (xray_energy_bins[0] * flux[:, 5] +
+                           xray_energy_bins[1] * flux[:, 6] +
+                           xray_energy_bins[2] * flux[:, 7] +
+                           xray_energy_bins[3] * flux[:, 8])
+        photonflux['FENERGY'] = energyflux / vol
 
     if blackholefocus:
         bh = (h['PartType5']['Coordinates'][0] * iu['ulength'] / ulength)

@@ -137,8 +137,12 @@ parser.add_argument('-cut', '--cut', action='store', default=None, type=float,
                     Cut in the gas surface density / temperature map
                     [coordinate in z] (default: none)
                     ''')
+parser.add_argument('-bc', '--boxcenter', action='store_true', default=False,
+                    help='Centre the data on middle point of the box')
 parser.add_argument('-bf', '--bhfocus', action='store_true', default=False,
                     help='Centre the data on the BH')
+parser.add_argument('-bs', '--bhshow', action='store_true', default=False,
+                    help='Show the position(s) of the BH(s)')
 parser.add_argument('-age', '--maxstellarage', action='store', default=100,
                     type=float, help='''
                     Maximum stellar age of newly formed star particles
@@ -160,6 +164,11 @@ parser.add_argument('-movie', '--movie', action='store', default=None,
                     type=str, help='''
                     Generate a movie up to the given snapshot
                     ''')
+parser.add_argument('-noxylabels', '--noxylabels', action='store_true',
+                    default=False, help='Turn off X/Y labels')
+parser.add_argument('-noxyticks', '--noxyticks', action='store_true',
+                    default=False, help='Turn off X/Y ticks, and include' +
+                    ' an information text above the figure instead')
 
 # -------------- General arguments
 parser.add_argument('-path', '--path', action='store',
@@ -243,14 +252,16 @@ for snap in snapshots_to_read:
                          name=name, format=args.format,
                          vmin=args.vmin, vmax=args.vmax,
                          xlim=args.xlim, ylim=args.ylim,
-                         ulengthselect=args.ulength, show=show)
+                         ulengthselect=args.ulength, show=show,
+                         noxylabels=args.noxylabels, noxyticks=args.noxyticks)
 
     if args.information:
         v.info()
 
     if args.density:
         v.density(axis=args.axis, rotate=args.rotate, quantity=args.quantity,
-                  bins=args.bins, bhfocus=args.bhfocus, xrange=args.xrange,
+                  bins=args.bins, boxcenter=args.boxcenter,
+                  bhfocus=args.bhfocus, bhshow=args.bhshow, xrange=args.xrange,
                   yrange=args.yrange, zrange=args.zrange, box=args.box,
                   cut=args.cut)
 
