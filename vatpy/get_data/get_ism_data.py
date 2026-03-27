@@ -144,27 +144,53 @@ def get_phase_diagram_data(h, iu, bins_dens, bins_temp, bins_pres, Rcut=None,
                                                 np.linspace(T_range[0],
                                                             T_range[1], bins_temp)],
                                            weights=mass_H[maskR])
+        
+        H_2, xedges_2, yedges_2 = np.histogram2d(np.log10(num_H[maskR]),
+                                           np.log10(temp[maskR]),
+                                           bins=[np.linspace(n_range[0],
+                                                             n_range[1], bins_dens),
+                                                np.linspace(T_range[0],
+                                                            T_range[1], bins_temp)],
+                                           weights=mass_H2[maskR])
     else:
         H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
                                            np.log10(temp[maskR]),
                                            bins=(bins_dens, bins_temp),
                                            weights=mass_H[maskR])
+        
+        H_2, xedges_2, yedges_2 = np.histogram2d(np.log10(num_H[maskR]),
+                                           np.log10(temp[maskR]),
+                                           bins=(bins_dens, bins_temp),
+                                           weights=mass_H2[maskR])
 
     with np.errstate(divide='ignore'):
         diagram_data['hist2d_T_vs_rho'] = np.log10(H.T)
         diagram_data['hist2d_T_vs_rho_bin_xedges'] = xedges
         diagram_data['hist2d_T_vs_rho_bin_yedges'] = yedges
 
+        diagram_data['hist2d_T_vs_rho_H2'] = np.log10(H_2.T)
+        diagram_data['hist2d_T_vs_rho_bin_xedges_H2'] = xedges_2
+        diagram_data['hist2d_T_vs_rho_bin_yedges_H2'] = yedges_2
+
     # Pressure vs density:
     H, xedges, yedges = np.histogram2d(np.log10(num_H[maskR]),
                                        np.log10(thermpres[maskR]),
                                        bins=(bins_dens, bins_pres),
                                        weights=mass_H[maskR])
+    
+    H_2, xedges_2, yedges_2 = np.histogram2d(np.log10(num_H[maskR]),
+                                       np.log10(thermpres[maskR]),
+                                       bins=(bins_dens, bins_pres),
+                                       weights=mass_H2[maskR])
 
     with np.errstate(divide='ignore'):
         diagram_data['hist2d_Ptherm_vs_rho'] = np.log10(H.T)
         diagram_data['hist2d_Ptherm_vs_rho_bin_xedges'] = xedges
         diagram_data['hist2d_Ptherm_vs_rho_bin_yedges'] = yedges
+
+        diagram_data['hist2d_Ptherm_vs_rho_H2'] = np.log10(H_2.T)
+        diagram_data['hist2d_Ptherm_vs_rho_bin_xedges_H2'] = xedges_2
+        diagram_data['hist2d_Ptherm_vs_rho_bin_yedges_H2'] = yedges_2
 
     return diagram_data
 

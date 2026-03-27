@@ -4,6 +4,7 @@ from .terminal_plot import TerminalPlot
 # Functions to read different types of data files:
 from .read import read_hdf5
 from .read import read_dump
+from .read import read_sne
 
 # Useful constants:
 from .constants import const
