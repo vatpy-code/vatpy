@@ -5,6 +5,7 @@ Last updated: 2024-11-12
 '''
 
 # -------------- Required packages
+import os
 import numpy as np
 import pycstruct
 
@@ -95,6 +96,40 @@ def write_dump(filename, ic, feedback=False, spin=False, bh=False, hm=False,
     np.array([1], dtype=np.intc).tofile(f)
     f.write(buffer)
     f.close()
+
+    return None
+
+
+def write_datadict_to_file(datadict, name, path=os.getcwd()):
+    # Check if datadict directory exists:
+    vdata = path + '/vdata'
+    if not os.path.isdir(vdata):
+        os.mkdir(vdata)
+
+    # Check if file already exists:
+    w = 0
+    while os.path.isfile(f'{vdata}/{name}_{w}.txt'):
+        w += 1
+
+    wfile = f'{vdata}/{name}_{w}.txt'
+    with open(wfile, 'w') as f:
+        for key in datadict.keys():
+            datadictset = datadict[key]
+
+            # Check if data is an array, if not, convert it:
+            if not isinstance(datadictset, np.ndarray):
+                datadictset = np.array(datadictset)
+
+            if datadictset.ndim > 1:
+                f.write(f'# DATASET/{key}\n')
+                for dim in range(0, len(datadictset)):
+                    f.write(f'# DIM/{dim}\n')
+                    for item in datadictset[dim]:
+                        f.write(f'{item}\n')
+            else:
+                f.write(f'# DATASET/{key}\n')
+                for item in datadictset:
+                    f.write(f'{item}\n')
 
     return None
 

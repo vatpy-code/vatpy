@@ -5,6 +5,7 @@ Last updated: 2023-09-27
 '''
 
 # -------------- Required packages
+import os
 import numpy as np
 import h5py
 import pycstruct
@@ -142,5 +143,29 @@ def read_dump(file, feedback=False, spin=False, bh=False, hm=False,
     f.close()
 
     return time, NSinksAllTasks, sinks
+
+
+def read_datadict_from_file(name, version, path=os.getcwd()):
+    # Empty dict:
+    data = {}
+
+    with open(f'{path}/vdata/{name}_{version}.txt', 'r') as file:
+        for line in file:
+            if line.startswith('# DATASET/'):
+                key = line[10:-1]
+                data[key] = []
+                dim = -1
+                print(f'Detected a new dataset: {key}')
+            elif line.startswith('# DIM/'):
+                data[key].append([])
+                dim += 1
+                print(f'Detected a new dimension in dataset: {key}')
+            else:
+                if dim > -1:
+                    data[key][dim].append(float(line))
+                else:
+                    data[key].append(float(line))
+
+    return data
 
 # -------------- End of file

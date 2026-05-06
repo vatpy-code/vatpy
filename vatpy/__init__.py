@@ -4,6 +4,7 @@ from .terminal_plot import TerminalPlot
 # Functions to read different types of data files:
 from .read import read_hdf5
 from .read import read_dump
+from .read import read_datadict_from_file
 
 # Useful constants:
 from .constants import const
@@ -33,6 +34,7 @@ from .get_data.get_black_hole_data import get_black_hole_data
 # Get ISM data:
 from .get_data.get_ism_data import get_ism_data
 from .get_data.get_ism_data import get_phase_diagram_data
+from .get_data.get_ism_data import get_chem_evolve_data
 
 # Get star formation data:
 from .get_data.get_star_formation_data import get_star_formation_data
@@ -49,6 +51,7 @@ from .ic_conversion import convert_pNbody_IC_to_Arepo
 
 # Function to write sink particle dump file:
 from .write import write_dump
+from .write import write_datadict_to_file
 
 # IC4A module:
 from .IC4A.collapsing_cloud import CollapsingCloud
