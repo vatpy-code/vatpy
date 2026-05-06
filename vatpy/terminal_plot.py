@@ -107,7 +107,8 @@ class TerminalPlot:
 
         return xrange, yrange, zrange
 
-    def do_rotation(self, boxsize, axis, rotate, pos, boxcenter, bhfocus):
+    def do_rotation(self, boxsize, axis, rotate, pos, boxcenter=False,
+                    bhfocus=False):
         '''
         Description: Function to rotate the position of particles.
         '''
@@ -1018,10 +1019,14 @@ class TerminalPlot:
                      + r' $[\mathrm{g} \ \mathrm{cm}^{-2}])$')
 
         time_diff = np.abs(time - time_stars[mask])
-        im_sa = ax.scatter(pos_stars[:, 0][mask], pos_stars[:, 1][mask],
-                           c=time_diff, s=10, marker='.', vmin=0,
-                           vmax=np.min([age, np.max(time_diff)]),
-                           cmap=configv.cmap['stellarage'])
+        if len(pos_stars[mask]) > 0:
+            im_sa = ax.scatter(pos_stars[:, 0][mask], pos_stars[:, 1][mask],
+                               c=time_diff, s=10, marker='.', vmin=0,
+                               vmax=age, cmap=configv.cmap['stellarage'])
+        else:
+            im_sa = mpl.cm.ScalarMappable(
+                norm=mpl.colors.Normalize(vmin=0, vmax=age),
+                cmap=configv.cmap['stellarage'])
         cax = ax.inset_axes([0.02, 0.94, 0.7, 0.04])
         cb = fig.colorbar(im_sa, cax=cax, orientation='horizontal',
                           location='bottom')

@@ -2,7 +2,7 @@
 #              of different chemical species, as well as gas temperature &
 #              thermal pressure.
 # Authour(s): Jonathan Petersson
-# Last updated: 2025-09-10
+# Last updated: 2026-04-30
 
 
 # -------------- Required packages
@@ -74,8 +74,8 @@ def thermalpressure(h, iu):
     # Thermal pressure:
     gamma = 5 / 3
     cs2 = gamma * (gamma - 1) * interg
-    Ptherm = cs2 / gamma * rho
+    ptherm = cs2 / gamma * rho
 
-    return Ptherm
+    return ptherm
 
 # -------------- End of file

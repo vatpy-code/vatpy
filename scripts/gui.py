@@ -12,8 +12,8 @@ from PIL import Image, ImageTk
 from vatpy import get_gas_density_image, get_gas_temperature_image
 
 # -------------- Configuration
-import config_vatpy
-homedir = config_vatpy.homedir
+import configv
+homedir = configv.homedir
 
 # -------------- Define functions
 def thread_func():
