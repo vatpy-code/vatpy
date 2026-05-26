@@ -33,6 +33,7 @@ from .get_data.get_black_hole_data import get_black_hole_data
 
 # Get ISM data:
 from .get_data.get_ism_data import get_ism_data
+from .get_data.get_ism_data import get_ism_time_integrated_data
 from .get_data.get_ism_data import get_phase_diagram_data
 from .get_data.get_ism_data import get_chem_evolve_data
 

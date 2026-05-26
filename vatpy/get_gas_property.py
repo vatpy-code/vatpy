@@ -39,6 +39,9 @@ def number_density(h, iu):
     # num['n'] = np.sum(np.array(list(num.values())), axis=0)
     num['n'] = num['HI'] + num['HII'] + num['e'] + num['H2'] + num['He']
 
+    # Hydrogen number density:
+    num['H'] = num['HI'] + num['HII'] + 2 * num['H2']
+
     return num
 
 

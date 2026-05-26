@@ -29,6 +29,7 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
         'MdotSink': [],
         'AngMom': [],
         'CircRadius': [],
+        'DiskSpin': [],
         'PhotoIonRate': []
     }
 
@@ -67,6 +68,9 @@ def get_black_hole_data(output_dir, n, N, spin=False, hm=False, rcirc=False,
                                              * iu['uangmom'])
             black_hole_data['CircRadius'].append(dump['BlackHoleCircRadius'][0]
                                                  * iu['ulength'] / const['pc'])
+        if sgs is True:
+            black_hole_data['DiskSpin'].append(dump['BlackHoleDiskSpin'][0]
+                                               * iu['uangmomspecific'])
         if rad is True:
             black_hole_data['PhotoIonRate'].append(dump['PhotoIonRate'][0])
 
