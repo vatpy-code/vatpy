@@ -9,11 +9,13 @@ Last updated: 2026-03-17
 import numpy as np
 
 from ..read import read_hdf5
+from ..write import write_datadict_to_file
 from ..constants import const
 
 
 # -------------- Declare function(s)
-def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
+def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None,
+                            origin_at_bh=False, write=False, name=None):
     data = {}
 
     time_list = []
@@ -39,10 +41,17 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
         time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
         boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / const['kpc']
 
+        # Data origin:
+        if origin_at_bh is True:
+            origin = (h['PartType5']['Coordinates'][0] * iu['ulength'] /
+                      const['kpc'])
+        else:
+            origin = boxsize / 2
+
         # Counter:
         if i == n:
             # counter = time
-            data['Time0'] = time
+            data['Time0'] = [time]
 
         # Stellar component:
         N2 = np.sum(h['Header'].attrs['NumPart_Total'][2])
@@ -72,8 +81,7 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
         # Stellar half-mass radius:
         if H is not None:
             if (N2 + N3 + N4) > 0:
-                radius_stellar = np.linalg.norm(pos_stellar - boxsize / 2,
-                                                axis=1)
+                radius_stellar = np.linalg.norm(pos_stellar - origin, axis=1)
                 tsm_sorted = mass_stellar[np.argsort(radius_stellar)]
                 csm = np.cumsum(tsm_sorted)
                 tsr_sorted = radius_stellar[np.argsort(radius_stellar)]
@@ -92,9 +100,9 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
         # Within radial bins:
         if rbins is not None:
             for j in range(0, len(rbins)):
-                mask_radius_gas = (np.linalg.norm(pos_gas - boxsize/2, axis=1)
-                                   < rbins[j])
-                mask_radius_stellar = (np.linalg.norm(pos_stellar - boxsize/2,
+                mask_radius_gas = (np.linalg.norm(pos_gas - origin, axis=1) <
+                                   rbins[j])
+                mask_radius_stellar = (np.linalg.norm(pos_stellar - origin,
                                                       axis=1) < rbins[j])
 
                 if len(mass_gas[mask_radius_gas] > 0):
@@ -113,10 +121,9 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
 
         # Within H times the half mass radius:
         if H is not None:
-            mask_radius_gas = (np.linalg.norm(pos_gas - boxsize/2, axis=1)
+            mask_radius_gas = (np.linalg.norm(pos_gas - origin, axis=1)
                                < (H * halfmassradius))
-            mask_radius_stellar = (np.linalg.norm(pos_stellar - boxsize/2,
-                                                  axis=1)
+            mask_radius_stellar = (np.linalg.norm(pos_stellar - origin, axis=1)
                                    < (H * halfmassradius))
 
             if len(mass_gas[mask_radius_gas] > 0):
@@ -150,8 +157,8 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
 
             if rbins is not None:
                 for j in range(0, len(rbins)):
-                    mask_radius = (np.linalg.norm(pos_stars - boxsize/2,
-                                                  axis=1) < rbins[j])
+                    mask_radius = (np.linalg.norm(pos_stars - origin, axis=1) <
+                                   rbins[j])
                     if len(birthtime[mask_newstars * mask_radius] > 0):
                         [birthtime_list[j].append(k) for k in
                          birthtime[mask_newstars * mask_radius]]
@@ -159,7 +166,7 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
                          birthmass[mask_newstars * mask_radius]]
 
             if H is not None:
-                mask_radius = (np.linalg.norm(pos_stars - boxsize/2, axis=1) <
+                mask_radius = (np.linalg.norm(pos_stars - origin, axis=1) <
                                (H * halfmassradius))
                 if len(birthtime[mask_newstars * mask_radius] > 0):
                     [birthtime_list.append(j) for j in
@@ -180,7 +187,7 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
                                             weights=birthmass_list[i])
             bin_mids = (bin_edges[:-1] + bin_edges[1:]) / 2
             SFR_list.append(H_sfr / (dt * 1e6))
-            CSF_list.append(np.cumsum(H_sfr[bin_mids > data['Time0']]))
+            CSF_list.append(np.cumsum(H_sfr[bin_mids > data['Time0'][0]]))
         data['SFR'] = SFR_list
         data['CSF'] = CSF_list
     else:
@@ -217,6 +224,10 @@ def get_star_formation_data(output_dir, n, N, dt, H=None, rbins=None):
                                             weights=halfmassradius_list)[0] /
                                np.histogram(time_list, bins=bins_time)[0])
         data['HalfMassRadius'] = halfmassradius_mean
+
+    # Write data to txt file:
+    if write is True:
+        write_datadict_to_file(data, name=name)
 
     return data
 

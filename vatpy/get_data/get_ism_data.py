@@ -97,6 +97,87 @@ def get_ism_data(h, iu, bin_edges_dens, bin_edges_temp, norm=False, Rcut=None):
     return ism_data
 
 
+def get_ism_time_integrated_data(output_dir, n, N, bin_edges_dens,
+                                 bin_edges_temp, Rcut=None, norm=False,
+                                 write=False, name=None):
+    data = {}
+
+    hist_dens_list = []
+    hist_temp_list = []
+    for i in range(n, N+1):
+        # Snapshot selection:
+        snap = '000'[len(str(i)):] + str(i)
+        print(f'Reading data of snapshot {snap}', end='\r')
+
+        # Read HDF5 file:
+        h, iu = read_hdf5(f'{output_dir}/snap_{snap}.hdf5')
+        pos = h['PartType0']['Coordinates'] * iu['ulength'] / const['kpc']
+        mass = h['PartType0']['Masses'] * iu['umass'] / const['Msol']
+        bh = h['PartType5']['Coordinates'][0] * iu['ulength'] / const['kpc']
+
+        # Centre the data on the BH:
+        pos -= bh
+
+        # Get number densities:
+        num = number_density(h, iu)
+
+        # Number density of H:
+        num_H = num['HI'] + num['HII'] + 2 * num['H2']
+
+        # Gas temperature and abundances:
+        temp = temperature(h, iu)
+
+        # Radius cut:
+        if Rcut:
+            maskR = np.linalg.norm(pos, axis=1) < Rcut
+        else:
+            maskR = np.full(len(pos), True)
+
+        # Mass-weighted PDFs:
+        hist_dens = np.histogram(np.log10(num_H[maskR]), bins=bin_edges_dens,
+                                 weights=mass[maskR])[0]
+        hist_temp = np.histogram(np.log10(temp[maskR]), bins=bin_edges_temp,
+                                 weights=mass[maskR])[0]
+        if norm is True:
+            bin_widths_dens = bin_edges_dens[1:] - bin_edges_dens[:-1]
+            bin_widths_temp = bin_edges_temp[1:] - bin_edges_temp[:-1]
+            hist_dens = hist_dens / (np.sum(hist_dens) * bin_widths_dens)
+            hist_temp = hist_temp / (np.sum(hist_temp) * bin_widths_temp)
+
+        hist_dens_list.append(hist_dens)
+        hist_temp_list.append(hist_temp)
+
+    # Assign data:
+    data['hist_dens_mean'] = np.mean(np.array(hist_dens_list), axis=0)
+    data['hist_temp_mean'] = np.mean(np.array(hist_temp_list), axis=0)
+
+    data['hist_dens_std'] = np.std(np.array(hist_dens_list), axis=0)
+    data['hist_temp_std'] = np.std(np.array(hist_temp_list), axis=0)
+
+    data['hist_dens_median'] = np.median(np.array(hist_dens_list), axis=0)
+    data['hist_temp_median'] = np.median(np.array(hist_temp_list), axis=0)
+
+    data['hist_dens_10th'] = np.percentile(
+                                np.array(hist_dens_list), q=10, axis=0)
+    data['hist_dens_90th'] = np.percentile(
+                                np.array(hist_dens_list), q=90, axis=0)
+    data['hist_temp_10th'] = np.percentile(
+                                np.array(hist_temp_list), q=10, axis=0)
+    data['hist_temp_90th'] = np.percentile(
+                                np.array(hist_temp_list), q=90, axis=0)
+
+    data['bin_edges_dens'] = bin_edges_dens
+    data['bin_edges_temp'] = bin_edges_temp
+    data['bin_mids_dens'] = (bin_edges_dens[:-1] + bin_edges_dens[1:]) / 2
+    data['bin_mids_temp'] = (bin_edges_temp[:-1] + bin_edges_temp[1:]) / 2
+
+    # Write data to txt file:
+    if write is True:
+        write_datadict_to_file(data, name=name)
+
+    return data
+
+
 def get_phase_diagram_data(output_dir, N, bins_dens, bins_temp, bins_pres=None,
                            bins_abun=None, Rcut=None, colorcode='H'):
     '''TODO

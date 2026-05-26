@@ -37,6 +37,7 @@ def read_hdf5(file):
     uaccel = uvel/utime
     uinterg = uvel**2
     uangmom = ulength * uvel * umass
+    uangmomspecific = uangmom / umass
     umagfield = ulength**(-1/2) * umass**(1/2) * utime**(-1)
     iu = {
         'ulength': ulength,
@@ -47,6 +48,7 @@ def read_hdf5(file):
         'uaccel': uaccel,
         'uinterg': uinterg,
         'uangmom': uangmom,
+        'uangmomspecific': uangmomspecific,
         'umagfield': umagfield
     }
 
