@@ -73,6 +73,9 @@ class FilmMaker:
             elif self.film == 'mosaic':
                 from .mosaic import plot_mosaic
                 plot_mosaic(snap_start, snap_end)
+            elif self.film == 'mosaicrad':
+                from .mosaicrad import plot_mosaicrad
+                plot_mosaicrad(snap_start, snap_end)
             elif self.film == 'zoom':
                 from .zoom import plot_zoom
                 plot_zoom(snap_start, snap_end)

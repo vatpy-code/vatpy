@@ -65,7 +65,7 @@ def get_image_data(file, axis='z', rotate=0, quantity=['mass'], bins=100,
         photonflux['F136'] = flux[:, 2] / vol
         photonflux['F152'] = flux[:, 3] / vol
         photonflux['F246'] = flux[:, 4] / vol
-        photonflux['FUVTOT'] = np.sum(flux[:, :4], axis=1) / vol
+        photonflux['FUVTOT'] = np.sum(flux[:, :5], axis=1) / vol
         if xraybins >= 1:
             photonflux['FXRAY0'] = flux[:, 5] / vol
             photonflux['FXRAYTOT'] = np.sum(flux[:, 5:], axis=1) / vol

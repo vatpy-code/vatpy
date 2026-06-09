@@ -12,7 +12,8 @@ from vatpy import FilmMaker
 
 
 # -------------- Run script
-avail_films = ['noctua', 'mosaic', 'zoom', 'ionflux', 'ionrate', 'ionfluxhuv']
+avail_films = ['noctua', 'mosaic', 'mosaicrad', 'zoom', 'ionflux',
+               'ionfluxhuv', 'ionrate']
 avail_films_single_snapshot = ['deepdive']
 
 if sys.argv[1] in avail_films:
