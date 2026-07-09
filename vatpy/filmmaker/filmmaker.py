@@ -11,9 +11,13 @@ import os
 class FilmMaker:
     '''TODO
     '''
-    def __init__(self, film):
+    def __init__(self, film, framedir=None):
         # Variables:
         self.film = film
+        if framedir is not None:
+            self.framedir = framedir
+        else:
+            self.framedir = os.getcwd() + '/vframes'
 
         print('\nWelcome to Vatpy FilmMaker')
         print(f'  * Selected film: {self.film}')
@@ -27,12 +31,12 @@ class FilmMaker:
         snap_start_init = snap_start
 
         # Check if vframes directory exists:
-        if os.path.isdir('./vframes'):
+        if os.path.isdir(self.framedir):
             # Check if film directory exists:
-            if os.path.isdir(f'./vframes/{self.film}'):
+            if os.path.isdir(f'{self.framedir}/{self.film}'):
                 # Check how many frames already have been generated:
                 fnr = '000'[:3-len(str(snap_start))] + str(snap_start)
-                while os.path.isfile(f'./vframes/{self.film}/' +
+                while os.path.isfile(f'{self.framedir}/{self.film}/' +
                                      f'{self.film}_{fnr}.png'):
                     if snap_start == snap_end:
                         print('  * All frames already generated!')
@@ -44,10 +48,10 @@ class FilmMaker:
                       f'{int(snap_start - snap_start_init)} ' +
                       'already generated frames!')
             else:
-                os.system(f'mkdir ./vframes/{self.film}')
+                os.system(f'mkdir {self.framedir}/{self.film}')
         else:
-            os.system('mkdir ./vframes')
-            os.system(f'mkdir ./vframes/{self.film}')
+            os.system(f'mkdir {self.framedir}')
+            os.system(f'mkdir {self.framedir}/{self.film}')
 
         return snap_start, snap_end
 
@@ -75,7 +79,7 @@ class FilmMaker:
                 plot_mosaic(snap_start, snap_end)
             elif self.film == 'mosaicrad':
                 from .mosaicrad import plot_mosaicrad
-                plot_mosaicrad(snap_start, snap_end)
+                plot_mosaicrad(snap_start, snap_end, self.framedir)
             elif self.film == 'zoom':
                 from .zoom import plot_zoom
                 plot_zoom(snap_start, snap_end)
@@ -145,14 +149,14 @@ class FilmMaker:
         f = os.system(f'ffmpeg -r {fps} -f image2 -y' +
                       f' -s {res_width}x{res_height}' +
                       f' -start_number {start}' +
-                      f' -i {os.getcwd()}/vframes/{self.film}/' +
+                      f' -i {self.framedir}/{self.film}/' +
                       f'{self.film}_%03d.png' +
                       f' -vframes {vframes}' +
                       ' -vcodec libx264' +
                       ' -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2:color=white"' +
                       ' -crf 25' +
                       ' -pix_fmt yuv420p' +
-                      f' {os.getcwd()}/{self.film}.mp4' +
+                      f' {self.framedir}/{self.film}.mp4' +
                       ' > ffmpeg.out 2> ffmpeg.err')
         if f == 0:
             print('  * Film generated successfully!')

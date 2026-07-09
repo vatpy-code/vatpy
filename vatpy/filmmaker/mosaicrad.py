@@ -15,7 +15,7 @@ import configv
 
 
 # -------------- Declare function(s)
-def plot_mosaicrad(start, end):
+def plot_mosaicrad(start, end, framedir):
     '''TODO
     '''
     plt.style.use(f'{configv.homedir}/vatpy/mpl/custom_to_filmmaker/' +
@@ -494,7 +494,7 @@ def plot_mosaicrad(start, end):
         ax[0, 5].text(1, 1, f'{time:.2f} Myr', fontsize=12, color='k',
                       ha='right', va='bottom', transform=ax[0, 5].transAxes)
 
-        fig.savefig(f'./vframes/mosaicrad/mosaicrad_{snap}.png')
+        fig.savefig(f'{framedir}/mosaicrad/mosaicrad_{snap}.png')
         plt.close()
 
     return None

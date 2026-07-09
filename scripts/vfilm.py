@@ -21,7 +21,11 @@ if sys.argv[1] in avail_films:
     snap_min = int(sys.argv[2])
     snap_max = int(sys.argv[3])
     snap_range = (snap_min, snap_max)
-    fm = FilmMaker(film=film)
+    if len(sys.argv) > 4:
+        framedir = str(sys.argv[4])
+    else:
+        framedir = None
+    fm = FilmMaker(film=film, framedir=framedir)
     fm.generate(snap_range=snap_range)
 elif sys.argv[1] in avail_films_single_snapshot:
     film = sys.argv[1]
