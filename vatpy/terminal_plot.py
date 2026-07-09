@@ -552,6 +552,56 @@ class TerminalPlot:
 
     ##########################################################################
     ##########################################################################
+    def isrfield(self, axis='z', rotate=0, bins=100, interpolation='kdtree',
+                 bhfocus=False, funcname='isrfield', xrange=None, yrange=None,
+                 zrange=None, box=None, cut=None):
+        '''TODO
+        '''
+        # Read the data:
+        print(f'  * Reading data of {self.file}')
+        h, iu = read_hdf5(file=self.file)
+        boxsize = h['Header'].attrs['BoxSize'] * iu['ulength'] / self.ulength
+        time = h['Header'].attrs['Time'] * iu['utime'] / const['Myr']
+        pos = h['PartType0']['Coordinates'] * iu['ulength'] / self.ulength
+        dens = h['PartType0']['Density'] * iu['udens']
+        flux = h['PartType0']['PhotonFlux'][:]
+        lwrad = flux[:, 1]
+
+        print('  * Generating a ISRF (density-weighted) map')
+
+        # Centre the data on the black hole:
+        if bhfocus:
+            bh = (h['PartType5']['Coordinates'][0] * iu['ulength']
+                  / self.ulength)
+            pos -= bh
+
+        # Coordinate ranges:
+        xrange, yrange, zrange = self.get_ranges(boxsize=boxsize, box=box,
+                                                 xrange=xrange, yrange=yrange,
+                                                 zrange=zrange,
+                                                 bhfocus=bhfocus)
+
+        # Rotation of particle positions:
+        pos = self.do_rotation(boxsize=boxsize, axis=axis, rotate=rotate,
+                               pos=pos, bhfocus=bhfocus)
+
+        # Interpolation:
+        if interpolation == 'kdtree':
+            interpBfield = interpolate_to_2d_kdtree(pos=pos, unit=self.ulength,
+                                                    values=bfield_tot,
+                                                    bins=bins, xrange=xrange,
+                                                    yrange=yrange,
+                                                    zrange=zrange, cut=cut,
+                                                    weights=dens)
+        else:
+            interpBfield = interpolate_to_2d(pos=pos, unit=self.ulength,
+                                             values=bfield, bins=bins,
+                                             xrange=xrange, yrange=yrange,
+                                             zrange=zrange, cut=cut,
+                                             weights=dens)
+
+    ##########################################################################
+    ##########################################################################
     def resolution(self, bins=100, levels=5, smooth=0, funcname='resol'):
         '''
         Description: TODO
