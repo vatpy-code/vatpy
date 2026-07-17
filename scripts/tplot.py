@@ -150,6 +150,10 @@ parser.add_argument('-age', '--maxstellarage', action='store', default=100,
 parser.add_argument('-skip', '--skipsnapshots', action='store',
                     default=0, type=int,
                     help='Skip the first X snapshots when generating a movie')
+parser.add_argument('-compare', '--comparetosnapshot', action='store',
+                    default=None, nargs='+', type=str, help='''
+                    TBD
+                    ''')
 
 # -------------- Common arguments
 parser.add_argument('-vmin', '--vmin', action='store', default=None,
@@ -303,7 +307,8 @@ for snap in snapshots_to_read:
                       zrange=args.zrange, box=args.box, cut=args.cut)
 
     if args.starformationrate:
-        v.star_formation_rate()
+        v.star_formation_rate(
+            compare_to_snapshot=args.comparetosnapshot)
 
     if args.blackholeevolution:
         v.black_hole_evolution(vcr=args.variablecircradius)
