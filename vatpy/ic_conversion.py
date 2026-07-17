@@ -134,7 +134,7 @@ def convert_pNbody_IC_to_Arepo(source, dest, delstellardisc=False,
             if Zmin:
                 mask = np.abs(grid_pos[:,2]) >= Zmin
                 grid_pos = grid_pos[mask]
-            
+
             interp = NearestNDInterpolator(f['PartType1']['Coordinates'][:],
                                            f['PartType1']['Velocities'][:])
             grid_vel = interp(grid_pos)
